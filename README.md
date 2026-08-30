@@ -4,14 +4,34 @@ description: >-
   vendor-free, fully cross-platform, and 100% pure-Flutter
 cover: .gitbook/assets/Main Hero.png
 coverY: 0
+layout:
+  width: wide
+  cover:
+    visible: true
+    size: background
+    mask: none
+  title:
+    visible: true
+  description:
+    visible: true
+  tableOfContents:
+    visible: true
+  outline:
+    visible: false
+  pagination:
+    visible: true
+  metadata:
+    visible: false
+  tags:
+    visible: true
+  actions:
+    visible: false
 ---
 
 # flutter\_map
 
 {% hint style="success" %}
 ## Welcome to v8 🎉
-
-Less than a half of our users are using v8 & benefiting from heaps of major new features and fixes. Consider upgrading!&#x20;
 
 * If you're upgrading, find out [new-in-v8.md](getting-started/new-in-v8.md "mention")
 * If you're new here, welcome! Feel free to look around and experiment, and check out [installation.md](getting-started/installation.md "mention") when you're ready.
@@ -45,7 +65,7 @@ Setting up a map is simpler than making your lunch-time coffee! It can be accomp
 
 This code snippet demonstrates **everything** you need for a simple map (in under 30 lines!), but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
 
-{% code lineNumbers="true" fullWidth="true" %}
+{% code lineNumbers="true" %}
 ```dart
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
