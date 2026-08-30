@@ -8,7 +8,7 @@ layout:
   width: wide
   cover:
     visible: true
-    size: background
+    size: full
     mask: none
   title:
     visible: true
