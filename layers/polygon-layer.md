@@ -1,8 +1,29 @@
+---
+layout:
+  width: default
+  title:
+    visible: true
+  description:
+    visible: true
+  tableOfContents:
+    visible: true
+  outline:
+    visible: true
+  pagination:
+    visible: true
+  metadata:
+    visible: true
+  tags:
+    visible: true
+  actions:
+    visible: true
+---
+
 # Polygon Layer
 
 You can add areas/shapes formed from coordinates to maps using `PolygonLayer` and `Polygon`s.
 
-<div data-full-width="true"><figure><img src="../.gitbook/assets/Polygons Example.png" alt=""><figcaption><p>A variety of <code>Polygon</code>s including labels, holes, mixed colors &#x26; opacities, and dotted borders</p></figcaption></figure></div>
+<figure><img src="../.gitbook/assets/Polygons Example.png" alt=""><figcaption><p>A variety of <code>Polygon</code>s including labels, holes, mixed colors &#x26; opacities, and dotted borders</p></figcaption></figure>
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/PolygonLayer-class.html" %}
 

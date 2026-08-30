@@ -1,5 +1,8 @@
 ---
 description: since v8.2
+tags:
+  - tag: new
+    primary: true
 ---
 
 # Caching

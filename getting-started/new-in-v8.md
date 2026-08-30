@@ -1,3 +1,9 @@
+---
+tags:
+  - tag: new
+    primary: true
+---
+
 # 🚀 What's New In v8.2?
 
 ## Overview

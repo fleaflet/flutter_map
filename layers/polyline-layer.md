@@ -1,8 +1,29 @@
+---
+layout:
+  width: default
+  title:
+    visible: true
+  description:
+    visible: true
+  tableOfContents:
+    visible: true
+  outline:
+    visible: true
+  pagination:
+    visible: true
+  metadata:
+    visible: true
+  tags:
+    visible: true
+  actions:
+    visible: true
+---
+
 # Polyline Layer
 
 You can add lines formed from coordinates to maps using `PolylineLayer` and `Polyline`s.
 
-<div data-full-width="true"><figure><img src="../.gitbook/assets/Polylines Example.png" alt=""><figcaption><p>A variety of <code>Polyline</code>s, including gradients, mixed opacity and colors including borders, and dashes</p></figcaption></figure></div>
+<figure><img src="../.gitbook/assets/Polylines Example.png" alt=""><figcaption><p>A variety of <code>Polyline</code>s, including gradients, mixed opacity and colors including borders, and dashes</p></figcaption></figure>
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/PolylineLayer-class.html" %}
 

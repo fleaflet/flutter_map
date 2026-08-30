@@ -5,7 +5,7 @@ description: >-
 cover: .gitbook/assets/Main Hero.png
 coverY: 0
 layout:
-  width: wide
+  width: default
   cover:
     visible: true
     size: full

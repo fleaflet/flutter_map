@@ -60,6 +60,12 @@ FM does have some support for using alternative CRSs.&#x20;
 [custom-crss.md](custom-crss.md)
 {% endcontent-ref %}
 
+## Keep Alive
+
+If the map is built lazily, for example in a `PageView`, loading and unloading the map will cause it to reset.
+
+To prevent this, set `MapOptions.keepAlive` to `true`, which will activate an internal `AutomaticKeepAliveClientMixin`.
+
 [^1]: Bounds inside camera
 
 [^2]: Camera inside bounds

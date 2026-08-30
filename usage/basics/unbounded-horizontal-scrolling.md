@@ -1,8 +1,32 @@
+---
+layout:
+  width: default
+  title:
+    visible: true
+  description:
+    visible: true
+  tableOfContents:
+    visible: true
+  outline:
+    visible: true
+  pagination:
+    visible: true
+  metadata:
+    visible: true
+  tags:
+    visible: true
+  actions:
+    visible: true
+tags:
+  - tag: new
+    primary: true
+---
+
 # Unbounded Horizontal Scrolling
 
 Since v8 & v8.2, flutter\_map supports unbounded horizontal (longitudinally) scrolling for the default map projection. This means users can keep scrolling left and right (when North is up) and never hit an edge! Feature layers, such as the `PolygonLayer`, can also take advantage of this functionality.
 
-<div data-full-width="true"><figure><img src="../../.gitbook/assets/Basic Multi-World Screenshot.png" alt=""><figcaption></figcaption></figure></div>
+<figure><img src="../../.gitbook/assets/Basic Multi-World Screenshot.png" alt=""><figcaption></figcaption></figure>
 
 ## Enabling/disabling unbounded horizontal scrolling
 
@@ -48,5 +72,5 @@ Each square of map that is repeated longitudinally is referred to as a "world". 
 
 In the `PolylineLayer` & `PolygonLayer`, this can be disabled by setting the `drawInSingleWorld` property.
 
-<div data-full-width="true"><figure><img src="../../.gitbook/assets/drawInSingleWorld disabled.png" alt=""><figcaption><p><code>drawInSingleWorld: false</code> (default)</p></figcaption></figure> <figure><img src="../../.gitbook/assets/drawInSingleWorld enabled.png" alt=""><figcaption><p><code>drawInSingleWorld: true</code></p></figcaption></figure></div>
+<div><figure><img src="../../.gitbook/assets/drawInSingleWorld disabled.png" alt=""><figcaption><p><code>drawInSingleWorld: false</code> (default)</p></figcaption></figure> <figure><img src="../../.gitbook/assets/drawInSingleWorld enabled.png" alt=""><figcaption><p><code>drawInSingleWorld: true</code></p></figcaption></figure></div>
 
