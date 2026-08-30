@@ -2,3 +2,7 @@
   label: NEW
   icon: burst-new
   color: green
+- tag: guided
+  label: GUIDED
+  icon: book-open-lines
+  color: violet

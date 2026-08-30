@@ -116,6 +116,12 @@ CameraFit.bounds(
 {% endtab %}
 {% endtabs %}
 
+But how to actually choose the initial position for the map? We've built a guide to help with that:
+
+{% content-ref url="generating-an-initial-position.md" %}
+[generating-an-initial-position.md](generating-an-initial-position.md)
+{% endcontent-ref %}
+
 ## Permanent Rules
 
 One part of `MapOptions` responsibilities is to define the restrictions and limitations of the map and what users can/cannot do with it.
@@ -125,6 +131,7 @@ Some of the options are described elsewhere in this documentation, in context. I
 * `cameraConstraint`
   * camera bounds inside bounds: `CameraConstraint.bounds`
   * camera center inside bounds: `CameraConstraint.center`
+  * camera bounds not exceeding specified parallels: `CameraConstraint.containLatitude` (defaults to 90th parallel north and south)
   * _unconstrained (default): `CameraConstraint.unconstrained`_
 * `maxZoom` and `minZoom`\
   Sets a hard limit on the maximum and minimum amounts that the map can be zoomed

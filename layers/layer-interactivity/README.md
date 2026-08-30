@@ -1,3 +1,9 @@
+---
+tags:
+  - tag: guided
+    primary: true
+---
+
 # Layer Interactivity
 
 {% hint style="info" %}

@@ -10,7 +10,7 @@ tags:
 
 Here's some highlights since v8.0:
 
-{% hint style="success" %}
+{% hint style="success" icon="box-arrow-down-arrow-up" %}
 ## **Automatically enabled lightweight built-in caching & aborting of in-flight HTTP requests for obsolete tiles**
 
 The `NetworkTileProvider` has had a massive functionality boost!
@@ -20,7 +20,7 @@ Built-in caching helps you, your users, and the tile server, and is enabled by d
 You may be using the `CancellableNetworkTileProvider`, which allowed in-flight HTTP requests to be aborted when the tiles would no longer be displayed, helping to improve performance and usability. Unfortunately, it isn't compatible with built-in caching. Fortunately, it's also been deprecated - its functionality is now available in the core! 'package:http' v1.5.0-beta ([#1773](https://github.com/dart-lang/http/pull/1773)) supports aborting requests with the 3 default clients natively, so Dio is no longer required. This makes it easier for you and for us!
 {% endhint %}
 
-{% hint style="success" %}
+{% hint style="success" icon="draw-polygon" %}
 ## &#x20;**Inverted filling for `PolygonLayer` & multi-yet-single world support for `Poly*Layer`**
 
 This continues the work on multi-world support (thanks monsieurtanuki), and fixes an issue that occured where users used a `Polygon` covering the entire world, with holes as cut outs.
@@ -28,7 +28,7 @@ This continues the work on multi-world support (thanks monsieurtanuki), and fixe
 _This feature was bounty-funded, thanks to our generous_ [supporters.md](../thanks/supporters.md "mention")_, and the community! We hope to open more bounties in future._
 {% endhint %}
 
-{% hint style="success" %}
+{% hint style="success" icon="arrows-to-line" %}
 ## No more grey background at the North and South edges of your map (optionally)
 
 Thanks to the community, a new `ContainCameraLatitude` `CameraConstraint` is available, which keeps just the world in view at all times. At the moment, it still needs enabling manually.
@@ -36,7 +36,7 @@ Thanks to the community, a new `ContainCameraLatitude` `CameraConstraint` is ava
 Check out the effect in our demo for [multi-world functionality](https://demo.fleaflet.dev/repeated_worlds). You can enable it in your project just by passing `CameraConstraint.containLatitude()` to the `MapOptions.cameraConstraint` option.
 {% endhint %}
 
-{% hint style="success" %}
+{% hint style="success" icon="align-center" %}
 ## Polygon label placement improvements
 
 This is split into 3 parts:
@@ -48,12 +48,13 @@ This is split into 3 parts:
 See how to migrate to the new system below.
 {% endhint %}
 
-{% hint style="success" %}
+{% hint style="success" icon="book-open-lines" %}
 ## Documentation improvements
 
 This documentation has also had a bit of a renewal!
 
-* Follow the new guide to setup a `TileLayer` as we recommend: [#recommended-setup](../layers/tile-layer/#recommended-setup "mention"). More to come soon!
+* Follow the new guide to setup a `TileLayer` as we recommend: [#recommended-setup](../layers/tile-layer/#recommended-setup "mention").&#x20;
+* Follow the new guide to generate an initial position for your map following good practices: [generating-an-initial-position.md](../usage/options/generating-an-initial-position.md "mention").
 * The guide for interactive layers has been simplified, reworked, and example added. Check it out: [layer-interactivity](../layers/layer-interactivity/ "mention").
 * We've added some information about using flutter\_map with the OpenStreetMap public tile servers: [using-openstreetmap-direct.md](../tile-servers/using-openstreetmap-direct.md "mention").
 {% endhint %}

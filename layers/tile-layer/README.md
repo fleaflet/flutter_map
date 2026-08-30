@@ -1,3 +1,9 @@
+---
+tags:
+  - tag: guided
+    primary: true
+---
+
 # Tile Layer
 
 {% hint style="warning" %}

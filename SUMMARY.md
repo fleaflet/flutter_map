@@ -19,6 +19,7 @@
 * [Base Widget](usage/basics/README.md)
   * [Unbounded Horizontal Scrolling](usage/basics/unbounded-horizontal-scrolling.md)
 * [Options](usage/options/README.md)
+  * [Generating An Initial Position](usage/options/generating-an-initial-position.md)
   * [Interaction Options](usage/options/interaction-options.md)
   * [Custom CRSs](usage/options/custom-crss.md)
 * [Layers](usage/layers.md)
