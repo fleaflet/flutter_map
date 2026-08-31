@@ -60,6 +60,8 @@ jobs:
           path: example/build/app/outputs/apk/release/android-demo.apk
           if-no-files-found: error
           archive: false
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
 
   build-windows:
     name: "Build Demo (Windows)"
@@ -85,9 +87,11 @@ jobs:
       - name: Upload as artifact
         uses: actions/upload-artifact@v7
         with:
-          path: output/windows-demo.exe
+          path: example/build/windows/output/windows-demo.exe
           if-no-files-found: error
           archive: false
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
 
   build-web:
     name: "Build & Deploy Demo (Web)"
@@ -107,12 +111,16 @@ jobs:
           cache: true
       - name: Build web app
         run: flutter build web --wasm --dart-define=COMMIT_SHA=${{ github.sha }}
+      - name: Compress web build
+        run: zip -r web-demo.zip build/web
       - name: Upload as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: web-demo.zip
-          path: example/build/web
+          path: example/web-demo.zip
           if-no-files-found: error
+          archive: false
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
       - name: Deploy app to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:

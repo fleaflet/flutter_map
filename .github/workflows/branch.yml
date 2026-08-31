@@ -108,8 +108,6 @@ jobs:
       - name: Generate artifact attestation
         if: ${{ matrix.sdk == '' }}
         uses: actions/attest@v4
-        with:
-          subject-path: example/build/app/outputs/apk/release/android-demo.apk
 
   build-windows:
     name: "Build Demo (Windows)"
@@ -149,14 +147,12 @@ jobs:
         if: ${{ matrix.target.sdk == '' }}
         uses: actions/upload-artifact@v7
         with:
-          path: output/windows-demo.exe
+          path: example/build/windows/output/windows-demo.exe
           if-no-files-found: error
           archive: false
       - name: Generate artifact attestation
         if: ${{ matrix.target.sdk == '' }}
         uses: actions/attest@v4
-        with:
-          subject-path: output/windows-demo.exe
 
   build-web:
     name: "Build Demo (Web)"
@@ -192,8 +188,9 @@ jobs:
           path: example/web-demo.zip
           if-no-files-found: error
           archive: false
+      - name: Print Artifacts List
+        run: |
+          cat "$GITHUB_ARTIFACTS_LIST"
       - name: Generate artifact attestation
         if: ${{ matrix.sdk == '' }}
         uses: actions/attest@v4
-        with:
-          subject-path: example/web-demo.zip
