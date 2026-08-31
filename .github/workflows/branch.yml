@@ -100,13 +100,15 @@ jobs:
         if: ${{ matrix.sdk == '' }}
         uses: actions/upload-artifact@v7
         with:
-          name: apk-build
-          path: example/build/app/outputs/apk/release
+          name: android-demo.apk
+          path: example/build/app/outputs/apk/release/app-release.apk
           if-no-files-found: error
+          archive: false
       - name: Generate artifact attestation
         uses: actions/attest@v4
         with:
-          subject-path: "PATH/TO/ARTIFACT"
+          subject-name: android-demo.apk
+          subject-path: "example/build/app/outputs/apk/release/app-release.apk"
 
   build-windows:
     name: "Build Demo (Windows)"
@@ -143,9 +145,10 @@ jobs:
         if: ${{ matrix.target.sdk == '' }}
         uses: actions/upload-artifact@v7
         with:
-          name: exe-build
+          name: windows-demo.exe
           path: windowsTemp/WindowsApplication.exe
           if-no-files-found: error
+          archive: false
 
   build-web:
     name: "Build Demo (Web)"
@@ -171,6 +174,6 @@ jobs:
         uses: actions/upload-artifact@v7
         if: ${{ matrix.sdk == '' }}
         with:
-          name: web-build
+          name: web-demo.zip
           path: example/build/web
           if-no-files-found: error

@@ -55,9 +55,10 @@ jobs:
       - name: Upload as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: apk-build
-          path: example/build/app/outputs/apk/release
+          name: android-demo.apk
+          path: example/build/app/outputs/apk/release/app-release.apk
           if-no-files-found: error
+          archive: false
 
   build-windows:
     name: "Build Demo (Windows)"
@@ -84,9 +85,10 @@ jobs:
       - name: Upload as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: exe-build
+          name: windows-demo.exe
           path: windowsTemp/WindowsApplication.exe
           if-no-files-found: error
+          archive: false
 
   build-web:
     name: "Build & Deploy Demo (Web)"
@@ -109,7 +111,7 @@ jobs:
       - name: Upload as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: web-build
+          name: web-demo.zip
           path: example/build/web
           if-no-files-found: error
       - name: Deploy app to Firebase Hosting
