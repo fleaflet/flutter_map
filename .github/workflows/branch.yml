@@ -125,6 +125,10 @@ jobs:
     defaults:
       run:
         working-directory: ./example
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -164,6 +168,10 @@ jobs:
     defaults:
       run:
         working-directory: ./example
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
