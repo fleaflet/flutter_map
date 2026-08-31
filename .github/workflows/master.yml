@@ -31,7 +31,7 @@ jobs:
   build-android:
     name: "Build Android Example App"
     runs-on: ubuntu-latest
-    needs: [ run-tests ]
+    needs: [run-tests]
     if: github.repository == 'fleaflet/flutter_map'
     defaults:
       run:
@@ -44,14 +44,14 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "21"
-          cache: 'gradle'
+          cache: "gradle"
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
           cache: true
       - name: Build Android Application
-        run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
+        run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }}
       - name: Archive Artifact
         uses: actions/upload-artifact@v7
         with:
@@ -62,7 +62,7 @@ jobs:
   build-windows:
     name: "Build Windows Example App"
     runs-on: windows-latest
-    needs: [ run-tests ]
+    needs: [run-tests]
     if: github.repository == 'fleaflet/flutter_map'
     defaults:
       run:
@@ -75,7 +75,7 @@ jobs:
         with:
           cache: true
       - name: Build Windows Application
-        run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
+        run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }}
       - name: Install Inno Setup
         run: choco install innosetup --yes --no-progress
       - name: Create Windows Application Installer
@@ -91,7 +91,7 @@ jobs:
   build-web:
     name: "Build & Deploy Web Example App"
     runs-on: ubuntu-latest
-    needs: [ run-tests ]
+    needs: [run-tests]
     if: github.repository == 'fleaflet/flutter_map'
     defaults:
       run:
@@ -105,7 +105,7 @@ jobs:
           channel: "stable"
           cache: true
       - name: Build Web Application
-        run: flutter build web --wasm --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
+        run: flutter build web --wasm --dart-define=COMMIT_SHA=${{ github.sha }}
       - name: Archive Artifact
         uses: actions/upload-artifact@v7
         with:
