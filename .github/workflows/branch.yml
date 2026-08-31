@@ -1,7 +1,7 @@
 name: "Branch & PR"
 on:
   push:
-    branches: [ "!master" ]
+    branches: ["!master"]
   pull_request:
   workflow_dispatch:
 
@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ "3.27.0", "" ]
+        sdk: ["3.27.0", ""]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -72,7 +72,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ "3.27.0", "" ]
+        sdk: ["3.27.0", ""]
     defaults:
       run:
         working-directory: ./example
@@ -102,11 +102,15 @@ jobs:
 
   build-windows:
     name: "Build Windows Example App"
-    runs-on: windows-latest
+    runs-on: ${{ matrix.target.os }}
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ "3.27.0", "" ]
+        target:
+          - sdk: "3.27.0"
+            os: "windows-2022"
+          - sdk: ""
+            os: "windows-latest"
     defaults:
       run:
         working-directory: ./example
@@ -116,19 +120,19 @@ jobs:
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ matrix.sdk }}
+          flutter-version: ${{ matrix.target.sdk }}
           cache: true
       - name: Build Windows Application
         run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Install Inno Setup
-        if: ${{ matrix.sdk == '' }}
+        if: ${{ matrix.target.sdk == '' }}
         run: choco install innosetup --yes --no-progress
       - name: Create Windows Application Installer
-        if: ${{ matrix.sdk == '' }}
+        if: ${{ matrix.target.sdk == '' }}
         run: iscc "windowsApplicationInstallerSetup.iss"
         working-directory: .
       - name: Archive Artifact
-        if: ${{ matrix.sdk == '' }}
+        if: ${{ matrix.target.sdk == '' }}
         uses: actions/upload-artifact@v7
         with:
           name: exe-build
@@ -141,7 +145,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ "3.27.0", "" ]
+        sdk: ["3.27.0", ""]
     defaults:
       run:
         working-directory: ./example
