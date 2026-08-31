@@ -52,11 +52,12 @@ jobs:
           cache: true
       - name: Build Android app
         run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }}
+      - name: Rename output APK
+        run: mv build/app/outputs/apk/release/app-release.apk build/app/outputs/apk/release/android-demo.apk
       - name: Upload as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: android-demo.apk
-          path: example/build/app/outputs/apk/release/app-release.apk
+          path: example/build/app/outputs/apk/release/android-demo.apk
           if-no-files-found: error
           archive: false
 
@@ -80,13 +81,11 @@ jobs:
       - name: Install Inno Setup
         run: choco install innosetup --yes --no-progress
       - name: Generate app installer
-        run: iscc "windowsApplicationInstallerSetup.iss"
-        working-directory: .
+        run: iscc "windows/installer-config.iss"
       - name: Upload as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: windows-demo.exe
-          path: windowsTemp/WindowsApplication.exe
+          path: windowsTemp/windows-demo.exe
           if-no-files-found: error
           archive: false
 

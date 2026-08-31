@@ -96,19 +96,21 @@ jobs:
           cache: true
       - name: Build Android app
         run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }}
+      - name: Rename output APK
+        run: mv build/app/outputs/apk/release/app-release.apk build/app/outputs/apk/release/android-demo.apk
       - name: Upload as artifact
         if: ${{ matrix.sdk == '' }}
         uses: actions/upload-artifact@v7
         with:
-          name: android-demo.apk
-          path: example/build/app/outputs/apk/release/app-release.apk
+          path: example/build/app/outputs/apk/release/android-demo.apk
           if-no-files-found: error
           archive: false
       - name: Generate artifact attestation
+        if: ${{ matrix.sdk == '' }}
         uses: actions/attest@v4
         with:
-          subject-name: android-demo.apk
-          subject-path: "example/build/app/outputs/apk/release/app-release.apk"
+          subject-path: example/build/app/outputs/apk/release/android-demo.apk
+          show-summary: false
 
   build-windows:
     name: "Build Demo (Windows)"
@@ -139,14 +141,12 @@ jobs:
         run: choco install innosetup --yes --no-progress
       - name: Generate app installer
         if: ${{ matrix.target.sdk == '' }}
-        run: iscc "windowsApplicationInstallerSetup.iss"
-        working-directory: .
+        run: iscc "windows/installer-config.iss"
       - name: Upload as artifact
         if: ${{ matrix.target.sdk == '' }}
         uses: actions/upload-artifact@v7
         with:
-          name: windows-demo.exe
-          path: windowsTemp/WindowsApplication.exe
+          path: windowsTemp/windows-demo.exe
           if-no-files-found: error
           archive: false
 
