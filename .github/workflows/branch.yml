@@ -181,11 +181,11 @@ jobs:
         uses: actions/upload-artifact@v7
         if: ${{ matrix.sdk == '' }}
         with:
-          path: web-demo.zip
+          path: example/web-demo.zip
           if-no-files-found: error
           archive: false
       - name: Generate artifact attestation
         if: ${{ matrix.sdk == '' }}
         uses: actions/attest@v4
         with:
-          subject-path: web-demo.zip
+          subject-path: example/web-demo.zip
