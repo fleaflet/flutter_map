@@ -36,6 +36,10 @@ jobs:
     defaults:
       run:
         working-directory: ./example
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -48,7 +52,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
           cache: true
       - name: Build Android app
         run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }}
@@ -73,6 +76,10 @@ jobs:
     defaults:
       run:
         working-directory: ./example
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -105,13 +112,16 @@ jobs:
     defaults:
       run:
         working-directory: ./example
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
           cache: true
       - name: Build web app
         run: flutter build web --wasm --dart-define=COMMIT_SHA=${{ github.sha }}

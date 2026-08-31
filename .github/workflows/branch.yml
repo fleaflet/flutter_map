@@ -76,10 +76,6 @@ jobs:
     defaults:
       run:
         working-directory: ./example
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -105,11 +101,6 @@ jobs:
           path: example/build/app/outputs/apk/release/android-demo.apk
           if-no-files-found: error
           archive: false
-      - name: Generate artifact attestation
-        if: ${{ matrix.sdk == '' }}
-        uses: actions/attest@v4
-        with:
-          subject-path: example/build/app/outputs/apk/release/android-demo.apk
 
   build-windows:
     name: "Build Demo (Windows)"
@@ -125,10 +116,6 @@ jobs:
     defaults:
       run:
         working-directory: ./example
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -152,11 +139,6 @@ jobs:
           path: example/build/windows/output/windows-demo.exe
           if-no-files-found: error
           archive: false
-      - name: Generate artifact attestation
-        if: ${{ matrix.target.sdk == '' }}
-        uses: actions/attest@v4
-        with:
-          subject-path: example/build/windows/output/windows-demo.exe
 
   build-web:
     name: "Build Demo (Web)"
@@ -168,10 +150,6 @@ jobs:
     defaults:
       run:
         working-directory: ./example
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -192,8 +170,3 @@ jobs:
           path: example/web-demo.zip
           if-no-files-found: error
           archive: false
-      - name: Generate artifact attestation
-        if: ${{ matrix.sdk == '' }}
-        uses: actions/attest@v4
-        with:
-          subject-path: example/web-demo.zip
