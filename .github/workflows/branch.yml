@@ -76,6 +76,10 @@ jobs:
     defaults:
       run:
         working-directory: ./example
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -99,6 +103,10 @@ jobs:
           name: apk-build
           path: example/build/app/outputs/apk/release
           if-no-files-found: error
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: "PATH/TO/ARTIFACT"
 
   build-windows:
     name: "Build Demo (Windows)"
