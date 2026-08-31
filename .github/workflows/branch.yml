@@ -126,9 +126,10 @@ jobs:
           cache: true
       - name: Build Windows app
         run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }}
-      - name: Install Inno Setup
-        if: ${{ matrix.target.sdk == '' }}
-        run: choco install innosetup --yes --no-progress
+      # No longer necessary: https://github.com/actions/runner-images/pull/13090/changes
+      #- name: Install Inno Setup
+      #  if: ${{ matrix.target.sdk == '' }}
+      #  run: choco install innosetup --yes --no-progress
       - name: Generate app installer
         if: ${{ matrix.target.sdk == '' }}
         run: iscc "windows/installer-config.iss"
