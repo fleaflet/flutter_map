@@ -22,11 +22,11 @@ DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 ChangesAssociations=yes
 DisableWelcomePage=no
-LicenseFile=LICENSE
+LicenseFile=../LICENSE
 PrivilegesRequired=lowest
-OutputDir=windowsTemp
+OutputDir=output
 OutputBaseFilename=windows-demo
-SetupIconFile=example\windows\runner\resources\app_icon.ico
+SetupIconFile=windows\runner\resources\app_icon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -40,10 +40,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 ; Specify all files within 'build/windows/x64/runner/Release' except 'flutter_map_demo.exe'
 [Files]
-Source: "example\build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "example\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "example\build\windows\x64\runner\Release\url_launcher_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "example\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\windows\x64\runner\Release\url_launcher_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

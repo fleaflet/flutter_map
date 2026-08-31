@@ -146,7 +146,7 @@ jobs:
         if: ${{ matrix.target.sdk == '' }}
         uses: actions/upload-artifact@v7
         with:
-          path: windowsTemp/windows-demo.exe
+          path: output/windows-demo.exe
           if-no-files-found: error
           archive: false
 
