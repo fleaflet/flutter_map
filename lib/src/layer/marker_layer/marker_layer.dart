@@ -121,7 +121,7 @@ class _MarkerLayerState extends State<MarkerLayer> {
           if (m.useDimensionsInMeters == null) continue;
 
           final w =
-              projection.project(_distance.offset(m.point, m.width / 2, 180));
+              projection.project(_distance.offset(m.point, m.width / 2, 90));
           late final h =
               projection.project(_distance.offset(m.point, m.height / 2, 180));
           yield MapEntry(i, (w, m.width == m.height ? w : h));

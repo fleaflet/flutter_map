@@ -51,6 +51,9 @@ class Marker {
   /// When using meters, the child can use [SizedBox.expand] to expand itself to
   /// the available size. [LayoutBuilder] can be used to obtain the calculated
   /// screen size, if necessary.
+  ///
+  /// Note that this is an approximation. To be accurate, the marker child would
+  /// need to be warped. This will require a custom implementation.
   final BoxConstraints? useDimensionsInMeters;
 
   /// Alignment of the marker relative to the normal center at [point].

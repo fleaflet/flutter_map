@@ -130,49 +130,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
                           ),
                           Switch.adaptive(
                             value: useIcons,
-                            onChanged: (v) {
-                              if (v) {
-                                allMarkers = allMarkers.map(
-                                  (c) {
-                                    return Marker(
-                                      point: c.point,
-                                      child: Icon(
-                                        Icons.location_pin,
-                                        size: 30,
-                                        color: Color.fromARGB(
-                                          255,
-                                          randomGenerator.nextInt(256),
-                                          randomGenerator.nextInt(256),
-                                          randomGenerator.nextInt(256),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ).toList(growable: false);
-                              } else {
-                                allMarkers = allMarkers.map(
-                                  (c) {
-                                    return Marker(
-                                      point: c.point,
-                                      useDimensionsInMeters: useSizeInMeters
-                                          ? const BoxConstraints()
-                                          : null,
-                                      height: useSizeInMeters ? 1000 : 30,
-                                      width: useSizeInMeters ? 1000 : 30,
-                                      child: SizedBox.expand(
-                                        child: DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            border: Border.all(),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ).toList(growable: false);
-                              }
-                              useIcons = v;
-                              setState(() {});
-                            },
+                            onChanged: _useIconsToggler,
                           ),
                           const VerticalDivider(),
                           const Tooltip(
@@ -181,30 +139,8 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
                           ),
                           Switch.adaptive(
                             value: useSizeInMeters,
-                            onChanged: useIcons
-                                ? null
-                                : (v) {
-                                    allMarkers = allMarkers.map(
-                                      (c) {
-                                        return Marker(
-                                          point: c.point,
-                                          useDimensionsInMeters:
-                                              v ? const BoxConstraints() : null,
-                                          height: v ? 1000 : 30,
-                                          width: v ? 1000 : 30,
-                                          child: SizedBox.expand(
-                                            child: DecoratedBox(
-                                              decoration: BoxDecoration(
-                                                border: Border.all(),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ).toList(growable: false);
-                                    useSizeInMeters = v;
-                                    setState(() {});
-                                  },
+                            onChanged:
+                                useIcons ? null : _useDimensionsInMetersToggler,
                           ),
                           const Tooltip(
                             message: 'Optimise Meters Radius',
@@ -235,5 +171,64 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
         ],
       ),
     );
+  }
+
+  void _useDimensionsInMetersToggler(bool v) {
+    allMarkers = allMarkers.map(
+      (c) {
+        return Marker(
+          point: c.point,
+          useDimensionsInMeters: v ? const BoxConstraints() : null,
+          height: v ? 1000 : 30,
+          width: v ? 1000 : 30,
+          child: SizedBox.expand(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(),
+              ),
+            ),
+          ),
+        );
+      },
+    ).toList(growable: false);
+    useSizeInMeters = v;
+    setState(() {});
+  }
+
+  void _useIconsToggler(bool v) {
+    allMarkers = allMarkers
+        .map(
+          v
+              ? (c) => Marker(
+                    point: c.point,
+                    child: Icon(
+                      Icons.location_pin,
+                      size: 30,
+                      color: Color.fromARGB(
+                        255,
+                        randomGenerator.nextInt(256),
+                        randomGenerator.nextInt(256),
+                        randomGenerator.nextInt(256),
+                      ),
+                    ),
+                  )
+              : (c) => Marker(
+                    point: c.point,
+                    useDimensionsInMeters:
+                        useSizeInMeters ? const BoxConstraints() : null,
+                    height: useSizeInMeters ? 1000 : 30,
+                    width: useSizeInMeters ? 1000 : 30,
+                    child: SizedBox.expand(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border.all(),
+                        ),
+                      ),
+                    ),
+                  ),
+        )
+        .toList(growable: false);
+    useIcons = v;
+    setState(() {});
   }
 }
