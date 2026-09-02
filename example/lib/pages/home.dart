@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
             options: const MapOptions(
               initialCenter: LatLng(51.5, -0.09),
               initialZoom: 5,
+              maxZoom: 21,
             ),
             children: [
               openStreetMapTileLayer,
