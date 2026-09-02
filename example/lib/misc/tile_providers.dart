@@ -9,4 +9,5 @@ TileLayer get openStreetMapTileLayer => TileLayer(
       urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
       userAgentPackageName: 'dev.fleaflet.flutter_map.demo',
       tileProvider: NetworkTileProvider(httpClient: httpClient),
+      maxNativeZoom: 19,
     );
