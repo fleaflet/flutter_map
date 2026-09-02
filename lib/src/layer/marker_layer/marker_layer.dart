@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -30,12 +32,34 @@ class MarkerLayer extends StatefulWidget {
   /// markers. Use a widget inside [Marker.child] to perform this.
   final bool rotate;
 
+  /// Whether to use a single meters to pixels conversion ratio for all markers
+  /// with [Marker.useDimensionsInMeters] enabled.
+  ///
+  /// > [!IMPORTANT]
+  /// > This reduces the accuracy of the dimensions of markers. Depending on the
+  /// > location of the markers, this may or may not be significant.
+  ///
+  /// Where all markers within this layer are geographically (particularly
+  /// latitudinally) close, the difference in the ratio between pixels and
+  /// meters between markers is likely to be small. Calculating this conversion
+  /// ratio is expensive, and is usually done for every marker to ensure
+  /// accuracy, as the ratio depends on the latitude. Setting this `true` means
+  /// the ratio is calculated based off the first marker only, then reused for
+  /// all other markers within this layer.
+  ///
+  /// This should not be used where markers are geographically spread out - it
+  /// is best suited, for example, for markers located within a single city.
+  ///
+  /// Defaults to `false`.
+  final bool optimizeDimensionsInMeters;
+
   /// Create a new [MarkerLayer] to use inside of [FlutterMap.children].
   const MarkerLayer({
     super.key,
     required this.markers,
     this.alignment = Alignment.center,
     this.rotate = false,
+    this.optimizeDimensionsInMeters = false,
   });
 
   @override
@@ -43,6 +67,8 @@ class MarkerLayer extends StatefulWidget {
 }
 
 class _MarkerLayerState extends State<MarkerLayer> {
+  static const _distance = Distance();
+
   /// Projected (zoom-independent) coordinates of every [Marker.point], in the
   /// same order as the markers list
   ///
@@ -52,7 +78,11 @@ class _MarkerLayerState extends State<MarkerLayer> {
   /// projected -> screen transformation per marker, instead of a full
   /// re-projection.
   List<Offset>? _projectedPoints;
+  Map<int, (Offset, Offset)>? _projectedMeterSizes;
   Crs? _projectionCrs;
+
+  // Cached number of pixels per meter.
+  double? _pixelsPerMeter;
 
   @override
   void didUpdateWidget(MarkerLayer oldWidget) {
@@ -62,6 +92,7 @@ class _MarkerLayerState extends State<MarkerLayer> {
     // new widget instance re-projects, so in-place mutations of the markers
     // list keep working as they did when projection was performed per-frame.
     _projectedPoints = null;
+    _projectedMeterSizes = null;
   }
 
   List<Offset> _projectPoints(Crs crs) {
@@ -81,49 +112,113 @@ class _MarkerLayerState extends State<MarkerLayer> {
     );
   }
 
+  Map<int, (Offset, Offset)> _projectMeterSizes(Crs crs) {
+    final projection = crs.projection;
+    return HashMap.fromEntries(
+      () sync* {
+        for (int i = 0; i < widget.markers.length; i++) {
+          final m = widget.markers[i];
+          if (m.useDimensionsInMeters == null) continue;
+
+          final w =
+              projection.project(_distance.offset(m.point, m.width / 2, 90));
+          late final h =
+              projection.project(_distance.offset(m.point, m.height / 2, 180));
+          yield MapEntry(i, (w, m.width == m.height ? w : h));
+
+          // If we're optimizing, we'll never use any more values we generate
+          if (widget.optimizeDimensionsInMeters) break;
+        }
+      }(),
+    );
+  }
+
+  /// Use generated [_projectedMeterSizes] to convert a marker's size in meters
+  /// to its screen size
+  Size _metersToScreenPixels(
+    MapCamera camera,
+    Marker m,
+    Offset pxPoint,
+    int i,
+    double zoomScale,
+  ) {
+    final p = _projectedMeterSizes![i]!;
+    final (wpx, wpy) = camera.crs.transform(p.$1.dx, p.$1.dy, zoomScale);
+    final width = 2 * (pxPoint - Offset(wpx, wpy)).distance;
+    if (m.width == m.height) return Size.square(width);
+    final (hpx, hpy) = camera.crs.transform(p.$2.dx, p.$2.dy, zoomScale);
+    return Size(width, 2 * (pxPoint - Offset(hpx, hpy)).distance);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
-    final crs = map.crs;
+    final camera = MapCamera.of(context);
 
-    if (_projectedPoints == null || _projectionCrs != crs) {
-      _projectionCrs = crs;
-      _projectedPoints = _projectPoints(crs);
+    if (_projectedPoints == null ||
+        _projectedMeterSizes == null ||
+        _projectionCrs != camera.crs) {
+      _projectionCrs = camera.crs;
+      _projectedPoints = _projectPoints(camera.crs);
+      _projectedMeterSizes = _projectMeterSizes(camera.crs);
     }
-    final projectedPoints = _projectedPoints!;
+    _pixelsPerMeter = null;
 
-    final worldWidth = map.getWorldWidthAtZoom();
-    final zoomScale = crs.scale(map.zoom);
-    final pixelBounds = map.pixelBounds;
-    final pixelOrigin = map.pixelOrigin;
-    final markers = widget.markers;
+    final worldWidth = camera.getWorldWidthAtZoom();
+    final zoomScale = camera.crs.scale(camera.zoom);
 
     return MobileLayerTransformer(
       child: Stack(
         children: () sync* {
-          for (var i = 0; i < markers.length; i++) {
-            final m = markers[i];
-
-            // Resolve real alignment
-            // TODO: maybe just using Size, Offset, and Rect?
-            final left =
-                0.5 * m.width * ((m.alignment ?? widget.alignment).x + 1);
-            final top =
-                0.5 * m.height * ((m.alignment ?? widget.alignment).y + 1);
-            final right = m.width - left;
-            final bottom = m.height - top;
+          for (int i = 0; i < widget.markers.length; i++) {
+            final m = widget.markers[i];
 
             // Scale the cached projection to the current zoom
-            final projected = projectedPoints[i];
+            final projected = _projectedPoints![i];
             final (px, py) =
-                crs.transform(projected.dx, projected.dy, zoomScale);
+                camera.crs.transform(projected.dx, projected.dy, zoomScale);
             final pxPoint = Offset(px, py);
+
+            // Resolve real size and alignment
+            final double width;
+            final double height;
+            if (m.useDimensionsInMeters case final constraints?) {
+              if (!constraints.minWidth.isFinite ||
+                  !constraints.minHeight.isFinite) {
+                throw RangeError(
+                  '`Marker.useDimensionsInMeters` must have finite minimums',
+                );
+              }
+              if (!widget.optimizeDimensionsInMeters) {
+                final size =
+                    _metersToScreenPixels(camera, m, pxPoint, i, zoomScale);
+                width = constraints.constrainWidth(size.width);
+                height = constraints.constrainHeight(size.height);
+              } else {
+                // If optimizing, use the cached ratio if available, or
+                // calculate it (using the first marker in the layer)
+                _pixelsPerMeter ??=
+                    _metersToScreenPixels(camera, m, pxPoint, i, zoomScale)
+                            .width /
+                        m.width;
+                width = constraints.constrainWidth(_pixelsPerMeter! * m.width);
+                height =
+                    constraints.constrainHeight(_pixelsPerMeter! * m.height);
+              }
+            } else {
+              width = m.width;
+              height = m.height;
+            }
+            final alignment = m.alignment ?? widget.alignment;
+            final left = 0.5 * width * (alignment.x + 1);
+            final top = 0.5 * height * (alignment.y + 1);
+            final right = width - left;
+            final bottom = height - top;
 
             Positioned? getPositioned(double worldShift) {
               final shiftedX = pxPoint.dx + worldShift;
 
               // Cull if out of bounds
-              if (!pixelBounds.overlaps(
+              if (!camera.pixelBounds.overlaps(
                 Rect.fromPoints(
                   Offset(shiftedX + left, pxPoint.dy - bottom),
                   Offset(shiftedX - right, pxPoint.dy + top),
@@ -135,18 +230,18 @@ class _MarkerLayerState extends State<MarkerLayer> {
               // Shift original coordinate along worlds, then move into relative
               // to origin space
               final shiftedLocalPoint =
-                  Offset(shiftedX, pxPoint.dy) - pixelOrigin;
+                  Offset(shiftedX, pxPoint.dy) - camera.pixelOrigin;
 
               return Positioned(
                 key: m.key,
-                width: m.width,
-                height: m.height,
+                width: width,
+                height: height,
                 left: shiftedLocalPoint.dx - right,
                 top: shiftedLocalPoint.dy - bottom,
                 child: (m.rotate ?? widget.rotate)
                     ? Transform.rotate(
-                        angle: -map.rotationRad,
-                        alignment: (m.alignment ?? widget.alignment) * -1,
+                        angle: -camera.rotationRad,
+                        alignment: Alignment(-alignment.x, -alignment.y),
                         child: m.child,
                       )
                     : m.child,

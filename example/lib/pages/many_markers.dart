@@ -30,7 +30,7 @@ class ManyMarkersPage extends StatefulWidget {
 
 class ManyMarkersPageState extends State<ManyMarkersPage> {
   final randomGenerator = Random(10);
-  late final allMarkers = List.generate(
+  late List<Marker> allMarkers = List.generate(
     _maxMarkersCount,
     (_) {
       final angle = randomGenerator.nextDouble() * 2 * pi;
@@ -46,34 +46,24 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
 
       return Marker(
         point: position,
-        width: 30,
-        height: 30,
-        child: GestureDetector(
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Tapped existing marker (${position.latitude}, '
-                '${position.longitude})',
-              ),
-              duration: const Duration(seconds: 1),
-              showCloseIcon: true,
-            ),
-          ),
-          child: Icon(
-            Icons.location_pin,
-            size: 30,
-            color: Color.fromARGB(
-              255,
-              randomGenerator.nextInt(256),
-              randomGenerator.nextInt(256),
-              randomGenerator.nextInt(256),
-            ),
+        child: Icon(
+          Icons.location_pin,
+          size: 30,
+          color: Color.fromARGB(
+            255,
+            randomGenerator.nextInt(256),
+            randomGenerator.nextInt(256),
+            randomGenerator.nextInt(256),
           ),
         ),
       );
     },
   );
   int displayedMarkersCount = _maxMarkersCount ~/ 10;
+
+  bool useIcons = true;
+  bool useSizeInMeters = false;
+  bool optimizeSizeInMeters = true;
 
   @override
   void initState() {
@@ -103,6 +93,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
                 markers: allMarkers
                     .take(displayedMarkersCount)
                     .toList(growable: false),
+                optimizeDimensionsInMeters: optimizeSizeInMeters,
               ),
             ],
           ),
@@ -110,11 +101,64 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
             left: 16,
             top: 16,
             right: 16,
-            child: NumberOfItemsSlider(
-              number: displayedMarkersCount,
-              onChanged: (v) => setState(() => displayedMarkersCount = v),
-              maxNumber: _maxMarkersCount,
-              itemDescription: 'Marker',
+            child: Column(
+              spacing: 12,
+              children: [
+                NumberOfItemsSlider(
+                  number: displayedMarkersCount,
+                  onChanged: (v) => setState(() => displayedMarkersCount = v),
+                  maxNumber: _maxMarkersCount,
+                  itemDescription: 'Marker',
+                ),
+                UnconstrainedBox(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 16,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        spacing: 8,
+                        children: [
+                          const Tooltip(
+                            message: 'Use Icons',
+                            child: Icon(Icons.location_on),
+                          ),
+                          Switch.adaptive(
+                            value: useIcons,
+                            onChanged: _useIconsToggler,
+                          ),
+                          const VerticalDivider(),
+                          const Tooltip(
+                            message: 'Use Radius In Meters',
+                            child: Icon(Icons.straighten),
+                          ),
+                          Switch.adaptive(
+                            value: useSizeInMeters,
+                            onChanged:
+                                useIcons ? null : _useDimensionsInMetersToggler,
+                          ),
+                          const Tooltip(
+                            message: 'Optimise Meters Radius',
+                            child: Icon(Icons.speed_rounded),
+                          ),
+                          Switch.adaptive(
+                            value: optimizeSizeInMeters,
+                            onChanged: useSizeInMeters && !useIcons
+                                ? (v) =>
+                                    setState(() => optimizeSizeInMeters = v)
+                                : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           if (!kIsWeb)
@@ -127,5 +171,64 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
         ],
       ),
     );
+  }
+
+  void _useDimensionsInMetersToggler(bool v) {
+    allMarkers = allMarkers.map(
+      (c) {
+        return Marker(
+          point: c.point,
+          useDimensionsInMeters: v ? const BoxConstraints() : null,
+          height: v ? 1000 : 30,
+          width: v ? 1000 : 30,
+          child: SizedBox.expand(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(),
+              ),
+            ),
+          ),
+        );
+      },
+    ).toList(growable: false);
+    useSizeInMeters = v;
+    setState(() {});
+  }
+
+  void _useIconsToggler(bool v) {
+    allMarkers = allMarkers
+        .map(
+          v
+              ? (c) => Marker(
+                    point: c.point,
+                    child: Icon(
+                      Icons.location_pin,
+                      size: 30,
+                      color: Color.fromARGB(
+                        255,
+                        randomGenerator.nextInt(256),
+                        randomGenerator.nextInt(256),
+                        randomGenerator.nextInt(256),
+                      ),
+                    ),
+                  )
+              : (c) => Marker(
+                    point: c.point,
+                    useDimensionsInMeters:
+                        useSizeInMeters ? const BoxConstraints() : null,
+                    height: useSizeInMeters ? 1000 : 30,
+                    width: useSizeInMeters ? 1000 : 30,
+                    child: SizedBox.expand(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border.all(),
+                        ),
+                      ),
+                    ),
+                  ),
+        )
+        .toList(growable: false);
+    useIcons = v;
+    setState(() {});
   }
 }
