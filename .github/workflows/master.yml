@@ -10,6 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Not sure this is necessary, maybe for Codecov? But no harm to keep
   run-tests:
     name: "Run Tests"
     runs-on: ubuntu-latest
@@ -32,14 +33,9 @@ jobs:
     name: "Build Demo (Android)"
     runs-on: ubuntu-latest
     needs: [run-tests]
-    if: github.repository == 'fleaflet/flutter_map'
     defaults:
       run:
         working-directory: ./example
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -63,23 +59,14 @@ jobs:
           path: example/build/app/outputs/apk/release/android-demo.apk
           if-no-files-found: error
           archive: false
-      - name: Generate artifact attestation
-        uses: actions/attest@v4
-        with:
-          subject-path: example/build/app/outputs/apk/release/android-demo.apk
 
   build-windows:
     name: "Build Demo (Windows)"
     runs-on: windows-latest
     needs: [run-tests]
-    if: github.repository == 'fleaflet/flutter_map'
     defaults:
       run:
         working-directory: ./example
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -89,9 +76,6 @@ jobs:
           cache: true
       - name: Build Windows app
         run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }}
-      # No longer necessary: https://github.com/actions/runner-images/pull/13090/changes
-      #- name: Install Inno Setup
-      #  run: choco install innosetup --yes --no-progress
       - name: Generate app installer
         run: iscc "windows/installer-config.iss"
       - name: Upload as artifact
@@ -100,23 +84,14 @@ jobs:
           path: example/build/windows/output/windows-demo.exe
           if-no-files-found: error
           archive: false
-      - name: Generate artifact attestation
-        uses: actions/attest@v4
-        with:
-          subject-path: example/build/windows/output/windows-demo.exe
 
   build-web:
     name: "Build & Deploy Demo (Web)"
     runs-on: ubuntu-latest
     needs: [run-tests]
-    if: github.repository == 'fleaflet/flutter_map'
     defaults:
       run:
         working-directory: ./example
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -134,10 +109,6 @@ jobs:
           path: example/web-demo.zip
           if-no-files-found: error
           archive: false
-      - name: Generate artifact attestation
-        uses: actions/attest@v4
-        with:
-          subject-path: example/web-demo.zip
       - name: Deploy app to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
