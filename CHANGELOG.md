@@ -11,10 +11,15 @@ Contains the following user-affecting changes:
 - Added smooth scrolling when using mouse wheel - [#2198](https://github.com/fleaflet/flutter_map/pull/2198)
 - Added ability to use meters to size `Marker`s - [#2106](https://github.com/fleaflet/flutter_map/pull/2106)
 
+Contains the following user-affecting bug fixes:
+
+- Prevent `RangeError` in `Proj4Crs.scale`/`zoom` for out-of-range values - [#2209](https://github.com/fleaflet/flutter_map/pull/2209) for [#1358](https://github.com/fleaflet/flutter_map/issues/1358) & [#1223](https://github.com/fleaflet/flutter_map/issues/1223)
+
 Many thanks to these contributors (in no particular order):
 
 - @vinlet
 - @LeonTenorio
+- @AlexLaroche
 - ... and all the maintainers
 
 ## [8.3.2] - 2026/08/27
