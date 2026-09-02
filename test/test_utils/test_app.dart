@@ -8,6 +8,7 @@ class TestApp extends StatelessWidget {
   const TestApp({
     super.key,
     this.controller,
+    this.interactionOptions = const InteractionOptions(),
     this.markers = const [],
     this.polygons = const [],
     this.polylines = const [],
@@ -15,6 +16,7 @@ class TestApp extends StatelessWidget {
   });
 
   final MapController? controller;
+  final InteractionOptions interactionOptions;
   final List<Marker> markers;
   final List<Polygon> polygons;
   final List<Polyline> polylines;
@@ -31,14 +33,12 @@ class TestApp extends StatelessWidget {
             height: 200,
             child: FlutterMap(
               mapController: controller,
-              options: const MapOptions(
-                initialCenter: LatLng(45.5231, -122.6765),
+              options: MapOptions(
+                initialCenter: const LatLng(45.5231, -122.6765),
+                interactionOptions: interactionOptions,
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  tileProvider: TestTileProvider(),
-                ),
+                TileLayer(tileProvider: TestTileProvider()),
                 if (polylines.isNotEmpty) PolylineLayer(polylines: polylines),
                 if (polygons.isNotEmpty) PolygonLayer(polygons: polygons),
                 if (circles.isNotEmpty) CircleLayer(circles: circles),
