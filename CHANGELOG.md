@@ -4,6 +4,19 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
+## [8.4.0-dev.1] - 2026/09/02
+
+Contains the following user-affecting changes:
+
+- Added smooth scrolling when using mouse wheel - [#2198](https://github.com/fleaflet/flutter_map/pull/2198)
+- Added ability to use meters to size `Marker`s - [#2106](https://github.com/fleaflet/flutter_map/pull/2106)
+
+Many thanks to these contributors (in no particular order):
+
+- @vinlet
+- @LeonTenorio
+- ... and all the maintainers
+
 ## [8.3.2] - 2026/08/27
 
 Contains the following user-affecting bug fixes:
