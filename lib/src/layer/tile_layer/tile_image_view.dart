@@ -70,22 +70,20 @@ final class TileImageView {
         continue;
       }
 
-      final retainedAncestor = _retainAncestor(
+      _retainAncestor(
         retain,
         positionCoordinates.x,
         positionCoordinates.y,
         positionCoordinates.z,
         positionCoordinates.z - 5,
       );
-      if (!retainedAncestor) {
-        _retainChildren(
-          retain,
-          positionCoordinates.x,
-          positionCoordinates.y,
-          positionCoordinates.z,
-          positionCoordinates.z + 2,
-        );
-      }
+      _retainChildren(
+        retain,
+        positionCoordinates.x,
+        positionCoordinates.y,
+        positionCoordinates.z,
+        positionCoordinates.z + 2,
+      );
     }
 
     return stale.where((tile) => !retain.contains(tile));
@@ -107,22 +105,20 @@ final class TileImageView {
 
       final TileImage? tile = _tileImages[_resolver.get(positionCoordinates)];
       if (tile == null || !tile.readyToDisplay) {
-        final retainedAncestor = _retainAncestor(
+        _retainAncestor(
           retain,
           positionCoordinates.x,
           positionCoordinates.y,
           positionCoordinates.z,
           positionCoordinates.z - 5,
         );
-        if (!retainedAncestor) {
-          _retainChildren(
-            retain,
-            positionCoordinates.x,
-            positionCoordinates.y,
-            positionCoordinates.z,
-            positionCoordinates.z + 2,
-          );
-        }
+        _retainChildren(
+          retain,
+          positionCoordinates.x,
+          positionCoordinates.y,
+          positionCoordinates.z,
+          positionCoordinates.z + 2,
+        );
       }
     }
     return retain;
