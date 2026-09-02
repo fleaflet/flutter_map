@@ -66,15 +66,28 @@ class InteractionOptions {
   /// The multipler applied to the scroll offset to calculate the zoom offset,
   /// when smooth zooming is disabled.
   ///
-  /// This has been deprecated in favour of
-  /// [ScrollZoomOptions.snapZoomRate]. See documentation on that property
-  /// for more information.
+  /// ---
   ///
-  /// Defaults to `1 / 200`. Overriden by [ScrollZoomOptions.snapZoomRate]
+  /// Since v8.4, this has been deprecated in favour of
+  /// [SnapScrollZoomOptions.zoomRate]. The new scroll zoom options allow for
+  /// the new smooth scrolling functionality to also be customised.
+  ///
+  /// To improve the end-user experience for more users, maps will use smooth
+  /// scrolling since v8.4 by default - **unless this property has been changed
+  /// from its default of 0.005** and the [scrollZoomOptions] have not been
+  /// changed from their default, in which case it is respected and the snap
+  /// behaviour will be used.
+  ///
+  /// To migrate, this argument should be removed (left to default), and the
+  /// desired value instead used by setting [scrollZoomOptions] to
+  /// [ScrollZoomOptions.snap] and setting the argument in the constructor.
+  ///
+  /// Defaults to `1 / 200`. Overriden by [SnapScrollZoomOptions.zoomRate]
   /// if set.
   @Deprecated(
-    'Prefer `ScrollZoomOptions.snappingZoomRate` (and disabling smooth '
-    'zooming). Will be removed in an upcoming major release.',
+    'Prefer `SnapScrollZoomOptions.zoomRate`. See documentation on this '
+    'property for more information. Will be removed in an upcoming major '
+    'release.',
   )
   final double scrollWheelVelocity;
 
@@ -150,8 +163,9 @@ class InteractionOptions {
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     @Deprecated(
-      'Prefer `ScrollZoomOptions.snappingZoomRate` (and disabling smooth '
-      'zooming). Will be removed in an upcoming major release.',
+      'Prefer `SnapScrollZoomOptions.zoomRate`. See documentation on this '
+      'property for more information. Will be removed in an upcoming major '
+      'release.',
     )
     this.scrollWheelVelocity = 0.005,
     this.scrollZoomOptions = const ScrollZoomOptions.smooth(),

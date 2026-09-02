@@ -29,7 +29,7 @@ void main() {
       await tester.pumpWidget(TestApp(
         controller: controller,
         interactionOptions: const InteractionOptions(
-          scrollZoomOptions: ScrollZoomOptions.snapping(),
+          scrollZoomOptions: ScrollZoomOptions.snap(),
         ),
       ));
 
@@ -50,7 +50,7 @@ void main() {
       await tester.pumpWidget(TestApp(
         controller: controller,
         interactionOptions: const InteractionOptions(
-          scrollZoomOptions: ScrollZoomOptions.snapping(),
+          scrollZoomOptions: ScrollZoomOptions.snap(),
         ),
       ));
 
@@ -295,7 +295,7 @@ void main() {
                   initialZoom: 10,
                   onMapEvent: events.add,
                   interactionOptions: const InteractionOptions(
-                    scrollZoomOptions: ScrollZoomOptions.snapping(),
+                    scrollZoomOptions: ScrollZoomOptions.snap(),
                   ),
                 ),
                 children: [TileLayer(tileProvider: TestTileProvider())],

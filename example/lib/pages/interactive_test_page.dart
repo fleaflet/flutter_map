@@ -264,7 +264,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                     flags: value,
                     scrollZoomOptions: useSmoothScrollZooming
                         ? const ScrollZoomOptions.smooth()
-                        : const ScrollZoomOptions.snapping(),
+                        : const ScrollZoomOptions.snap(),
                     cursorKeyboardRotationOptions:
                         CursorKeyboardRotationOptions(
                       isKeyTrigger: (key) =>
