@@ -100,6 +100,7 @@ Then, some map should be kept linking a unique property of the marker (its `poin
 
 For example:
 
+{% code expandable="true" %}
 ```dart
 children: [
     // TileLayer(), etc...
@@ -143,6 +144,7 @@ class MyMarker extends StatelessWidget {
     }
 }
 ```
+{% endcode %}
 
 {% hint style="info" %}
 The maintainer team is looking into improving the `MarkerLayer` to improve this situation:
@@ -152,5 +154,46 @@ The maintainer team is looking into improving the `MarkerLayer` to improve this 
 
 Any contributors would be appreciated, although the second point is quite complicated to implement!
 {% endhint %}
+
+## Handling Gestures
+
+If you need to, for example, handle taps and presses on your marker's child, it's easy! Just wrap the child in something like a `GestureDetector`, or a button.
+
+If you need to be able to drag the marker, check out the community maintained plugin '[flutter\_map\_dragmarker](https://github.com/ibrierley/flutter_map_dragmarker)'.\
+Alternatively if you need more control, build it yourself. Because of the way flutter\_map handles gestures, the [following workaround](https://github.com/fleaflet/flutter_map/issues/1729#issuecomment-3768956345) may be required to allow the marker to capture the necessary gesture events:
+
+> Use a `RawGestureDetector` and custom `PanGestureRecognizer` than declares victory in the [gesture arena](https://docs.flutter.dev/ui/interactivity/gestures#gesture-disambiguation). For example:
+>
+> {% code expandable="true" %}
+> ```dart
+> class EagerPanGestureRecognizer extends PanGestureRecognizer {
+>   @override
+>   void handleEvent(PointerEvent event) {
+>     // Immediately claim victory for this pointer
+>     if (event is PointerMoveEvent) resolve(GestureDisposition.accepted);
+>     super.handleEvent(event);
+>   }
+> }
+>
+> // Inside your marker's child builder:
+>
+> final gestures = <Type, GestureRecognizerFactory>{};
+> if (onDragStart != null || onDragUpdate != null || onDragEnd != null) {
+>   gestures[EagerPanGestureRecognizer] =
+>       GestureRecognizerFactoryWithHandlers<EagerPanGestureRecognizer>(
+>           EagerPanGestureRecognizer.new,
+>           (SingleEagerPanGestureRecognizer instance) {
+>     instance.onStart = onDragStart;
+>     instance.onUpdate = onDragUpdate;
+>     instance.onEnd = onDragEnd;
+>   });
+> }
+>
+> return RawGestureDetector(
+>   gestures: gestures,
+>   child: child,
+> );
+> ```
+> {% endcode %}
 
 [^1]: [Google Maps \*wink \*wink](https://github.com/flutter/flutter/issues/24213)
