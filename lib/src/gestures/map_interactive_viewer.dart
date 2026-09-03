@@ -359,13 +359,20 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         child: PositionedTapDetector2(
           controller: _positionedTapController,
           onTap: _handleTap,
+          onDoubleTapDown: (_) {
+            if (_pointerCounter == 1) _doubleTapHoldMaxDelay?.cancel();
+          },
           onSecondaryTap: _handleSecondaryTap,
           onLongPress: _handleLongPress,
           onDoubleTap: _handleDoubleTap,
-          doubleTapDelay:
-              InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)
-                  ? null
-                  : Duration.zero,
+          doubleTapDelay: InteractiveFlag.hasDoubleTapZoom(
+                    _interactionOptions.flags,
+                  ) ||
+                  InteractiveFlag.hasDoubleTapDragZoom(
+                    _interactionOptions.flags,
+                  )
+              ? null
+              : Duration.zero,
           child: RawGestureDetector(
             gestures: _gestures,
             child: widget.builder(
