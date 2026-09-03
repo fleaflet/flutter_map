@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/gestures/scroll_zoom.dart';
 import 'package:flutter_map/src/misc/deg_rad_conversions.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
@@ -94,6 +95,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   late Animation<double> _doubleTapZoomAnimation;
   late Animation<LatLng> _doubleTapCenterAnimation;
 
+  late final ScrollZoomHandler _scrollZoomHandler;
+
   // 'ckr' = cursor/keyboard rotation
   final _ckrTriggered = ValueNotifier(false);
   double _ckrClickDegrees = 0;
@@ -140,6 +143,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       ..addListener(_handleDoubleTapZoomAnimation)
       ..addStatusListener(_doubleTapZoomStatusListener);
 
+    _scrollZoomHandler = ScrollZoomHandler(
+      controller: widget.controller,
+      vsync: this,
+    );
+
     ServicesBinding.instance.keyboard
         .addHandler(cursorKeyboardRotationTriggerHandler);
 
@@ -164,6 +172,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     widget.controller.removeListener(onMapStateChange);
     _flingController.dispose();
     _doubleTapController.dispose();
+    _scrollZoomHandler.dispose();
 
     _ckrTriggered.dispose();
     ServicesBinding.instance.keyboard
@@ -455,28 +464,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       GestureBinding.instance.pointerSignalResolver.register(
         pointerSignal,
         (pointerSignal) {
-          pointerSignal as PointerScrollEvent;
-          final minZoom = _options.minZoom ?? 0.0;
-          final maxZoom = _options.maxZoom ?? double.infinity;
-          final newZoom = (_camera.zoom -
-                  pointerSignal.scrollDelta.dy *
-                      _interactionOptions.scrollWheelVelocity)
-              .clamp(minZoom, maxZoom);
-          // Calculate offset of mouse cursor from viewport center
-          final newCenter = _camera.focusedZoomCenter(
-            pointerSignal.localPosition,
-            newZoom,
-          );
-
           _closeFlingAnimationController(MapEventSource.scrollWheel);
           _closeDoubleTapController(MapEventSource.scrollWheel);
-
-          widget.controller.moveRaw(
-            newCenter,
-            newZoom,
-            hasGesture: true,
-            source: MapEventSource.scrollWheel,
-          );
+          _scrollZoomHandler
+              .onPointerSignal(pointerSignal as PointerScrollEvent);
         },
       );
     }
@@ -802,17 +793,14 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     // gestures where the user changes direction during the drag.
     final flingOffset = _focalStartLocal - _lastFocalLocal;
     final finalSegment = _prevFocalLocal - _lastFocalLocal;
-    final finalSegmentDistance = finalSegment.distance;
 
-    // Use final segment direction if available, otherwise fall back to overall
-    // direction for edge cases where the final segment has no movement.
-    final Offset direction;
-    if (finalSegmentDistance > 0) {
-      direction = finalSegment / finalSegmentDistance;
-    } else {
-      final flingDistance = flingOffset.distance;
-      direction = flingOffset / flingDistance;
-    }
+    final direction = flingDirection(
+      finalSegment: finalSegment,
+      flingOffset: flingOffset,
+      // `magnitude` is checked to be non-zero above, so this is always a
+      // finite, non-zero-length direction and is a safe final fallback.
+      velocityDirection: details.velocity.pixelsPerSecond / magnitude,
+    );
     final distance = (Offset.zero & _camera.nonRotatedSize).shortestSide;
 
     _flingAnimation = Tween<Offset>(
@@ -829,6 +817,31 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             stiffness: 1000,
             ratio: _interactionOptions.flingAnimationDampingRatio,
           ));
+  }
+
+  /// Calculates the direction a fling gesture should continue in.
+  ///
+  /// Prefers the direction of the final tracked pointer segment, falling
+  /// back to the overall drag direction. If both [finalSegment] and
+  /// [flingOffset] have zero length - which can happen even when the
+  /// gesture recognizer reports a velocity above the fling threshold, since
+  /// the velocity is fitted over multiple recent samples and is not
+  /// necessarily proportional to the last tracked position deltas - falls
+  /// back to [velocityDirection] to avoid a division by zero (which would
+  /// otherwise produce a `NaN` direction and corrupt the camera position).
+  @visibleForTesting
+  static Offset flingDirection({
+    required Offset finalSegment,
+    required Offset flingOffset,
+    required Offset velocityDirection,
+  }) {
+    final finalSegmentDistance = finalSegment.distance;
+    if (finalSegmentDistance > 0) return finalSegment / finalSegmentDistance;
+
+    final flingDistance = flingOffset.distance;
+    if (flingDistance > 0) return flingOffset / flingDistance;
+
+    return velocityDirection;
   }
 
   void _handleTap(TapPosition position) {

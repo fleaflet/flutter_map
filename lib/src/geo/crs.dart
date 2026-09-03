@@ -53,7 +53,7 @@ abstract class Crs {
 
   /// Similar to [latLngToXY] but converts the XY coordinates to an [Offset].
   Offset latLngToOffset(LatLng latlng, double zoom) {
-    final (x, y) = latLngToXY(checkLatLng(latlng), scale(zoom));
+    final (x, y) = latLngToXY(latlng, scale(zoom));
     return Offset(x, y);
   }
 
@@ -72,17 +72,6 @@ abstract class Crs {
   /// Whether this CRS supports repeating worlds: repeated (feature) layers and
   /// unbounded horizontal scrolling along the longitude axis
   bool get replicatesWorldLongitude => false;
-
-  /// Throws if [latlng] is not finite (e.g. either NaN or infinite), which may
-  /// cause memory leak.
-  /// cf. https://github.com/fleaflet/flutter_map/issues/2178
-  @protected
-  LatLng checkLatLng(LatLng latlng) {
-    if (!(latlng.latitude.isFinite && latlng.longitude.isFinite)) {
-      throw Exception('LatLng is not finite: $latlng');
-    }
-    return latlng;
-  }
 }
 
 final class _ScaleZoomCache {
@@ -156,7 +145,7 @@ abstract class CrsWithStaticTransformation extends Crs {
 
   @override
   (double, double) latLngToXY(LatLng latlng, double scale) {
-    final (x, y) = projection.projectXY(checkLatLng(latlng));
+    final (x, y) = projection.projectXY(latlng);
     return _transformation.transform(x, y, scale);
   }
 
@@ -221,18 +210,15 @@ class Epsg3857 extends CrsWithStaticTransformation {
         );
 
   @override
-  (double, double) latLngToXY(LatLng latlng, double scale) {
-    checkLatLng(latlng);
-    return _transformation.transform(
-      SphericalMercator.projectLng(latlng.longitude),
-      SphericalMercator.projectLat(latlng.latitude),
-      scale,
-    );
-  }
+  (double, double) latLngToXY(LatLng latlng, double scale) =>
+      _transformation.transform(
+        SphericalMercator.projectLng(latlng.longitude),
+        SphericalMercator.projectLat(latlng.latitude),
+        scale,
+      );
 
   @override
   Offset latLngToOffset(LatLng latlng, double zoom) {
-    checkLatLng(latlng);
     final (x, y) = _transformation.transform(
       SphericalMercator.projectLng(latlng.longitude),
       SphericalMercator.projectLat(latlng.latitude),
@@ -346,7 +332,7 @@ class Proj4Crs extends Crs {
   /// map point.
   @override
   (double, double) latLngToXY(LatLng latlng, double scale) {
-    final (x, y) = projection.projectXY(checkLatLng(latlng));
+    final (x, y) = projection.projectXY(latlng);
     final transformation = _getTransformationByZoom(zoom(scale));
     return transformation.transform(x, y, scale);
   }
@@ -381,38 +367,53 @@ class Proj4Crs extends Crs {
   /// Zoom to Scale function.
   @override
   double scale(double zoom) {
+    // A single defined level has no gradient to interpolate along, so every
+    // zoom maps to that one scale.
+    if (_scales.length == 1) return _scales[0];
+
     final iZoom = zoom.floor();
-    if (zoom == iZoom) {
+    // Fast path: an exact integer zoom within range returns the stored scale
+    // without any floating-point interpolation error.
+    if (zoom == iZoom && iZoom >= 0 && iZoom < _scales.length) {
       return _scales[iZoom];
-    } else {
-      // Non-integer zoom, interpolate
-      final baseScale = _scales[iZoom];
-      final nextScale = _scales[iZoom + 1];
-      final scaleDiff = nextScale - baseScale;
-      final zDiff = zoom - iZoom;
-      return baseScale + scaleDiff * zDiff;
     }
+
+    // Otherwise linearly interpolate within the defined range, or extrapolate
+    // beyond it off the nearest segment. Clamping the lower index keeps the
+    // access in bounds for zooms below the coarsest level (`_scales[-1]`, see
+    // #1358) or above the finest level (`_scales[length]`, see #1223).
+    final lower = iZoom.clamp(0, _scales.length - 2);
+    final baseScale = _scales[lower];
+    final nextScale = _scales[lower + 1];
+    return baseScale + (nextScale - baseScale) * (zoom - lower);
   }
 
   /// Scale to Zoom function.
   @override
   double zoom(double scale) {
+    // A single defined level maps every scale back to zoom 0.
+    if (_scales.length == 1) return 0;
+
     // Find closest number in _scales, down
     final downScale = _closestElement(_scales, scale);
-    if (downScale == null) {
-      return double.negativeInfinity;
-    }
-    final downZoom = _scales.indexOf(downScale);
     // Check if scale is downScale => return array index
-    if (scale == downScale) {
-      return downZoom.toDouble();
+    if (downScale != null && scale == downScale) {
+      return _scales.indexOf(downScale).toDouble();
     }
-    // Interpolate
-    final nextZoom = downZoom + 1;
-    final nextScale = _scales[nextZoom];
 
-    final scaleDiff = nextScale - downScale;
-    return (scale - downScale) / scaleDiff + downZoom;
+    // Choose the nearest in-range segment [lower, lower + 1] and interpolate
+    // within it, or extrapolate beyond it. Mirrors [scale]: a scale below the
+    // coarsest level (`downScale == null`) extrapolates off the first segment
+    // to a negative zoom (#1358); a scale above the finest level extrapolates
+    // off the last segment past the deepest index (#1223). Both were
+    // previously non-finite sentinels (or a crash) that broke callers doing
+    // `.round()`/`.floor()`; returning finite values lets them clamp normally.
+    final lower = downScale == null
+        ? 0
+        : _scales.indexOf(downScale).clamp(0, _scales.length - 2);
+    final baseScale = _scales[lower];
+    final nextScale = _scales[lower + 1];
+    return (scale - baseScale) / (nextScale - baseScale) + lower;
   }
 
   /// Get the closest lowest element in an array
@@ -430,9 +431,11 @@ class Proj4Crs extends Crs {
 
   /// returns Transformation object based on zoom
   _Transformation _getTransformationByZoom(double zoom) {
-    final iZoom = zoom.round();
-    final lastIdx = _transformations.length - 1;
-    return _transformations[iZoom > lastIdx ? lastIdx : iZoom];
+    // Clamp into range so an out-of-range zoom (which [this.zoom] may now
+    // return for scales outside the defined levels) can't index the list out
+    // of bounds at either end.
+    final iZoom = zoom.round().clamp(0, _transformations.length - 1);
+    return _transformations[iZoom];
   }
 }
 

@@ -4,6 +4,61 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
+## [8.4.0-dev.1] - 2026/09/02
+
+Contains the following user-affecting changes:
+
+- Added smooth scrolling when using mouse wheel - [#2198](https://github.com/fleaflet/flutter_map/pull/2198)
+- Added ability to use meters to size `Marker`s - [#2106](https://github.com/fleaflet/flutter_map/pull/2106)
+
+Contains the following user-affecting bug fixes:
+
+- Prevent `RangeError` in `Proj4Crs.scale`/`zoom` for out-of-range values - [#2209](https://github.com/fleaflet/flutter_map/pull/2209) for [#1358](https://github.com/fleaflet/flutter_map/issues/1358) & [#1223](https://github.com/fleaflet/flutter_map/issues/1223)
+
+Many thanks to these contributors (in no particular order):
+
+- @vinlet
+- @LeonTenorio
+- @AlexLaroche
+- ... and all the maintainers
+
+## [8.3.2] - 2026/08/27
+
+Contains the following user-affecting bug fixes:
+
+- Prevent NaN fling direction when tracked pointer offsets are zero - [#2220](https://github.com/fleaflet/flutter_map/pull/2220) for [#2221](https://github.com/fleaflet/flutter_map/issues/2221)
+- Don't apply `initialCameraFit` on a zero-sized camera - [#2223](https://github.com/fleaflet/flutter_map/pull/2223) for [#2222](https://github.com/fleaflet/flutter_map/issues/2222)
+- Load tiles during double-tap-drag zoom gesture - [#2217](https://github.com/fleaflet/flutter_map/pull/2217)
+
+Many thanks to these contributors (in no particular order):
+
+- @ProstoSanja
+- @nisenbeck
+- ... and all the maintainers
+
+## [8.3.1] - 2026/07/30
+
+Contains the following user-affecting bug fixes:
+
+- Revert [#2182](https://github.com/fleaflet/flutter_map/pull/2182) to fix multiple internal errors - [#2218](https://github.com/fleaflet/flutter_map/pull/2218) for [#2199](https://github.com/fleaflet/flutter_map/issues/2199)
+- Prevent memory leak and crash when `Marker`s with NaN coordinates provided - [#2213](https://github.com/fleaflet/flutter_map/pull/2213) for [#2178](https://github.com/fleaflet/flutter_map/issues/2178)
+
+Contains the following user-affecting performance improvements:
+
+- Improve `MarkerLayer` performance by caching projections - [#2213](https://github.com/fleaflet/flutter_map/pull/2213)
+- Improve `PolygonLayer` performance, particularly for polygons with holes - [#2211](https://github.com/fleaflet/flutter_map/pull/2211)
+- Improve `PolylineLayer` performance by improving culling algorithm - [#2212](https://github.com/fleaflet/flutter_map/pull/2212)
+
+Contains the following other notable changes:
+
+- Support 'pkg:latlong2' v0.10.x dependency - [#2207](https://github.com/fleaflet/flutter_map/pull/2207)
+
+Many thanks to these contributors (in no particular order):
+
+- @ThexXTURBOXx
+- @ben-milanko
+- ... and all the maintainers
+
 ## [8.3.0] - 2026/04/14
 
 Contains the following user-affecting changes:

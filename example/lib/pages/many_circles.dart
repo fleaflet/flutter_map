@@ -99,6 +99,7 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
             right: 16,
             child: RepaintBoundary(
               child: Column(
+                spacing: 12,
                 children: [
                   NumberOfItemsSlider(
                     number: displayedCirclesCount,
@@ -106,7 +107,6 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
                     maxNumber: _maxCirclesCount,
                     itemDescription: 'Circle',
                   ),
-                  const SizedBox(height: 12),
                   UnconstrainedBox(
                     child: Container(
                       decoration: BoxDecoration(
@@ -117,71 +117,70 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
                         vertical: 4,
                         horizontal: 16,
                       ),
-                      child: Row(
-                        children: [
-                          const Tooltip(
-                            message: 'Use Borders',
-                            child: Icon(Icons.circle_outlined),
-                          ),
-                          const SizedBox(width: 8),
-                          Switch.adaptive(
-                            value: useBorders,
-                            onChanged: (v) {
-                              allCircles = allCircles
-                                  .map(
-                                    (c) => CircleMarker(
-                                      point: c.point,
-                                      radius: c.radius,
-                                      color: c.color,
-                                      useRadiusInMeter: c.useRadiusInMeter,
-                                      borderColor: c.borderColor,
-                                      borderStrokeWidth: v ? 5 : 0,
-                                    ),
-                                  )
-                                  .toList(growable: false);
-                              useBorders = v;
-                              setState(() {});
-                            },
-                          ),
-                          const SizedBox(width: 16),
-                          const Tooltip(
-                            message: 'Use Radius In Meters',
-                            child: Icon(Icons.straighten),
-                          ),
-                          const SizedBox(width: 8),
-                          Switch.adaptive(
-                            value: useRadiusInMeters,
-                            onChanged: (v) {
-                              allCircles = allCircles
-                                  .map(
-                                    (c) => CircleMarker(
-                                      point: c.point,
-                                      radius: v ? 25000 : 5,
-                                      color: c.color,
-                                      useRadiusInMeter: v,
-                                      borderColor: c.borderColor,
-                                      borderStrokeWidth: c.borderStrokeWidth,
-                                    ),
-                                  )
-                                  .toList(growable: false);
-                              useRadiusInMeters = v;
-                              setState(() {});
-                            },
-                          ),
-                          const SizedBox(width: 16),
-                          const Tooltip(
-                            message: 'Optimise Meters Radius',
-                            child: Icon(Icons.speed_rounded),
-                          ),
-                          const SizedBox(width: 8),
-                          Switch.adaptive(
-                            value: optimizeRadiusInMeters,
-                            onChanged: useRadiusInMeters
-                                ? (v) =>
-                                    setState(() => optimizeRadiusInMeters = v)
-                                : null,
-                          ),
-                        ],
+                      child: IntrinsicHeight(
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            const Tooltip(
+                              message: 'Use Borders',
+                              child: Icon(Icons.circle_outlined),
+                            ),
+                            Switch.adaptive(
+                              value: useBorders,
+                              onChanged: (v) {
+                                allCircles = allCircles
+                                    .map(
+                                      (c) => CircleMarker(
+                                        point: c.point,
+                                        radius: c.radius,
+                                        color: c.color,
+                                        useRadiusInMeter: c.useRadiusInMeter,
+                                        borderColor: c.borderColor,
+                                        borderStrokeWidth: v ? 5 : 0,
+                                      ),
+                                    )
+                                    .toList(growable: false);
+                                useBorders = v;
+                                setState(() {});
+                              },
+                            ),
+                            const VerticalDivider(),
+                            const Tooltip(
+                              message: 'Use Radius In Meters',
+                              child: Icon(Icons.straighten),
+                            ),
+                            Switch.adaptive(
+                              value: useRadiusInMeters,
+                              onChanged: (v) {
+                                allCircles = allCircles
+                                    .map(
+                                      (c) => CircleMarker(
+                                        point: c.point,
+                                        radius: v ? 25000 : 5,
+                                        color: c.color,
+                                        useRadiusInMeter: v,
+                                        borderColor: c.borderColor,
+                                        borderStrokeWidth: c.borderStrokeWidth,
+                                      ),
+                                    )
+                                    .toList(growable: false);
+                                useRadiusInMeters = v;
+                                setState(() {});
+                              },
+                            ),
+                            const Tooltip(
+                              message: 'Optimise Meters Radius',
+                              child: Icon(Icons.speed_rounded),
+                            ),
+                            Switch.adaptive(
+                              value: optimizeRadiusInMeters,
+                              onChanged: useRadiusInMeters
+                                  ? (v) =>
+                                      setState(() => optimizeRadiusInMeters = v)
+                                  : null,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
