@@ -20,7 +20,7 @@ class ScaleBarPage extends StatelessWidget {
           initialZoom: 5,
         ),
         children: [
-          openStreetMapTileLayer,
+          const PrimaryTileLayer(),
           const Scalebar(
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             padding: EdgeInsets.only(right: 10, left: 10, bottom: 40),

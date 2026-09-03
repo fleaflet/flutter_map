@@ -21,7 +21,7 @@ class PluginZoomButtons extends StatelessWidget {
           initialZoom: 5,
         ),
         children: [
-          openStreetMapTileLayer,
+          const PrimaryTileLayer(),
           const FlutterMapZoomButtons(
             minZoom: 4,
             maxZoom: 19,

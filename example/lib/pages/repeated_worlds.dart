@@ -52,7 +52,7 @@ class _RepeatedWorldsPageState extends State<RepeatedWorldsPage> {
               cameraConstraint: const CameraConstraint.containLatitude(),
             ),
             children: [
-              openStreetMapTileLayer,
+              const PrimaryTileLayer(),
               GestureDetector(
                 onTap: () => ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

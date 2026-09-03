@@ -12,19 +12,12 @@ class FloatingMenuButton extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(32),
           ),
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () => Scaffold.of(context).openDrawer(),
-                icon: const Icon(Icons.menu),
-              ),
-              const SizedBox(width: 8),
-              Image.asset('assets/ProjectIcon.png', height: 32, width: 32),
-              const SizedBox(width: 8),
-            ],
+          padding: const EdgeInsets.all(6),
+          child: IconButton(
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            icon: const Icon(Icons.menu),
           ),
         ),
       ),
