@@ -12,10 +12,6 @@ jobs:
     defaults:
       run:
         working-directory: ./example
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -39,10 +35,6 @@ jobs:
           path: example/build/app/outputs/apk/release/android-demo.apk
           if-no-files-found: error
           archive: false
-      - name: Generate artifact attestation
-        uses: actions/attest@v4
-        with:
-          subject-path: example/build/app/outputs/apk/release/android-demo.apk
 
   build-windows:
     name: "Build Demo (Windows)"
@@ -50,10 +42,6 @@ jobs:
     defaults:
       run:
         working-directory: ./example
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -71,21 +59,13 @@ jobs:
           path: example/build/windows/output/windows-demo.exe
           if-no-files-found: error
           archive: false
-      - name: Generate artifact attestation
-        uses: actions/attest@v4
-        with:
-          subject-path: example/build/windows/output/windows-demo.exe
 
   build-web:
-    name: "Build & Deploy Demo (Web)"
+    name: "Build Demo (Web)"
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./example
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -103,35 +83,39 @@ jobs:
           path: example/web-demo.zip
           if-no-files-found: error
           archive: false
-      - name: Generate artifact attestation
-        uses: actions/attest@v4
-        with:
-          subject-path: example/web-demo.zip
-
-  gh-release:
-    name: "Create GitHub Release"
-    runs-on: ubuntu-latest
-    needs: [build-android, build-windows, build-web]
-    permissions:
-      contents: write
-    steps:
-      - name: Fetch build artifacts
-        uses: actions/download-artifact@v8
-        with:
-          path: artifacts/
-          merge-multiple: true
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v3
-        with:
-          files: artifacts/*
-          prerelease: ${{contains(github.ref_name, '-dev')}}
-          generate_release_notes: true
 
   pub-publish:
-    name: "Publish To pub.dev"
+    name: "Publish to pub.dev"
     needs: [build-android, build-windows, build-web]
     permissions:
       id-token: write
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
     with:
       environment: "pub.dev"
+
+  gh-release:
+    name: "Create GitHub Release"
+    runs-on: ubuntu-latest
+    needs: [build-android, build-windows, build-web, pub-publish]
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Fetch build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts/
+          merge-multiple: true
+          skip-decompress: true
+      - name: Attest build artifacts
+        uses: actions/attest@v4
+        with:
+          subject-path: artifacts/*.*
+      - name: Create GitHub release
+        uses: ncipollo/release-action@389305c50bc7406ce7e55077eb8b863e0f0a3083
+        with:
+          artifacts: artifacts/*.*
+          prerelease: ${{contains(github.ref_name, '-dev')}}
+          generateReleaseNotes: true
+          immutableCreate: true
