@@ -75,7 +75,7 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                   : const Epsg3857NoRepeat(),
             ),
             children: [
-              openStreetMapTileLayer,
+              const PrimaryTileLayer(),
               PolygonLayer(
                 simplificationTolerance: 0,
                 drawInSingleWorld: false,

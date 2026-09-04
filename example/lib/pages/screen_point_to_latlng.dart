@@ -43,7 +43,7 @@ class PointToLatlngPage extends State<ScreenPointToLatLngPage> {
               minZoom: 3,
             ),
             children: [
-              openStreetMapTileLayer,
+              const PrimaryTileLayer(),
               if (latLng != null)
                 MarkerLayer(
                   markers: [
