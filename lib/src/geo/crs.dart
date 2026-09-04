@@ -61,10 +61,10 @@ abstract class Crs {
   LatLng offsetToLatLng(Offset point, double zoom);
 
   /// Zoom to Scale function.
-  double scale(double zoom) => 256.0 * math.pow(2, zoom);
+  double scale(double zoom) => 256.0 * math.pow(2.0, zoom);
 
   /// Scale to Zoom function.
-  double zoom(double scale) => math.log(scale / 256) / math.ln2;
+  double zoom(double scale) => math.log(scale / 256.0) / math.ln2;
 
   /// Rescales the bounds to a given zoom value.
   Rect? getProjectedBounds(double zoom);
@@ -72,6 +72,51 @@ abstract class Crs {
   /// Whether this CRS supports repeating worlds: repeated (feature) layers and
   /// unbounded horizontal scrolling along the longitude axis
   bool get replicatesWorldLongitude => false;
+}
+
+/// Mixin which uses [_ScaleZoomCache] to implement [scale] & [zoom] methods
+/// backed by a cache, to improve performance.
+mixin _ScaleCacheMixin on Crs {
+  static final _caches = Expando<_ScaleZoomCache>('_scaleZoomCache');
+
+  _ScaleZoomCache get _cache {
+    final existing = _caches[this];
+    if (existing != null) return existing;
+    final created = _ScaleZoomCache();
+    _caches[this] = created;
+    return created;
+  }
+
+  @override
+  double scale(double zoom) {
+    final cache = _cache;
+    if (zoom == cache.lastScaleZoom) return cache.lastScaleValue;
+    final value = super.scale(zoom);
+    cache.lastScaleZoom = zoom;
+    cache.lastScaleValue = value;
+    return value;
+  }
+
+  @override
+  double zoom(double scale) {
+    final cache = _cache;
+    if (scale == cache.lastZoomScale) return cache.lastZoomValue;
+    final value = super.zoom(scale);
+    cache.lastZoomScale = scale;
+    cache.lastZoomValue = value;
+    return value;
+  }
+}
+
+/// Object used by a caching Crs (which mixes in [_ScaleCacheMixin]) to store
+/// cache details
+class _ScaleZoomCache {
+  _ScaleZoomCache();
+
+  double lastScaleZoom = double.nan;
+  double lastScaleValue = double.nan;
+  double lastZoomScale = double.nan;
+  double lastZoomValue = double.nan;
 }
 
 /// Internal base class for CRS with a single zoom-level independent transformation.
@@ -133,7 +178,9 @@ abstract class CrsWithStaticTransformation extends Crs {
   }
 }
 
-/// Custom CRS for non geographical maps
+/// Custom CRS for non geographical maps.
+///
+/// See also [CrsSimpleCached].
 @immutable
 class CrsSimple extends CrsWithStaticTransformation {
   /// Create a new [CrsSimple].
@@ -148,7 +195,15 @@ class CrsSimple extends CrsWithStaticTransformation {
         );
 }
 
-/// EPSG:3857, The most common CRS used for rendering maps.
+/// [CrsSimple] with cached scale/zoom.
+class CrsSimpleCached extends CrsSimple with _ScaleCacheMixin {
+  /// [CrsSimple] with cached scale/zoom.
+  CrsSimpleCached() : super();
+}
+
+/// EPSG:3857, the most common CRS used for rendering maps.
+///
+/// See also [Epsg3857Cached].
 @immutable
 class Epsg3857 extends CrsWithStaticTransformation {
   static const double _scale = 0.5 / (math.pi * SphericalMercator.r);
@@ -185,8 +240,16 @@ class Epsg3857 extends CrsWithStaticTransformation {
   bool get replicatesWorldLongitude => true;
 }
 
-/// EPSG:4326, A common CRS among GIS enthusiasts.
-/// Uses simple Equirectangular projection.
+/// [Epsg3857] with cached scale/zoom.
+class Epsg3857Cached extends Epsg3857 with _ScaleCacheMixin {
+  /// [Epsg3857] with cached scale/zoom.
+  Epsg3857Cached() : super();
+}
+
+/// EPSG:4326, a common CRS among GIS enthusiasts using simple equirectangular
+/// projection.
+///
+/// See also [Epsg4326Cached].
 @immutable
 class Epsg4326 extends CrsWithStaticTransformation {
   /// Create a new [Epsg4326] CRS instance.
@@ -198,6 +261,12 @@ class Epsg4326 extends CrsWithStaticTransformation {
           infinite: false,
           wrapLng: const (-180, 180),
         );
+}
+
+/// [Epsg4326] with cached scale/zoom.
+class Epsg4326Cached extends Epsg4326 with _ScaleCacheMixin {
+  /// [Epsg4326] with cached scale/zoom.
+  Epsg4326Cached() : super();
 }
 
 /// Custom CRS
