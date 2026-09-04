@@ -9,7 +9,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 typedef TapPositionCallback = void Function(TapPosition position);
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show IconButton, Icons, Theme, Colors;
+import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 /// Position to anchor [RichAttributionWidget] to relative to the [FlutterMap]
