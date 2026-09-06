@@ -14,6 +14,7 @@ class TileBuilderPage extends StatefulWidget {
 
 class TileBuilderPageState extends State<TileBuilderPage> {
   bool enableGrid = true;
+  bool showBackgroundGrid = true;
   bool showCoordinates = true;
   bool showLoadingTime = true;
   bool darkMode = true;
@@ -82,6 +83,15 @@ class TileBuilderPageState extends State<TileBuilderPage> {
                   ),
                   const SizedBox.square(dimension: 12),
                   const Tooltip(
+                    message: 'Show Background Grid While Tiles Load',
+                    child: Icon(Icons.grid_on),
+                  ),
+                  Switch.adaptive(
+                    value: showBackgroundGrid,
+                    onChanged: (v) => setState(() => showBackgroundGrid = v),
+                  ),
+                  const SizedBox.square(dimension: 12),
+                  const Tooltip(
                     message: 'Show Coordinates',
                     child: Icon(Icons.location_on),
                   ),
@@ -113,9 +123,11 @@ class TileBuilderPageState extends State<TileBuilderPage> {
           ),
           Expanded(
             child: FlutterMap(
-              options: const MapOptions(
-                initialCenter: LatLng(51.5, -0.09),
+              options: MapOptions(
+                initialCenter: const LatLng(51.5, -0.09),
                 initialZoom: 5,
+                backgroundGridColor:
+                    showBackgroundGrid ? const Color(0x14000000) : null,
               ),
               children: [
                 _darkModeContainerIfEnabled(

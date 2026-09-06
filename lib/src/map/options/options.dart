@@ -84,6 +84,22 @@ class MapOptions {
   /// yellow grey-ish color.
   final Color backgroundColor;
 
+  /// Color of the grid drawn over [backgroundColor], beneath all map layers.
+  ///
+  /// The grid is visible while tiles load and is covered as opaque tiles fade
+  /// in. It also remains visible through transparent tiles and in empty areas.
+  /// Set to `null` to disable it. A fully transparent [backgroundColor] also
+  /// disables the grid.
+  ///
+  /// Enabled by default with a subtle black line color (`0x14000000`).
+  final Color? backgroundGridColor;
+
+  /// Grid cell size in logical pixels at integer zoom levels.
+  ///
+  /// The grid moves and rotates with the map, scaling between integer zoom
+  /// levels. Must be finite and at least 1. Defaults to 64.
+  final double backgroundGridSpacing;
+
   /// Callback that fires when the map gets tapped or clicked with the
   /// primary mouse button. This is normally the left mouse button. This
   /// callback does not fire if the gesture is recognized as a double click.
@@ -167,6 +183,8 @@ class MapOptions {
     this.minZoom,
     this.maxZoom,
     this.backgroundColor = const Color(0xFFE0E0E0),
+    this.backgroundGridColor = const Color(0x14000000),
+    this.backgroundGridSpacing = 64,
     this.onTap,
     this.onSecondaryTap,
     this.onLongPress,
@@ -179,7 +197,10 @@ class MapOptions {
     this.onMapEvent,
     this.onMapReady,
     this.keepAlive = false,
-  });
+  }) : assert(
+          backgroundGridSpacing >= 1 && backgroundGridSpacing < double.infinity,
+          'backgroundGridSpacing must be finite and at least 1',
+        );
 
   /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.
@@ -204,6 +225,8 @@ class MapOptions {
       minZoom == other.minZoom &&
       maxZoom == other.maxZoom &&
       backgroundColor == other.backgroundColor &&
+      backgroundGridColor == other.backgroundGridColor &&
+      backgroundGridSpacing == other.backgroundGridSpacing &&
       onTap == other.onTap &&
       onSecondaryTap == other.onSecondaryTap &&
       onLongPress == other.onLongPress &&
@@ -228,6 +251,8 @@ class MapOptions {
         minZoom,
         maxZoom,
         backgroundColor,
+        backgroundGridColor,
+        backgroundGridSpacing,
         onTap,
         onSecondaryTap,
         onLongPress,
