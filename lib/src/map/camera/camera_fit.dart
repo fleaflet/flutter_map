@@ -126,7 +126,11 @@ class FitBounds extends CameraFit {
       projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
     }
 
-    final center = camera.unprojectAtZoom(projectedCenter, newZoom);
+    final center = _correctBoundsCenterForAntimeridianSpan(
+      camera.unprojectAtZoom(projectedCenter, newZoom),
+      bounds,
+    );
+
     return camera.withPosition(
       center: center,
       zoom: newZoom,
@@ -137,16 +141,13 @@ class FitBounds extends CameraFit {
     MapCamera camera,
     Offset pixelPadding,
   ) {
-    final nw = bounds.northWest;
-    final se = bounds.southEast;
     var size = camera.nonRotatedSize - pixelPadding as Size;
     // Prevent negative size which results in NaN zoom value later on in the calculation
 
     size = Size(math.max(0, size.width), math.max(0, size.height));
-    var boundsSize = Rect.fromPoints(
-      camera.projectAtZoom(se, camera.zoom),
-      camera.projectAtZoom(nw, camera.zoom),
-    ).size;
+
+    Size boundsSize = _boundsSizeWithPossibleAntimeridianSpan(bounds, camera);
+
     if (camera.rotation != 0.0) {
       final cosAngle = math.cos(camera.rotationRad).abs();
       final sinAngle = math.sin(camera.rotationRad).abs();
@@ -225,10 +226,8 @@ class FitInsideBounds extends CameraFit {
 
     final cameraSize = camera.nonRotatedSize - paddingTotalXY as Size;
 
-    final projectedBoundsSize = Rect.fromPoints(
-      camera.projectAtZoom(bounds.southEast, camera.zoom),
-      camera.projectAtZoom(bounds.northWest, camera.zoom),
-    ).size;
+    final projectedBoundsSize =
+        _boundsSizeWithPossibleAntimeridianSpan(bounds, camera);
 
     final scale = _rectInRotRectScale(
       angleRad: camera.rotationRad,
@@ -254,10 +253,13 @@ class FitInsideBounds extends CameraFit {
     );
     newZoom = newZoom.clamp(min, max);
 
-    final newCenter = _getCenter(
-      camera,
-      newZoom: newZoom,
-      paddingOffset: paddingOffset,
+    final newCenter = _correctBoundsCenterForAntimeridianSpan(
+      _getCenter(
+        camera,
+        newZoom: newZoom,
+        paddingOffset: paddingOffset,
+      ),
+      bounds,
     );
 
     return camera.withPosition(
@@ -494,5 +496,43 @@ class FitCoordinates extends CameraFit {
       maxZoom ?? double.infinity,
     );
     return newZoom.clamp(min, max);
+  }
+}
+
+LatLng _correctBoundsCenterForAntimeridianSpan(
+  LatLng center,
+  LatLngBounds bounds,
+) {
+  if (bounds.west > bounds.east) {
+    // Handle a bounding box that spans the antimeridian
+    var centerLng = (bounds.west + (bounds.east + 360)) / 2;
+    if (centerLng > 180) {
+      centerLng -= 360;
+    }
+
+    return LatLng(center.latitude, centerLng);
+  } else {
+    return center;
+  }
+}
+
+Size _boundsSizeWithPossibleAntimeridianSpan(
+  LatLngBounds bounds,
+  MapCamera camera,
+) {
+  if (bounds.west > bounds.east) {
+    // Handle a bounding box that spans the antimeridian
+    return Rect.fromPoints(
+      camera.projectAtZoom(
+        LatLng(bounds.south, bounds.east + 360),
+        camera.zoom,
+      ),
+      camera.projectAtZoom(bounds.northWest, camera.zoom),
+    ).size;
+  } else {
+    return Rect.fromPoints(
+      camera.projectAtZoom(bounds.southEast, camera.zoom),
+      camera.projectAtZoom(bounds.northWest, camera.zoom),
+    ).size;
   }
 }
