@@ -20,16 +20,16 @@ class MapInsideListViewPage extends StatelessWidget {
         child: ListView(
           scrollDirection: Axis.vertical,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 300,
               child: FlutterMap(
-                options: const MapOptions(
+                options: MapOptions(
                   initialCenter: LatLng(51.5, -0.09),
                   initialZoom: 5,
                 ),
                 children: [
-                  openStreetMapTileLayer,
-                  const FlutterMapZoomButtons(
+                  PrimaryTileLayer(),
+                  FlutterMapZoomButtons(
                     minZoom: 4,
                     maxZoom: 19,
                     mini: true,

@@ -55,7 +55,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
               },
             ),
             children: [
-              openStreetMapTileLayer,
+              const PrimaryTileLayer(),
               if (tappedCoords != null)
                 MarkerLayer(
                   markers: [

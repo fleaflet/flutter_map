@@ -72,7 +72,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
               ),
             ),
             children: [
-              openStreetMapTileLayer,
+              const PrimaryTileLayer(),
               FutureBuilder(
                 future: polygons,
                 builder: (context, polygons) => polygons.data == null

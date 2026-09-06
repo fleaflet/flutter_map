@@ -75,7 +75,7 @@ class _CirclePageState extends State<CirclePage> {
           initialZoom: 11,
         ),
         children: [
-          openStreetMapTileLayer,
+          const PrimaryTileLayer(),
           MouseRegion(
             hitTestBehavior: HitTestBehavior.deferToChild,
             cursor: SystemMouseCursors.click,

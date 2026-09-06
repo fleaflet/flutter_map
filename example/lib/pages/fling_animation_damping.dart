@@ -105,7 +105,7 @@ class _FlingAnimationDampingPageState extends State<FlingAnimationDampingPage> {
                 ),
               ),
               children: [
-                openStreetMapTileLayer,
+                const PrimaryTileLayer(),
                 Center(
                   child: Container(
                     padding: const EdgeInsets.all(8),
