@@ -176,15 +176,17 @@ class TileImage extends ChangeNotifier {
     }
   }
 
-  // Initiates fading in and marks this TileImage as readyToDisplay when fading
-  // finishes. If fading is disabled or a loading error occurred this TileImage
-  // becomes readyToDisplay immediately.
+  // Called once loading has settled, successfully or not. Initiates fading in
+  // and marks this TileImage as readyToDisplay when fading finishes; immediate
+  // if fading is disabled, or if loading failed and there is an errorImage to
+  // paint instead. A failure with nothing to paint never becomes
+  // readyToDisplay.
   void _display() {
     final previouslyLoaded = loadFinishedAt != null;
     loadFinishedAt = DateTime.now();
 
     if (loadError) {
-      _readyToDisplay = true;
+      _readyToDisplay = errorImage != null;
       if (!_disposed) notifyListeners();
       return;
     }
