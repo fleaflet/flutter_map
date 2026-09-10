@@ -157,6 +157,18 @@ class TileImage extends ChangeNotifier {
   }
 
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
+    if (imageInfo.image.width == 1 && imageInfo.image.height == 1) {
+      // TileProvider.transparentImage. Evicted so the next tile at these
+      // coordinates refetches instead of hitting it in the URL-keyed cache.
+      try {
+        unawaited(imageProvider.evict().catchError((Object _) => false));
+      } catch (_) {
+        // As in `dispose`, `evict` can also throw synchronously.
+      }
+      _onImageLoadError(const TileLoadAbandonedException(), null);
+      return;
+    }
+
     loadError = false;
     this.imageInfo = imageInfo;
 
@@ -259,4 +271,17 @@ class TileImage extends ChangeNotifier {
   String toString() {
     return 'TileImage($coordinates, readyToDisplay: $_readyToDisplay)';
   }
+}
+
+/// Thrown when a tile resolves to [TileProvider.transparentImage], which a
+/// [TileProvider] returns in place of an error it cannot throw, usually a
+/// cancellation.
+class TileLoadAbandonedException implements Exception {
+  /// Create a [TileLoadAbandonedException].
+  const TileLoadAbandonedException();
+
+  @override
+  String toString() =>
+      'TileLoadAbandonedException: the tile provider returned the transparent '
+      'placeholder instead of tile data';
 }

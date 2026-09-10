@@ -9,6 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../test_utils/test_tile_image.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   Future<TileImage> loadFailingTile({ImageProvider? errorImage}) {
     final loaded = Completer<void>();
     final tileImage = TileImage(
@@ -36,6 +38,27 @@ void main() {
 
     expect(tileImage.loadError, isTrue);
     expect(tileImage.readyToDisplay, isTrue);
+  });
+
+  test('the transparent placeholder counts as a failure, not a tile', () async {
+    final loaded = Completer<void>();
+    Object? reportedError;
+    final tileImage = TileImage(
+      coordinates: const TileCoordinates(0, 0, 0),
+      vsync: const _TestTickerProvider(),
+      imageProvider: MemoryImage(TileProvider.transparentImage),
+      onLoadComplete: (_) => loaded.complete(),
+      onLoadError: (_, error, __) => reportedError = error,
+      tileDisplay: const TileDisplay.instantaneous(),
+      cancelLoading: Completer(),
+      errorImage: null,
+    )..load();
+    await loaded.future;
+
+    expect(tileImage.loadError, isTrue);
+    expect(tileImage.readyToDisplay, isFalse);
+    expect(tileImage.imageInfo, isNull);
+    expect(reportedError, isA<TileLoadAbandonedException>());
   });
 }
 
