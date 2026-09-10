@@ -184,7 +184,7 @@ class TileImage extends ChangeNotifier {
     loadFinishedAt = DateTime.now();
 
     if (loadError) {
-      _readyToDisplay = true;
+      _readyToDisplay = errorImage != null;
       if (!_disposed) notifyListeners();
       return;
     }
