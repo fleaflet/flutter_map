@@ -1,4 +1,13 @@
+---
+hidden: true
+noIndex: true
+---
+
 # Using Lima Labs
+
+{% hint style="danger" %}
+Lima Labs unfortunately appears to be no longer available. See [https://wiki.openstreetmap.org/wiki/Lima\_Labs](https://wiki.openstreetmap.org/wiki/Lima_Labs) for more information.
+{% endhint %}
 
 {% hint style="info" %}
 'flutter\_map' is in no way associated or related with Lima Labs.

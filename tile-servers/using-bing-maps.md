@@ -37,7 +37,6 @@ enum BingMapsImagerySet {
 }
 
 // Custom tile provider that contains the quadkeys logic
-// Note that you can also extend from the CancellableNetworkTileProvider
 class BingMapsTileProvider extends NetworkTileProvider {
   BingMapsTileProvider({super.headers});
 
