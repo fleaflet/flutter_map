@@ -39,6 +39,8 @@ export 'package:flutter_map/src/layer/shared/layer_interactivity/layer_hit_notif
 export 'package:flutter_map/src/layer/shared/layer_interactivity/layer_hit_result.dart';
 export 'package:flutter_map/src/layer/shared/line_patterns/stroke_pattern.dart';
 export 'package:flutter_map/src/layer/shared/mobile_layer_transformer.dart';
+export 'package:flutter_map/src/layer/shared/shape_effects.dart'
+    hide shapeEffectsExtent;
 export 'package:flutter_map/src/layer/shared/translucent_pointer.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';

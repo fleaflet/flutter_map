@@ -98,10 +98,40 @@ class _PolylinePainter<R extends Object> extends CustomPainter
 
     Paint? borderPaint;
     Paint? filterPaint;
+    ShapeGlow? glow;
+    ShapeShadow? shadow;
     int? lastHash;
 
     void drawPaths() {
       final hasBorder = borderPaint != null && filterPaint != null;
+
+      // Effects follow the outermost outline, and sit below the layer that
+      // stencils translucent lines
+      if (glow != null || shadow != null) {
+        final outlinePath = hasBorder ? borderPath : path;
+        final outlinePaint = hasBorder ? borderPaint! : paint;
+
+        if (shadow case final effect?) {
+          canvas
+            ..save()
+            ..translate(effect.offset.dx, effect.offset.dy)
+            ..drawPath(
+              outlinePath,
+              _outlineEffectPaint(effect.toPaint(), outlinePaint),
+            )
+            ..restore();
+        }
+        if (glow case final effect?) {
+          canvas.drawPath(
+            outlinePath,
+            _outlineEffectPaint(effect.toPaint(), outlinePaint),
+          );
+        }
+
+        glow = null;
+        shadow = null;
+      }
+
       if (hasBorder) {
         if (needsLayerSaving) {
           canvas.saveLayer(viewportRect, Paint());
@@ -148,7 +178,10 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           strokeWidth = polyline.strokeWidth;
         }
 
-        if (!areOffsetsVisible(offsets, strokeWidth)) {
+        final effectsExtent =
+            shapeEffectsExtent(polyline.glow, polyline.shadow);
+
+        if (!areOffsetsVisible(offsets, strokeWidth + 2 * effectsExtent)) {
           return WorldWorkControl.invisible;
         }
 
@@ -159,6 +192,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter
         lastHash = hash;
         needsLayerSaving = polyline.color.a < 1 ||
             (polyline.gradientColors?.any((c) => c.a < 1) ?? false);
+
+        glow = polyline.glow;
+        shadow = polyline.shadow;
 
         // strokeWidth, or strokeWidth + borderWidth if relevant.
         double largestStrokeWidth = strokeWidth;
@@ -204,6 +240,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter
             ..blendMode = BlendMode.dstOut;
         }
 
+        // Keep segments whose effects reach into the viewport
+        final hikerStrokeWidth = largestStrokeWidth + 2 * effectsExtent;
+
         final radius = paint.strokeWidth / 2;
         final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
 
@@ -218,7 +257,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
             offsets: offsets,
             closePath: false,
             canvasSize: size,
-            strokeWidth: largestStrokeWidth,
+            strokeWidth: hikerStrokeWidth,
           );
           hiker.addAllVisibleSegments(paths);
         } else if (isDotted) {
@@ -228,7 +267,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
             patternFit: polyline.pattern.patternFit!,
             closePath: false,
             canvasSize: size,
-            strokeWidth: largestStrokeWidth,
+            strokeWidth: hikerStrokeWidth,
           );
 
           final List<double> radii = [];
@@ -251,7 +290,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
             patternFit: polyline.pattern.patternFit!,
             closePath: false,
             canvasSize: size,
-            strokeWidth: largestStrokeWidth,
+            strokeWidth: hikerStrokeWidth,
           );
 
           for (final visibleSegment in hiker.getAllVisibleSegments()) {
@@ -270,6 +309,13 @@ class _PolylinePainter<R extends Object> extends CustomPainter
 
     drawPaths();
   }
+
+  Paint _outlineEffectPaint(Paint effectPaint, Paint outlinePaint) =>
+      effectPaint
+        ..strokeWidth = outlinePaint.strokeWidth
+        ..strokeCap = outlinePaint.strokeCap
+        ..strokeJoin = outlinePaint.strokeJoin
+        ..style = outlinePaint.style;
 
   ui.Gradient _paintGradient(Polyline polyline, List<Offset> offsets) =>
       ui.Gradient.linear(offsets.first, offsets.last, polyline.gradientColors!,

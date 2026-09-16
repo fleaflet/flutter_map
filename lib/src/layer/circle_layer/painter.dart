@@ -60,12 +60,16 @@ class CirclePainter<R extends Object> extends CustomPainter
     final points = <Color, Map<double, List<Offset>>>{};
     final pointsFilledBorder = <Color, Map<double, List<Offset>>>{};
     final pointsBorder = <Color, Map<double, Map<double, List<Offset>>>>{};
+    final shadows = <ShapeShadow, List<_CircleOutline>>{};
+    final glows = <ShapeGlow, List<_CircleOutline>>{};
     _pixelsPerMeter = null;
     for (final circle in circles) {
       final radiusWithoutBorder = _getRadiusInPixel(circle);
       final radiusWithBorder =
           radiusWithoutBorder + circle.borderStrokeWidth / 2;
       final initialCenter = _getOffset(circle.point);
+      final hasEffects = circle.glow != null || circle.shadow != null;
+      final effectsExtent = shapeEffectsExtent(circle.glow, circle.shadow);
 
       /// Draws on a "single-world"
       WorldWorkControl drawIfVisible(double shift) {
@@ -78,6 +82,23 @@ class CirclePainter<R extends Object> extends CustomPainter
             return true;
           }
           return false;
+        }
+
+        if (hasEffects && isVisible(radiusWithBorder + effectsExtent)) {
+          final outline = _CircleOutline.of(
+            circle,
+            center: center,
+            radiusWithoutBorder: radiusWithoutBorder,
+            radiusWithBorder: radiusWithBorder,
+          );
+          if (outline != null) {
+            if (circle.shadow case final shadow?) {
+              (shadows[shadow] ??= []).add(outline);
+            }
+            if (circle.glow case final glow?) {
+              (glows[glow] ??= []).add(outline);
+            }
+          }
         }
 
         if (isVisible(radiusWithoutBorder)) {
@@ -112,6 +133,24 @@ class CirclePainter<R extends Object> extends CustomPainter
     }
 
     // Now that all the points are grouped, let's draw them
+
+    // Effects first, so that they stay below every disk and border
+    for (final MapEntry(key: shadow, value: outlines) in shadows.entries) {
+      final paint = shadow.toPaint();
+      canvas
+        ..save()
+        ..translate(shadow.offset.dx, shadow.offset.dy);
+      for (final outline in outlines) {
+        outline.paint(canvas, paint);
+      }
+      canvas.restore();
+    }
+    for (final MapEntry(key: glow, value: outlines) in glows.entries) {
+      final paint = glow.toPaint();
+      for (final outline in outlines) {
+        outline.paint(canvas, paint);
+      }
+    }
 
     // First, the border when with non opaque disk
     final paintBorder = Paint()..style = PaintingStyle.stroke;
@@ -193,4 +232,55 @@ class CirclePainter<R extends Object> extends CustomPainter
   }) =>
       viewportRect
           .overlaps(Rect.fromCircle(center: center, radius: radiusInPixel));
+}
+
+/// Outermost painted geometry of a [CircleMarker], used to draw its effects
+@immutable
+class _CircleOutline {
+  final Offset center;
+  final double radius;
+
+  /// Stroke width when only the border ring is painted, or `null` for the
+  /// filled disk
+  final double? ringWidth;
+
+  const _CircleOutline._({
+    required this.center,
+    required this.radius,
+    required this.ringWidth,
+  });
+
+  static _CircleOutline? of(
+    CircleMarker circle, {
+    required Offset center,
+    required double radiusWithoutBorder,
+    required double radiusWithBorder,
+  }) {
+    if (circle.color.a > 0) {
+      return _CircleOutline._(
+        center: center,
+        radius: radiusWithBorder,
+        ringWidth: null,
+      );
+    }
+    if (circle.borderStrokeWidth > 0 && circle.borderColor.a > 0) {
+      return _CircleOutline._(
+        center: center,
+        radius: radiusWithoutBorder,
+        ringWidth: circle.borderStrokeWidth,
+      );
+    }
+    return null;
+  }
+
+  void paint(Canvas canvas, Paint paint) {
+    if (ringWidth case final width?) {
+      paint
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = width;
+    } else {
+      paint.style = PaintingStyle.fill;
+    }
+    canvas.drawCircle(center, radius, paint);
+  }
 }
