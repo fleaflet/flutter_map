@@ -55,7 +55,22 @@ class TileImage extends ChangeNotifier {
   DateTime? loadFinishedAt;
 
   /// Some meta data of the image.
+  ///
+  /// Ownership: this handle is ALWAYS the tile's own. `RawImage` clones the
+  /// image for its `RenderImage` (`createRenderObject`/`updateRenderObject`
+  /// both pass `image?.clone()`), so handing it to the widget tree never
+  /// transfers ownership — the render object frees its own clone, and this
+  /// one stays with the tile until the tile frees it: on frame replacement
+  /// and on [dispose].
+  ///
+  /// The previous model ("the render object takes over at build time") was
+  /// wrong and leaked exactly one handle per painted frame: measured on an
+  /// iPhone with 768x768 tiles as ~0.3-0.9 leaked handles per tile, invisible
+  /// to `ImageCache`, with the process eventually killed by jetsam. GC
+  /// finalizers reclaim such handles EVENTUALLY, which is why small default
+  /// tiles get away with it — 2.25 MB tiles do not.
   ImageInfo? imageInfo;
+
   ImageStream? _imageStream;
   late ImageStreamListener _listener;
 
@@ -158,12 +173,28 @@ class TileImage extends ChangeNotifier {
 
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
     loadError = false;
-    this.imageInfo = imageInfo;
 
-    if (!_disposed) {
-      _display();
-      onLoadComplete(coordinates);
+    // After dispose() the owner that would free this handle is gone (dispose
+    // ran and nulled the field — see the ownership note on [imageInfo]), so
+    // the handler frees it on the spot.
+    //
+    // `dispose()` removes the listener, but `setImage` dispatches over a copy
+    // of the listener list, so a listener removed from inside that loop is
+    // still called. Tiles resolving equal keys share one completer, and
+    // `onLoadComplete` is where pruning happens (see the note in
+    // `TileImageManager.reloadImages`) — so a tile can be disposed
+    // mid-dispatch and handed an image anyway. See `tile_image_test.dart`.
+    if (_disposed) {
+      imageInfo.dispose();
+      return;
     }
+
+    // The previous frame's handle is ours to free — see the ownership note
+    // on [imageInfo].
+    this.imageInfo?.dispose();
+    this.imageInfo = imageInfo;
+    _display();
+    onLoadComplete(coordinates);
   }
 
   void _onImageLoadError(Object exception, StackTrace? stackTrace) {
@@ -242,6 +273,11 @@ class TileImage extends ChangeNotifier {
 
     _animationController?.dispose();
     _imageStream?.removeListener(_listener);
+    // Same ownership rule as on frame replacement (see [imageInfo]). Nulling
+    // the field keeps a straggler build — dispose can race the layer rebuild —
+    // from cloning a disposed image; `RawImage` treats null as "paint nothing".
+    imageInfo?.dispose();
+    imageInfo = null;
     super.dispose();
   }
 
