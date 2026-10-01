@@ -141,8 +141,6 @@ class _FlutterMapStateContainer extends State<FlutterMap>
     );
     final oldCamera = _mapController.camera;
     if (_mapController.setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
-      final newMapCamera = _mapController.camera;
-
       // Avoid emitting the event during build otherwise if the user calls
       // setState in the onMapEvent callback it will throw.
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -150,7 +148,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
           _mapController.nonRotatedSizeChange(
             MapEventSource.nonRotatedSizeChange,
             oldCamera,
-            newMapCamera,
+            _mapController.camera,
           );
 
           _applyInitialCameraFit(constraints);
