@@ -119,7 +119,15 @@ class _FlutterMapStateContainer extends State<FlutterMap>
 
     if (!_initialCameraFitApplied &&
         widget.options.initialCameraFit != null &&
-        _parentConstraintsAreSet(context, constraints)) {
+        _parentConstraintsAreSet(context, constraints) &&
+        // `_parentConstraintsAreSet` can return true while `constraints` is
+        // still zero-sized (e.g. on the first build of a not-yet-measured
+        // parent, while `MediaQuery` already reports a non-zero screen
+        // size). Fitting against a zero size produces a degenerate camera,
+        // so wait for a real, non-zero size instead of latching
+        // `_initialCameraFitApplied` against it.
+        constraints.maxWidth > 0 &&
+        constraints.maxHeight > 0) {
       _initialCameraFitApplied = true;
 
       _mapController.fitCamera(widget.options.initialCameraFit!);

@@ -1,3 +1,12 @@
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+
 # match the lint rules from flutter_map
 include: ./../analysis_options.yaml
 

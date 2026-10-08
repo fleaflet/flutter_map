@@ -51,12 +51,13 @@ class MenuDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final runningOnOfficialDomain = Uri.base.host.trim() == 'demo.fleaflet.dev';
+
     return Drawer(
       child: ListView(
         children: <Widget>[
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 32, 16, 16)
-                .add(EdgeInsets.only(top: MediaQuery.paddingOf(context).top)),
+            padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
             margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
               border: Border(bottom: Divider.createBorderSide(context)),
@@ -64,66 +65,124 @@ class MenuDrawer extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  'assets/ProjectIcon.png',
-                  height: 48,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
+                  children: [
+                    Image.asset(
+                      'assets/ProjectIcon.png',
+                      height: 36,
+                      width: 36,
+                      scale: 0.1,
+                      filterQuality: FilterQuality.medium,
+                    ),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'flutter_map Demo',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '© flutter_map authors and contributors',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'flutter_map Demo',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const Text(
-                  '© flutter_map Authors & Contributors',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14),
-                ),
-                const SizedBox(height: 8),
-                if (kIsWeb)
+                if (kIsWeb) ...[
+                  if (runningOnOfficialDomain)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primaryContainer
+                            .withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        spacing: 8,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.volunteer_activism_outlined,
+                            size: 20,
+                          ),
+                          Expanded(
+                            child: Text.rich(
+                              TextSpan(
+                                style: Theme.of(context).textTheme.bodySmall,
+                                children: [
+                                  const TextSpan(
+                                    text: 'Uses free resources!\n',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  const TextSpan(
+                                    text:
+                                        'Please be responsible when using this '
+                                        'demo.',
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   Text(
                     _isWASM ? 'Running with WASM' : 'Running without WASM',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                if (_commitSHA != '')
-                  SelectableText.rich(
-                    TextSpan(
-                      style: Theme.of(context).textTheme.bodySmall,
-                      children: [
-                        const TextSpan(text: 'Built from: '),
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '${_commitSHA.substring(
-                                0,
-                                min(_commitSHA.length, 7),
-                              )} ',
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = _openCommit,
-                            ),
-                            WidgetSpan(
-                              child: MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: _openCommit,
-                                  child: const Icon(
-                                    Icons.open_in_new,
-                                    size: 14,
-                                    color: Colors.blue,
+                  if (runningOnOfficialDomain && _commitSHA != '')
+                    SelectableText.rich(
+                      TextSpan(
+                        style: Theme.of(context).textTheme.bodySmall,
+                        children: [
+                          const TextSpan(text: 'Built from: '),
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '${_commitSHA.substring(
+                                  0,
+                                  min(_commitSHA.length, 7),
+                                )} ',
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = _openCommit,
+                              ),
+                              WidgetSpan(
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: _openCommit,
+                                    child: const Icon(
+                                      Icons.open_in_new,
+                                      size: 14,
+                                      color: Colors.blue,
+                                    ),
                                   ),
                                 ),
                               ),
+                            ],
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.blue,
                             ),
-                          ],
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.blue,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                ],
               ],
             ),
           ),

@@ -1,6 +1,6 @@
 name: flutter_map
 description: "Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile, vendor-free, fully cross-platform, and 100% pure-Flutter"
-version: 8.3.0
+version: 8.4.0-dev.1
 
 repository: https://github.com/fleaflet/flutter_map
 issue_tracker: https://github.com/fleaflet/flutter_map/issues
@@ -33,7 +33,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.5.0
-  latlong2: ^0.9.1
+  latlong2: ">=0.9.1 <0.11.0"
   meta: ^1.11.0
   path: ^1.9.0
   path_provider: ^2.1.5

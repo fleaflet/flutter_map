@@ -5,10 +5,15 @@ class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
   final Polyline<R> polyline;
   final List<Offset> points;
 
+  /// Bounding box of [points], in projected space (cached)
+  ///
+  /// Computed lazily: culled fragments never use it.
+  late final Rect boundingBox = RectExtension.containing(points);
+
   @override
   R? get hitValue => polyline.hitValue;
 
-  const _ProjectedPolyline._({
+  _ProjectedPolyline._({
     required this.polyline,
     required this.points,
   });

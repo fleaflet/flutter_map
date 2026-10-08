@@ -66,4 +66,5 @@ export 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 export 'package:flutter_map/src/map/options/interaction.dart';
 export 'package:flutter_map/src/map/options/keyboard.dart';
 export 'package:flutter_map/src/map/options/options.dart';
+export 'package:flutter_map/src/map/options/scroll_zoom.dart';
 export 'package:flutter_map/src/map/widget.dart';
