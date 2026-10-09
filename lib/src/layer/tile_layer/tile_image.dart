@@ -170,20 +170,32 @@ class TileImage extends ChangeNotifier {
     loadError = true;
 
     if (!_disposed) {
-      _display();
+      if (errorImage != null) {
+        _display();
+      } else {
+        // Not displayable, so that loaded tiles of other zoom levels stay
+        // visible in its place. Listeners still rebuild, so that a
+        // `tileBuilder` can draw the failed tile.
+        notifyListeners();
+      }
       onLoadError(this, exception, stackTrace);
       onLoadComplete(coordinates);
     }
   }
 
   // Initiates fading in and marks this TileImage as readyToDisplay when fading
-  // finishes. If fading is disabled or a loading error occurred this TileImage
-  // becomes readyToDisplay immediately.
+  // finishes. If fading is disabled or a loading error occurred (with an
+  // errorImage) this TileImage becomes readyToDisplay immediately.
   void _display() {
     final previouslyLoaded = loadFinishedAt != null;
     loadFinishedAt = DateTime.now();
 
     if (loadError) {
+      assert(
+        errorImage != null,
+        'A TileImage should not be displayed if loading errors and there is no '
+        'errorImage to show.',
+      );
       _readyToDisplay = true;
       if (!_disposed) notifyListeners();
       return;
