@@ -236,10 +236,12 @@ class _MarkerLayerState extends State<MarkerLayer> {
                 // Keep the caller's key on the main world so find.byKey and
                 // per-marker identity are unchanged; derive a distinct key for
                 // each repeated world so a keyed marker does not produce
-                // duplicate sibling keys in the Stack (#2229).
+                // duplicate sibling keys in the Stack (#2229). The key uses the
+                // world index rather than the pixel shift, which changes with
+                // zoom, so a copy keeps its element (and state) while zooming.
                 key: m.key == null || worldShift == 0
                     ? m.key
-                    : ValueKey((m.key, worldShift)),
+                    : ValueKey((m.key, (worldShift / worldWidth).round())),
                 width: width,
                 height: height,
                 left: shiftedLocalPoint.dx - right,
