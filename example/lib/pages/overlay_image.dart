@@ -20,7 +20,7 @@ class OverlayImagePage extends StatelessWidget {
           initialZoom: 6,
         ),
         children: [
-          openStreetMapTileLayer,
+          const PrimaryTileLayer(),
           OverlayImageLayer(
             overlayImages: [
               OverlayImage(
