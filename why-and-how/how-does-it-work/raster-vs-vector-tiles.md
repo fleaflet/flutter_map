@@ -1,7 +1,7 @@
 # Raster vs Vector Tiles
 
 {% hint style="info" %}
-It is important to note that 'flutter\_map' only supports raster tiles natively. Vector tiles can be used with a community maintained plugin.
+It is important to note that 'flutter\_map' only supports raster tiles natively. Vector tiles can be used with community maintained plugins.
 
 This is described in more detail at the bottom of this page.
 {% endhint %}
@@ -22,14 +22,8 @@ However it does add complexity to the rendering process as each element needs to
 
 ### Using Vector Tiles
 
-Due to the complications mentioned above, 'flutter\_map' does not natively support vector tiles. However, vector tiles can be used with a [community maintained plugin (`vector_map_tiles`)](https://github.com/greensopinion/flutter-vector-map-tiles) to do this.
+Due to the complications mentioned above, 'flutter\_map' does not natively support vector tiles. However, vector tiles can be used with community maintained plugins:
 
-{% hint style="warning" %}
-Worried about vector tiles performance?
+* [`flutter_mapigrade`](https://github.com/greensopinion/mapigrade) renders the map with [MapLibre Native](https://github.com/maplibre/maplibre-native) and displays it in a Flutter `Texture` widget.
+* [`vector_map_tiles`](https://github.com/greensopinion/flutter-vector-map-tiles) renders vector tiles in Dart.
 
-Using vector tiles may significantly cut FPS and introduce jank, and that's because of the amount of UI work that must be performed on the main thread.
-
-The community and FM maintainers are looking to improve the situation!
-
-Keep up to date and subscribe to the issue: [https://github.com/greensopinion/flutter-vector-map-tiles/issues/120](https://github.com/greensopinion/flutter-vector-map-tiles/issues/120).
-{% endhint %}
