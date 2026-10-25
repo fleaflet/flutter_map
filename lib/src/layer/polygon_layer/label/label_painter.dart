@@ -20,7 +20,7 @@ class _PolygonLabelPainter<R extends Object> extends CustomPainter
 
     final origin = camera.pixelOrigin;
     final canvasToScreen = camera.pixelToScreenTransform
-      ..translateByDouble(origin.dx, origin.dy, 0, 1);
+      ..multiply(Matrix4.translationValues(origin.dx, origin.dy, 0));
 
     for (final projectedPolygon in polygons) {
       final polygon = projectedPolygon.polygon;

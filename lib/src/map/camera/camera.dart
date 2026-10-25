@@ -341,12 +341,13 @@ class MapCamera {
   Matrix4 _computePixelToScreenTransform() {
     final projectedCenter = projectAtZoom(center);
     return Matrix4.identity()
-      ..translateByDouble(
-          nonRotatedSize.width / 2, nonRotatedSize.height / 2, 0, 1)
+      ..multiply(Matrix4.translationValues(
+          nonRotatedSize.width / 2, nonRotatedSize.height / 2, 0))
       ..multiply(Matrix4.identity()..setEntry(3, 2, -1 / _cameraDistance))
       ..rotateX(pitchRad)
       ..rotateZ(rotationRad)
-      ..translateByDouble(-projectedCenter.dx, -projectedCenter.dy, 0, 1);
+      ..multiply(Matrix4.translationValues(
+          -projectedCenter.dx, -projectedCenter.dy, 0));
   }
 
   /// Calculates point value for the given [latlng] using this camera's

@@ -37,7 +37,7 @@ class MobileLayerTransformer extends StatelessWidget {
       maxHeight: camera.size.height,
       child: Transform(
         transform: camera.pixelToScreenTransform
-          ..translateByDouble(origin.dx, origin.dy, 0, 1),
+          ..multiply(Matrix4.translationValues(origin.dx, origin.dy, 0)),
         child: child,
       ),
     );

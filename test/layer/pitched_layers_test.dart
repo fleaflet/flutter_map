@@ -65,7 +65,8 @@ List<(Offset, Offset)> _pathEnds(WidgetTester tester, Finder layer) {
       case #restore:
         transform = saved.removeLast();
       case #translate:
-        transform.translateByDouble(args[0] as double, args[1] as double, 0, 1);
+        transform.multiply(
+            Matrix4.translationValues(args[0] as double, args[1] as double, 0));
       case #transform:
         transform.multiply(Matrix4.fromFloat64List(args[0] as Float64List));
       case #drawPath:
@@ -131,7 +132,8 @@ List<(Offset, double, double, double)> _paragraphs(
       case #restore:
         transform = saved.removeLast();
       case #translate:
-        transform.translateByDouble(args[0] as double, args[1] as double, 0, 1);
+        transform.multiply(
+            Matrix4.translationValues(args[0] as double, args[1] as double, 0));
       case #rotate:
         transform.rotateZ(args[0] as double);
       case #drawParagraph:
