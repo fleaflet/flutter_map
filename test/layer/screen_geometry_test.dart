@@ -112,7 +112,8 @@ List<List<double>> _corners(WidgetTester tester, String key) {
       case #restore:
         transform = saved.removeLast();
       case #translate:
-        transform.translateByDouble(args[0] as double, args[1] as double, 0, 1);
+        transform.multiply(
+            Matrix4.translationValues(args[0] as double, args[1] as double, 0));
       case #rotate:
         transform.rotateZ(args[0] as double);
       case #transform:
