@@ -25,6 +25,8 @@ import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_cover.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_cover_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
@@ -37,7 +39,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/file/stub_tile_pr
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/image_provider/image_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
