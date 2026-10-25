@@ -88,6 +88,14 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   late final _flingController = AnimationController(vsync: this);
   late Animation<Offset> _flingAnimation;
 
+  // A fling on a pitched map moves the center from [_flingCenterStart] by
+  // [_flingGroundStep] for each pixel that the animation advances along
+  // [_flingDirection] from [_flingOffset].
+  late LatLng _flingCenterStart;
+  late Offset _flingGroundStep;
+  late Offset _flingDirection;
+  late Offset _flingOffset;
+
   late final _doubleTapController = AnimationController(
     vsync: this,
     duration: _interactionOptions.doubleTapZoomDuration,
@@ -581,11 +589,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         widget.controller.moveStarted(MapEventSource.dragStart);
       }
 
-      final localDistanceOffset = _rotateOffset(
-        _lastFocalLocal - details.localFocalPoint,
+      final groundShift = _groundShift(
+        _lastFocalLocal,
+        details.localFocalPoint,
       );
+      if (groundShift == null) return;
 
-      widget.controller.dragUpdated(MapEventSource.onDrag, localDistanceOffset);
+      widget.controller.dragUpdated(MapEventSource.onDrag, groundShift);
     }
   }
 
@@ -694,7 +704,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final oldFocalPt =
         _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
     final zoomDifference = oldFocalPt - newFocalPt;
-    final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
+    final moveDifference =
+        _groundShift(_focalStartLocal, _lastFocalLocal) ?? Offset.zero;
 
     final newCenterPt = oldCenterPt + zoomDifference + moveDifference;
     return _camera.unprojectAtZoom(newCenterPt, zoomAfterPinchZoom);
@@ -802,6 +813,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       velocityDirection: details.velocity.pixelsPerSecond / magnitude,
     );
     final distance = (Offset.zero & _camera.nonRotatedSize).shortestSide;
+
+    if (_camera.pitch != 0) {
+      _flingCenterStart = _camera.center;
+      _flingGroundStep =
+          _groundShift(_lastFocalLocal + direction, _lastFocalLocal) ??
+              _rotateOffset(direction);
+      _flingDirection = direction;
+      _flingOffset = flingOffset;
+    }
 
     _flingAnimation = Tween<Offset>(
       begin: flingOffset,
@@ -980,8 +1000,17 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _startListeningForAnimationInterruptions();
     }
 
-    final newCenterPoint = _camera.projectAtZoom(_mapCenterStart) +
-        _flingAnimation.value.rotate(_camera.rotationRad);
+    final Offset newCenterPoint;
+    if (_camera.pitch == 0) {
+      newCenterPoint = _camera.projectAtZoom(_mapCenterStart) +
+          _flingAnimation.value.rotate(_camera.rotationRad);
+    } else {
+      final advance = _flingAnimation.value - _flingOffset;
+      final pixels =
+          advance.dx * _flingDirection.dx + advance.dy * _flingDirection.dy;
+      newCenterPoint =
+          _camera.projectAtZoom(_flingCenterStart) + _flingGroundStep * pixels;
+    }
     final LatLng newCenter;
     if (!_camera.crs.replicatesWorldLongitude) {
       newCenter = _camera.unprojectAtZoom(newCenterPoint);
@@ -1396,6 +1425,16 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final resultZoom =
         scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
     return _camera.clampZoom(resultZoom);
+  }
+
+  /// The offset, in projected pixels, by which to move the center so that the
+  /// ground under the screen position [from] moves under [to], or null if
+  /// either is above the horizon.
+  Offset? _groundShift(Offset from, Offset to) {
+    final fromGround = _camera.groundOffsetFromCenter(from);
+    final toGround = _camera.groundOffsetFromCenter(to);
+    if (fromGround == null || toGround == null) return null;
+    return fromGround - toGround;
   }
 
   Offset _rotateOffset(Offset offset) {

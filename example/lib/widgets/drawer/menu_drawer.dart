@@ -21,6 +21,7 @@ import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
+import 'package:flutter_map_example/pages/pitch.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polygon_perf_stress.dart';
@@ -253,6 +254,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Fling Animation Damping',
             routeName: FlingAnimationDampingPage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Pitch',
+            routeName: PitchPage.route,
             currentRoute: currentRoute,
           ),
           const Divider(),

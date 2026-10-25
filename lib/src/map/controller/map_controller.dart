@@ -78,6 +78,22 @@ abstract class MapController {
   /// equal to the current value.
   bool rotate(double degree, {String? id});
 
+  /// Pitches the map to a decimal [degree], the angle between the camera's
+  /// view direction and straight down, limited to the range from 0 to
+  /// [MapOptions.maxPitch]
+  ///
+  /// [id] is an internally meaningless attribute, but it is passed through to
+  /// the emitted [MapEventPitch].
+  ///
+  /// The emitted [MapEventPitch.source] property will be
+  /// [MapEventSource.mapController].
+  ///
+  /// Returns `true` and emits a [MapEventPitch] event (which can be listed to
+  /// through [MapEventCallback]s, such as [MapOptions.onMapEvent]), unless
+  /// the pitch failed because [degree] (after adjustment when necessary) was
+  /// equal to the current value.
+  bool pitch(double degree, {String? id});
+
   /// Rotates the map to a decimal [degree] around a custom screen point, where
   /// 0° is North
   ///

@@ -1,11 +1,14 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
 /// Callback to notify when the map emits a [MapEvent].
 typedef MapEventCallback = void Function(MapEvent);
@@ -67,6 +70,36 @@ class MapOptions {
 
   /// The rotation when the map is first loaded.
   final double initialRotation;
+
+  /// The pitch, in degrees, when the map is first loaded: the angle between the
+  /// camera's view direction and straight down. Limited to the range from 0 to
+  /// [maxPitch].
+  final double initialPitch;
+
+  /// The largest pitch, in degrees, that the map allows. Defaults to 0, which
+  /// keeps the map unpitched. A value above [pitchLimit] takes effect as
+  /// [pitchLimit].
+  ///
+  /// When the map is pitched:
+  ///
+  ///  * layers in a [MobileLayerTransformer] lie on the ground, drawn in
+  ///    perspective; [MapCamera.size], [MapCamera.pixelOrigin] and
+  ///    [MapCamera.pixelBounds] describe the rectangle that contains the
+  ///    visible ground, which is not centered on [MapCamera.center]
+  ///  * markers and polygon labels face the viewer, in a
+  ///    [BillboardLayerTransformer]
+  ///  * a layer that computes screen positions itself, instead of drawing at
+  ///    `projectAtZoom(coordinate) - pixelOrigin`, must use
+  ///    [MapCamera.latLngToScreenOffset] and [MapCamera.screenOffsetToLatLng]
+  ///  * [CameraFit] and [CameraConstraint] compute as if the map were not
+  ///    pitched
+  ///  * the tile layer loads up to 7.5 times as many tiles at 60° as when
+  ///    unpitched
+  final double maxPitch;
+
+  /// The largest [maxPitch] that takes effect. Above it, the visible ground
+  /// grows without bound.
+  static const pitchLimit = 60.0;
 
   /// Defines the visible bounds when the map is first loaded. Takes precedence
   /// over [initialCenter]/[initialZoom].
@@ -161,6 +194,8 @@ class MapOptions {
     this.initialCenter = const LatLng(50.5, 30.51),
     this.initialZoom = 13.0,
     this.initialRotation = 0.0,
+    this.initialPitch = 0.0,
+    this.maxPitch = 0.0,
     this.initialCameraFit,
     this.cameraConstraint = const CameraConstraint.unconstrained(),
     this.interactionOptions = const InteractionOptions(),
@@ -193,6 +228,11 @@ class MapOptions {
       (throw StateError(
           '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants'));
 
+  /// Limits [pitch] to the range from 0 to [maxPitch], and to [pitchLimit].
+  @internal
+  double clampPitch(double pitch) =>
+      pitch.clamp(0, math.min(maxPitch, pitchLimit));
+
   @override
   bool operator ==(Object other) =>
       other is MapOptions &&
@@ -200,6 +240,8 @@ class MapOptions {
       initialCenter == other.initialCenter &&
       initialZoom == other.initialZoom &&
       initialRotation == other.initialRotation &&
+      initialPitch == other.initialPitch &&
+      maxPitch == other.maxPitch &&
       initialCameraFit == other.initialCameraFit &&
       minZoom == other.minZoom &&
       maxZoom == other.maxZoom &&
@@ -224,6 +266,8 @@ class MapOptions {
         initialCenter,
         initialZoom,
         initialRotation,
+        initialPitch,
+        maxPitch,
         initialCameraFit,
         minZoom,
         maxZoom,
