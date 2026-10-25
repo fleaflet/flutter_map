@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 /// See [CursorKeyboardRotationOptions.isKeyTrigger]
@@ -27,6 +28,20 @@ enum CursorRotationBehaviour {
 /// cursor to be used to set the rotation of the map whilst a keyboard key is
 /// held down (as triggered by [isKeyTrigger]).
 /// {@endtemplate}
+///
+/// While [MapOptions.maxPitch] is above 0 and the interactive flags contain
+/// [InteractiveFlag.pitch], cursor/keyboard rotation behaves as in MapLibre
+/// GL JS: vertical cursor movement changes the pitch by 0.5° per logical
+/// pixel, and horizontal movement rotates the map about its center. When the
+/// cursor is more than 100 logical pixels above or below the center, the map
+/// rotates by the angle through which the movement turns the cursor about the
+/// center; otherwise it rotates by 0.8° per logical pixel. [behaviour] and
+/// [setNorthOnClick] have no effect in that case.
+///
+/// On the web on macOS, Ctrl-click opens the browser's context menu, and the
+/// map receives no cursor movement while the menu is open. In a web
+/// application that sets [MapOptions.maxPitch] above 0, disable the browser's
+/// context menu with `BrowserContextMenu.disableContextMenu()`.
 @immutable
 class CursorKeyboardRotationOptions {
   /// Whether to trigger cursor/keyboard rotation dependent on the currently

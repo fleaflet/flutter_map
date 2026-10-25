@@ -17,6 +17,9 @@ class InteractionOptions {
   /// [pinchMoveThreshold] will race If multiple gestures win at the same time
   /// then precedence: [pinchZoomWinGestures] > [rotationWinGestures] >
   /// [pinchMoveWinGestures]
+  ///
+  /// The map decides whether a gesture is a pitch gesture before the race;
+  /// see [pitchThreshold].
   final bool enableMultiFingerGestureRace;
 
   /// Rotation threshold in degree default is 20.0 Map starts to rotate when
@@ -62,6 +65,23 @@ class InteractionOptions {
   /// default [MultiFingerGesture.pinchMove] and [MultiFingerGesture.pinchZoom]
   /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
+
+  /// Pitch threshold in logical pixels, default is 2.0. A two-finger gesture
+  /// is a pitch gesture once both fingers have moved this far in the same
+  /// vertical direction, each more vertically than horizontally, and the line
+  /// between them is within 45° of horizontal.
+  ///
+  /// The map decides whether a gesture is a pitch gesture before it applies
+  /// the other multi-finger gestures, whether or not
+  /// [enableMultiFingerGestureRace] is true. Until it has decided, the map
+  /// doesn't zoom, rotate or move. When it decides that the gesture isn't a
+  /// pitch gesture, the map applies the whole gesture so far. When it decides
+  /// that the gesture is a pitch gesture, the map doesn't zoom, rotate or move
+  /// until the fingers are lifted.
+  ///
+  /// Note: only takes effect if [flags] contains [InteractiveFlag.pitch] and
+  /// [MapOptions.maxPitch] is above 0.
+  final double pitchThreshold;
 
   /// The multipler applied to the scroll offset to calculate the zoom offset,
   /// when smooth zooming is disabled.
@@ -162,6 +182,7 @@ class InteractionOptions {
     this.pinchMoveThreshold = 40.0,
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+    this.pitchThreshold = 2.0,
     @Deprecated(
       'Prefer `SnapScrollZoomOptions.zoomRate`. See documentation on this '
       'property for more information. Will be removed in an upcoming major '
@@ -187,6 +208,10 @@ class InteractionOptions {
         assert(
           pinchMoveThreshold >= 0.0,
           '`pinchMoveThreshold` must be positive',
+        ),
+        assert(
+          pitchThreshold >= 0.0,
+          '`pitchThreshold` must be positive',
         ),
         assert(
           flingAnimationDampingRatio > 0.0,
@@ -215,6 +240,7 @@ class InteractionOptions {
       pinchZoomWinGestures == other.pinchZoomWinGestures &&
       pinchMoveThreshold == other.pinchMoveThreshold &&
       pinchMoveWinGestures == other.pinchMoveWinGestures &&
+      pitchThreshold == other.pitchThreshold &&
       scrollWheelVelocity == other.scrollWheelVelocity &&
       scrollZoomOptions == other.scrollZoomOptions &&
       doubleTapDragZoomChangeCalculator ==
@@ -235,6 +261,7 @@ class InteractionOptions {
         pinchZoomWinGestures,
         pinchMoveThreshold,
         pinchMoveWinGestures,
+        pitchThreshold,
         scrollWheelVelocity,
         scrollZoomOptions,
         doubleTapDragZoomChangeCalculator,
