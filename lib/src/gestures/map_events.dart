@@ -327,6 +327,21 @@ class MapEventRotate extends MapEventWithMove {
   });
 }
 
+/// Event which is fired when map is being pitched
+@immutable
+class MapEventPitch extends MapEventWithMove {
+  /// Custom ID to identify related object(s)
+  final String? id;
+
+  /// Create a new map event that represents a change of the map's pitch.
+  const MapEventPitch({
+    required this.id,
+    required super.source,
+    required super.oldCamera,
+    required super.camera,
+  });
+}
+
 /// Event which is fired when rotate gesture was started
 @immutable
 class MapEventRotateStart extends MapEvent {
