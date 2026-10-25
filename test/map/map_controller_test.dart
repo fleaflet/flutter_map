@@ -882,10 +882,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.6004803825078002, 29.572555447605982),
-        const LatLng(-0.7477123980812166, 33.92314144760595),
+        const LatLng(3.601142453638689, 29.57519500000004),
+        const LatLng(-0.7470490737671414, 33.92578100000001),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291607, 31.750488000000022),
       expectedZoom: 6.014499548969527,
     );
     await testFitInsideBounds(
@@ -894,10 +894,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.6004803825078002, 29.572555447605975),
-        const LatLng(-0.7477123980812166, 33.92314144760596),
+        const LatLng(3.6011424536386762, 29.575194999999994),
+        const LatLng(-0.7470490737671794, 33.925780999999965),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447606),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
       expectedZoom: 6.464483862446023,
     );
     await testFitInsideBounds(
@@ -906,10 +906,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.600480382507826, 29.57255544760597),
-        const LatLng(-0.7477123980812166, 33.92314144760596),
+        const LatLng(3.6011424536387144, 29.57519500000003),
+        const LatLng(-0.7470490737671794, 33.925781000000015),
       ),
-      expectedCenter: const LatLng(1.427411699029666, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291607, 31.750488000000022),
       expectedZoom: 6.464483862446028,
     );
     await testFitInsideBounds(
@@ -918,10 +918,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.6004803825078002, 29.572555447605986),
-        const LatLng(-0.7477123980812166, 33.92314144760594),
+        const LatLng(3.6011424536386762, 29.575194999999987),
+        const LatLng(-0.7470490737671794, 33.92578099999997),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
       expectedZoom: 6.014499548969527,
     );
     await testFitInsideBounds(
@@ -930,10 +930,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.600480382507864, 29.57255544760598),
-        const LatLng(-0.7477123980811785, 33.92314144760595),
+        const LatLng(3.6011424536387144, 29.57519499999998),
+        const LatLng(-0.7470490737671794, 33.92578099999998),
       ),
-      expectedCenter: const LatLng(1.4274116990296914, 31.74784844760592),
+      expectedCenter: const LatLng(1.4280748738291607, 31.75048799999998),
       expectedZoom: 6.464483862446023,
     );
     await testFitInsideBounds(
@@ -942,10 +942,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.600480382507788, 29.57255544760597),
-        const LatLng(-0.7477123980812675, 33.92314144760596),
+        const LatLng(3.6011424536386762, 29.575195000000033),
+        const LatLng(-0.7470490737671794, 33.925781000000015),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291353, 31.750488000000022),
       expectedZoom: 6.464483862446028,
     );
     await testFitInsideBounds(
@@ -966,10 +966,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.600480382507788, 29.57255544760599),
-        const LatLng(-0.7477123980812166, 33.92314144760594),
+        const LatLng(3.6011424536386762, 29.575195000000004),
+        const LatLng(-0.7470490737671414, 33.92578099999996),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447606),
+      expectedCenter: const LatLng(1.4280748738291607, 31.75048799999998),
       expectedZoom: 6.464483862446023,
     );
     await testFitInsideBounds(
@@ -978,10 +978,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.600480382507826, 29.572555447605968),
-        const LatLng(-0.7477123980812166, 33.923141447605964),
+        const LatLng(3.6011424536387144, 29.575194999999983),
+        const LatLng(-0.7470490737671794, 33.92578099999998),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291607, 31.75048799999998),
       expectedZoom: 6.464483862446028,
     );
     await testFitInsideBounds(
@@ -990,10 +990,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.6004803825078002, 29.572555447605982),
-        const LatLng(-0.7477123980812166, 33.92314144760595),
+        const LatLng(3.601142453638689, 29.57519500000004),
+        const LatLng(-0.7470490737671414, 33.92578100000001),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291607, 31.750488000000022),
       expectedZoom: 6.014499548969527,
     );
     await testFitInsideBounds(
@@ -1002,10 +1002,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.600480382507788, 29.57255544760601),
-        const LatLng(-0.7477123980812675, 33.923141447605985),
+        const LatLng(3.6011424536386762, 29.575194999999994),
+        const LatLng(-0.7470490737671794, 33.925780999999965),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.74784844760592),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
       expectedZoom: 6.464483862446023,
     );
     await testFitInsideBounds(
@@ -1014,10 +1014,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.600480382507826, 29.572555447606007),
-        const LatLng(-0.7477123980812166, 33.92314144760599),
+        const LatLng(3.6011424536387144, 29.57519500000003),
+        const LatLng(-0.7470490737671794, 33.925781000000015),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291607, 31.750488000000022),
       expectedZoom: 6.464483862446028,
     );
     await testFitInsideBounds(
@@ -1026,10 +1026,10 @@ void main() {
         bounds: bounds,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.6004803825078002, 29.572555447605986),
-        const LatLng(-0.7477123980812166, 33.92314144760594),
+        const LatLng(3.6011424536386762, 29.575194999999987),
+        const LatLng(-0.7470490737671794, 33.92578099999997),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
       expectedZoom: 6.014499548969527,
     );
 
@@ -1044,10 +1044,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.8964763198459385, 29.275924583969623),
-        const LatLng(-1.0443066595707355, 34.21977231124231),
+        const LatLng(3.8971381669055662, 29.27856413636367),
+        const LatLng(-1.0436433889368917, 34.222411863636374),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291353, 31.750488000000022),
       expectedZoom: 5.8300749778321,
     );
     await testFitInsideBounds(
@@ -1057,10 +1057,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.8964763198459766, 29.27592458396959),
-        const LatLng(-1.0443066595707737, 34.21977231124234),
+        const LatLng(3.8971381669055662, 29.278564136363688),
+        const LatLng(-1.0436433889368917, 34.22241186363635),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291607, 31.750488000000022),
       expectedZoom: 6.280059291308596,
     );
     await testFitInsideBounds(
@@ -1070,10 +1070,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.896476319845951, 29.275924583969623),
-        const LatLng(-1.0443066595707355, 34.2197723112423),
+        const LatLng(3.897138166905579, 29.278564136363666),
+        const LatLng(-1.0436433889368917, 34.22241186363638),
       ),
-      expectedCenter: const LatLng(1.427411699029666, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291607, 31.750488000000022),
       expectedZoom: 6.280059291308594,
     );
     await testFitInsideBounds(
@@ -1083,10 +1083,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.896476319845951, 29.275924583969584),
-        const LatLng(-1.0443066595707355, 34.21977231124226),
+        const LatLng(3.8971381669055662, 29.27856413636367),
+        const LatLng(-1.0436433889368917, 34.222411863636374),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291353, 31.750488000000022),
       expectedZoom: 5.830074977832107,
     );
     await testFitInsideBounds(
@@ -1096,10 +1096,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.896476319845989, 29.27592458396962),
-        const LatLng(-1.0443066595706973, 34.21977231124231),
+        const LatLng(3.8971381669055662, 29.278564136363663),
+        const LatLng(-1.0436433889369299, 34.22241186363638),
       ),
-      expectedCenter: const LatLng(1.427411699029615, 31.74784844760592),
+      expectedCenter: const LatLng(1.4280748738291353, 31.750488000000022),
       expectedZoom: 6.280059291308602,
     );
     await testFitInsideBounds(
@@ -1109,10 +1109,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.896476319845951, 29.275924583969655),
-        const LatLng(-1.0443066595707355, 34.219772311242345),
+        const LatLng(3.8971381669056044, 29.278564136363617),
+        const LatLng(-1.0436433889368917, 34.22241186363634),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447606),
+      expectedCenter: const LatLng(1.4280748738291607, 31.75048799999998),
       expectedZoom: 6.280059291308601,
     );
     await testFitInsideBounds(
@@ -1122,8 +1122,8 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.897138166905541, 29.27856413636368),
-        const LatLng(-1.0436433889368917, 34.22241186363637),
+        const LatLng(3.8971381669055662, 29.27856413636364),
+        const LatLng(-1.0436433889368917, 34.22241186363632),
       ),
       expectedCenter: const LatLng(1.4280748738291607, 31.750488000000022),
       expectedZoom: 5.830074977832103,
@@ -1135,10 +1135,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.8964763198459385, 29.27592458396965),
-        const LatLng(-1.0443066595707737, 34.21977231124235),
+        const LatLng(3.897138166905579, 29.27856413636361),
+        const LatLng(-1.0436433889369299, 34.222411863636346),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
       expectedZoom: 6.280059291308584,
     );
     await testFitInsideBounds(
@@ -1148,10 +1148,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.896476319845989, 29.27592458396957),
-        const LatLng(-1.0443066595706973, 34.219772311242274),
+        const LatLng(3.897138166905579, 29.278564136363627),
+        const LatLng(-1.0436433889368917, 34.22241186363633),
       ),
-      expectedCenter: const LatLng(1.427411699029615, 31.74784844760592),
+      expectedCenter: const LatLng(1.4280748738291607, 31.75048799999998),
       expectedZoom: 6.280059291308604,
     );
     await testFitInsideBounds(
@@ -1161,10 +1161,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.8964763198459385, 29.275924583969616),
-        const LatLng(-1.0443066595707737, 34.21977231124231),
+        const LatLng(3.8971381669055662, 29.27856413636365),
+        const LatLng(-1.0436433889368917, 34.22241186363631),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291607, 31.75048799999998),
       expectedZoom: 5.830074977832095,
     );
     await testFitInsideBounds(
@@ -1174,10 +1174,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.8964763198459385, 29.275924583969612),
-        const LatLng(-1.0443066595707737, 34.219772311242316),
+        const LatLng(3.8971381669055156, 29.27856413636364),
+        const LatLng(-1.0436433889369299, 34.22241186363632),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291098, 31.75048799999998),
       expectedZoom: 6.280059291308607,
     );
     await testFitInsideBounds(
@@ -1187,10 +1187,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.896476319845951, 29.275924583969662),
-        const LatLng(-1.0443066595707355, 34.21977231124234),
+        const LatLng(3.8971381669056044, 29.278564136363663),
+        const LatLng(-1.0436433889368917, 34.22241186363638),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291607, 31.750488000000022),
       expectedZoom: 6.280059291308594,
     );
     await testFitInsideBounds(
@@ -1200,10 +1200,10 @@ void main() {
         padding: equalPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.896476319845951, 29.275924583969612),
-        const LatLng(-1.0443066595707737, 34.219772311242316),
+        const LatLng(3.897138166905541, 29.27856413636364),
+        const LatLng(-1.0436433889368917, 34.22241186363632),
       ),
-      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
       expectedZoom: 5.830074977832107,
     );
 
@@ -1218,10 +1218,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.9181305666757082, 29.254219886630374),
-        const LatLng(-1.3842700558232428, 34.559812569557124),
+        const LatLng(3.918792396649435, 29.256859439024424),
+        const LatLng(-1.3836068685805403, 34.56245212195119),
       ),
-      expectedCenter: const LatLng(1.2682880092901039, 31.90701622809379),
+      expectedCenter: const LatLng(1.2689512274367805, 31.909655780487807),
       expectedZoom: 5.728195363812894,
     );
     await testFitInsideBounds(
@@ -1231,10 +1231,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(4.119450877729545, 29.254219886630395),
-        const LatLng(-1.182504128069353, 34.55981256955719),
+        const LatLng(4.12011254433048, 29.256859439024378),
+        const LatLng(-1.1818408885177978, 34.562452121951154),
       ),
-      expectedCenter: const LatLng(1.4700469435297785, 31.90701622809379),
+      expectedCenter: const LatLng(1.4707101058461178, 31.909655780487768),
       expectedZoom: 6.178179677289382,
     );
     await testFitInsideBounds(
@@ -1244,10 +1244,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(4.235660179641233, 29.137700984385326),
-        const LatLng(-1.066007676333678, 34.44329366731215),
+        const LatLng(4.236321748218643, 29.14034053677935),
+        const LatLng(-1.065344410325353, 34.44593321970615),
       ),
-      expectedCenter: const LatLng(1.5865243776059719, 31.790497325848776),
+      expectedCenter: const LatLng(1.58718750394679, 31.793136878242752),
       expectedZoom: 6.178179677289386,
     );
     await testFitInsideBounds(
@@ -1257,10 +1257,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(4.235660179641169, 28.935884325654747),
-        const LatLng(-1.0660076763337163, 34.24147700858153),
+        const LatLng(4.236321748218655, 28.938523878048816),
+        const LatLng(-1.0653444103252767, 34.24411656097558),
       ),
-      expectedCenter: const LatLng(1.5865243776059845, 31.58868066711818),
+      expectedCenter: const LatLng(1.5871875039468282, 31.5913202195122),
       expectedZoom: 5.728195363812884,
     );
     await testFitInsideBounds(
@@ -1270,10 +1270,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(4.03436897381288, 28.93588432565474),
-        const LatLng(-1.267782377352552, 34.24147700858154),
+        const LatLng(4.035030710455137, 28.938523878048795),
+        const LatLng(-1.2671191589064073, 34.2441165609756),
       ),
-      expectedCenter: const LatLng(1.3847756639611237, 31.58868066711814),
+      expectedCenter: const LatLng(1.3854388508768907, 31.5913202195122),
       expectedZoom: 6.17817967728938,
     );
     await testFitInsideBounds(
@@ -1283,10 +1283,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.918130566675683, 29.052403227899802),
-        const LatLng(-1.384270055823281, 34.35799591082658),
+        const LatLng(3.91879239664946, 29.055042780293853),
+        const LatLng(-1.3836068685805403, 34.36063546322064),
       ),
-      expectedCenter: const LatLng(1.2682880092901039, 31.70519956936319),
+      expectedCenter: const LatLng(1.2689512274367805, 31.707839121757246),
       expectedZoom: 6.1781796772893856,
     );
     await testFitInsideBounds(
@@ -1296,8 +1296,8 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.918792396649435, 29.256859439024414),
-        const LatLng(-1.3836068685805785, 34.562452121951196),
+        const LatLng(3.918792396649435, 29.25685943902441),
+        const LatLng(-1.3836068685805785, 34.5624521219512),
       ),
       expectedCenter: const LatLng(1.2689512274367805, 31.909655780487807),
       expectedZoom: 5.728195363812883,
@@ -1309,10 +1309,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(4.11945087772957, 29.25421988663039),
-        const LatLng(-1.182504128069302, 34.55981256955719),
+        const LatLng(4.12011254433048, 29.256859439024378),
+        const LatLng(-1.1818408885177978, 34.562452121951154),
       ),
-      expectedCenter: const LatLng(1.4700469435298167, 31.90701622809375),
+      expectedCenter: const LatLng(1.4707101058461178, 31.909655780487768),
       expectedZoom: 6.178179677289379,
     );
     await testFitInsideBounds(
@@ -1322,10 +1322,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(4.235660179641195, 29.137700984385347),
-        const LatLng(-1.066007676333678, 34.443293667312126),
+        const LatLng(4.236321748218681, 29.140340536779348),
+        const LatLng(-1.065344410325315, 34.445933219706156),
       ),
-      expectedCenter: const LatLng(1.5865243776060227, 31.790497325848737),
+      expectedCenter: const LatLng(1.5871875039468282, 31.793136878242752),
       expectedZoom: 6.178179677289384,
     );
     await testFitInsideBounds(
@@ -1335,10 +1335,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(4.235660179641169, 28.935884325654747),
-        const LatLng(-1.0660076763337163, 34.24147700858153),
+        const LatLng(4.236321748218655, 28.938523878048812),
+        const LatLng(-1.0653444103252767, 34.244116560975584),
       ),
-      expectedCenter: const LatLng(1.5865243776059845, 31.58868066711818),
+      expectedCenter: const LatLng(1.5871875039468282, 31.5913202195122),
       expectedZoom: 5.728195363812894,
     );
     await testFitInsideBounds(
@@ -1348,10 +1348,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(4.03436897381288, 28.93588432565474),
-        const LatLng(-1.267782377352552, 34.24147700858154),
+        const LatLng(4.0350307104551115, 28.93852387804881),
+        const LatLng(-1.267119158906369, 34.244116560975584),
       ),
-      expectedCenter: const LatLng(1.3847756639610982, 31.58868066711814),
+      expectedCenter: const LatLng(1.3854388508768907, 31.5913202195122),
       expectedZoom: 6.178179677289382,
     );
     await testFitInsideBounds(
@@ -1361,10 +1361,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.918130566675683, 29.052403227899802),
-        const LatLng(-1.384270055823281, 34.35799591082658),
+        const LatLng(3.918792396649435, 29.055042780293846),
+        const LatLng(-1.3836068685805785, 34.360635463220646),
       ),
-      expectedCenter: const LatLng(1.2682880092901676, 31.705199569363227),
+      expectedCenter: const LatLng(1.2689512274367551, 31.707839121757246),
       expectedZoom: 6.178179677289388,
     );
     await testFitInsideBounds(
@@ -1374,10 +1374,10 @@ void main() {
         padding: asymmetricPadding,
       ),
       expectedBounds: LatLngBounds(
-        const LatLng(3.918130566675721, 29.254219886630356),
-        const LatLng(-1.384270055823281, 34.55981256955714),
+        const LatLng(3.918792396649435, 29.256859439024424),
+        const LatLng(-1.3836068685805403, 34.56245212195119),
       ),
-      expectedCenter: const LatLng(1.2682880092901039, 31.90701622809375),
+      expectedCenter: const LatLng(1.2689512274367805, 31.909655780487807),
       expectedZoom: 5.728195363812886,
     );
   });
