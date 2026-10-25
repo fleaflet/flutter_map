@@ -97,10 +97,20 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
   ) {
     final chunkEvents = StreamController<ImageChunkEvent>();
 
+    var loaded = false;
+    // An aborted load completes with a transparent image. Until then, another
+    // tile with this URL would share it from the image cache, so remove it now.
+    abortTrigger?.then((_) {
+      if (!loaded) PaintingBinding.instance.imageCache.evict(key);
+    });
+
     return MultiFrameImageStreamCompleter(
       codec: _loadImage(key, chunkEvents.sink, decode)
         ..then(
-          (_) => unawaited(chunkEvents.close()),
+          (_) {
+            loaded = true;
+            unawaited(chunkEvents.close());
+          },
           onError: (_) => unawaited(chunkEvents.close()),
         ),
       chunkEvents: chunkEvents.stream,
