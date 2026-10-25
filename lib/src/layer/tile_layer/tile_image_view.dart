@@ -1,23 +1,23 @@
 import 'dart:collection';
 
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_cover.dart';
 
 /// The [TileImageView] stores all loaded [TileImage]s with their
 /// [TileCoordinates].
 final class TileImageView {
   final Map<TileCoordinates, TileImage> _tileImages;
   final Set<TileCoordinates> _positionCoordinates;
-  final DiscreteTileRange _visibleRange;
-  final DiscreteTileRange _keepRange;
+  final TileCover _visibleRange;
+  final TileCover _keepRange;
   final TileCoordinatesResolver _resolver;
 
   /// Create a new [TileImageView] instance.
   const TileImageView({
     required Map<TileCoordinates, TileImage> tileImages,
     required Set<TileCoordinates> positionCoordinates,
-    required DiscreteTileRange visibleRange,
-    required DiscreteTileRange keepRange,
+    required TileCover visibleRange,
+    required TileCover keepRange,
     final TileCoordinatesResolver resolver =
         const TileCoordinatesResolver(false),
   })  : _tileImages = tileImages,
@@ -38,7 +38,7 @@ final class TileImageView {
 
   /// Get a list with all tiles that are not visible on the current map
   /// viewport.
-  List<TileCoordinates> _errorTilesWithinRange(DiscreteTileRange range) {
+  List<TileCoordinates> _errorTilesWithinRange(TileCover range) {
     final List<TileCoordinates> result = <TileCoordinates>[];
     for (final positionCoordinates in _positionCoordinates) {
       if (range.contains(

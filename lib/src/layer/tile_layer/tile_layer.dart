@@ -7,15 +7,15 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_cover.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_cover_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_key.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
+import 'package:latlong2/latlong.dart';
 
 part 'retina_mode.dart';
 part 'tile_error_evict_callback.dart';
@@ -154,13 +154,14 @@ class TileLayer extends StatefulWidget {
   /// https://docs.fleaflet.dev/layers/tile-layer/tile-providers.
   late final TileProvider tileProvider;
 
-  /// When panning the map, keep this many rows and columns of tiles before
-  /// unloading them.
+  /// When panning the map, keep this many rows and columns of tiles around the
+  /// visible ground before unloading them, at the zoom of each tile.
   final int keepBuffer;
 
   /// When loading tiles only visible tiles are loaded by default. This option
-  /// increases the loaded tiles by the given number on both axis which can help
-  /// prevent the user from seeing loading tiles whilst panning. Setting the
+  /// loads this many rows and columns of tiles around the visible ground, at the
+  /// zoom of each tile, which can help prevent the user from seeing loading
+  /// tiles whilst panning. Setting the
   /// pan buffer too high can impact performance, typically this is set to zero
   /// or one.
   final int panBuffer;
@@ -365,7 +366,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   final _tileImageManager = TileImageManager();
   late TileBounds _tileBounds;
-  late TileRangeCalculator _tileRangeCalculator;
+  late TileCoverCalculator _tileCoverCalculator;
   late TileScaleCalculator _tileScaleCalculator;
 
   // We have to hold on to the mapController hashCode to determine whether we
@@ -388,7 +389,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _resetSub = widget.reset?.listen(_resetStreamHandler);
-    _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
+    _tileCoverCalculator = TileCoverCalculator(tileDimension: _tileDimension);
     _warnOpenStreetMapUrl();
   }
 
@@ -447,8 +448,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     var reloadTiles = false;
 
-    // There is no caching in TileRangeCalculator so we can just replace it.
-    _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
+    // There is no caching in TileCoverCalculator so we can just replace it.
+    _tileCoverCalculator = TileCoverCalculator(tileDimension: _tileDimension);
 
     if (_tileBounds.shouldReplace(
         _tileBounds.crs, _tileDimension, widget.tileBounds)) {
@@ -524,12 +525,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (_outsideZoomLimits(map.zoom.round())) return const SizedBox.shrink();
 
-    final tileZoom = _clampToNativeZoom(map.zoom);
-    final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
-    final visibleTileRange = _tileRangeCalculator.calculate(
-      camera: map,
-      tileZoom: tileZoom,
-    );
+    final visibleTileCover = _visibleTileCover(map);
 
     // For a given map event both this rebuild method and the tile
     // loading/pruning logic will be fired. Any TileImages which are not
@@ -540,11 +536,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // the Tile and become visible. We don't need to prune here as any new tiles
     // will be pruned when the map event triggers tile loading.
     _tileImageManager.createMissingTiles(
-      visibleTileRange,
-      tileBoundsAtZoom,
+      visibleTileCover,
+      _tileBounds,
       createTile: (coordinates) => _createTileImage(
         coordinates: coordinates,
-        tileBoundsAtZoom: tileBoundsAtZoom,
         pruneAfterLoad: false,
       ),
     );
@@ -557,7 +552,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // We're happy to do a bit of diligent work here, since tiles not rendered are
     // cycles saved later on in the render pipeline.
     final tiles = _tileImageManager
-        .getTilesToRender(visibleRange: visibleTileRange)
+        .getTilesToRender(visibleRange: visibleTileCover)
         .map((tileRenderer) => Tile(
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
               // case we remove and replace the TileImage with a different one.
@@ -573,20 +568,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
             ))
         .toList();
 
-    // Sort in render order. In reverse:
-    //   1. Tiles at the current zoom.
-    //   2. Tiles at the current zoom +/- 1.
-    //   3. Tiles at the current zoom +/- 2.
-    //   4. ...etc
-    int renderOrder(Tile a, Tile b) {
-      final (za, zb) = (a.tileImage.coordinates.z, b.tileImage.coordinates.z);
-      final cmp = (zb - tileZoom).abs().compareTo((za - tileZoom).abs());
-      if (cmp == 0) {
-        // When compare parent/child tiles of equal distance, prefer higher res images.
-        return za.compareTo(zb);
-      }
-      return cmp;
-    }
+    // Coarsest first, so that a tile that fills a gap is never drawn over a
+    // finer tile that is ready, now that the visible tiles have mixed zooms.
+    int renderOrder(Tile a, Tile b) =>
+        a.tileImage.coordinates.z.compareTo(b.tileImage.coordinates.z);
 
     return MobileLayerTransformer(
       child: Stack(children: tiles..sort(renderOrder)),
@@ -595,10 +580,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   TileImage _createTileImage({
     required TileCoordinates coordinates,
-    required TileBoundsAtZoom tileBoundsAtZoom,
     required bool pruneAfterLoad,
   }) {
     final cancelLoading = Completer<void>();
+    final tileBoundsAtZoom = _tileBounds.atZoom(coordinates.z);
 
     final imageProvider = widget.tileProvider.supportsCancelLoading
         ? widget.tileProvider.getImageWithCancelLoadingSupport(
@@ -628,21 +613,23 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   /// Load and/or prune tiles according to the visible bounds of the [event]
   /// center/zoom, or the current center/zoom if not specified.
   void _onTileUpdateEvent(TileUpdateEvent event) {
-    final tileZoom = _clampToNativeZoom(event.zoom);
-    final visibleTileRange = _tileRangeCalculator.calculate(
-      camera: event.camera,
-      tileZoom: tileZoom,
+    final visibleTileCover = _visibleTileCover(
+      event.camera,
       center: event.center,
-      viewingZoom: event.zoom,
+      zoom: event.zoom,
     );
 
-    if (event.load && !_outsideZoomLimits(tileZoom)) {
-      _loadTiles(visibleTileRange, pruneAfterLoad: event.prune);
+    if (event.load && !_outsideZoomLimits(_clampToNativeZoom(event.zoom))) {
+      _loadTiles(
+        visibleTileCover,
+        event.camera.withPosition(center: event.center, zoom: event.zoom),
+        pruneAfterLoad: event.prune,
+      );
     }
 
     if (event.prune) {
       _tileImageManager.evictAndPrune(
-        visibleRange: visibleTileRange,
+        visibleRange: visibleTileCover,
         pruneBuffer: widget.panBuffer + widget.keepBuffer,
         evictStrategy: widget.evictErrorTileStrategy,
       );
@@ -651,27 +638,39 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   /// Load new tiles in the visible bounds and prune those outside.
   void _loadAndPruneInVisibleBounds(MapCamera camera) {
-    final tileZoom = _clampToNativeZoom(camera.zoom);
-    final visibleTileRange = _tileRangeCalculator.calculate(
-      camera: camera,
-      tileZoom: tileZoom,
-    );
+    final visibleTileCover = _visibleTileCover(camera);
 
-    if (!_outsideZoomLimits(tileZoom)) {
+    if (!_outsideZoomLimits(_clampToNativeZoom(camera.zoom))) {
       _loadTiles(
-        visibleTileRange,
+        visibleTileCover,
+        camera,
         pruneAfterLoad: true,
       );
     }
 
     _tileImageManager.evictAndPrune(
-      visibleRange: visibleTileRange,
+      visibleRange: visibleTileCover,
       pruneBuffer: max(widget.panBuffer, widget.keepBuffer),
       evictStrategy: widget.evictErrorTileStrategy,
     );
   }
 
-  // For all valid TileCoordinates in the [tileLoadRange], expanded by the
+  /// The tiles that cover the ground visible from [camera], viewed from
+  /// [center] at [zoom] if given.
+  TileCover _visibleTileCover(
+    MapCamera camera, {
+    LatLng? center,
+    double? zoom,
+  }) =>
+      _tileCoverCalculator.calculate(
+        camera: camera,
+        tileZoom: _clampToNativeZoom(zoom ?? camera.zoom),
+        minNativeZoom: widget.minNativeZoom,
+        center: center,
+        viewingZoom: zoom,
+      );
+
+  // For all valid TileCoordinates in the [tileLoadCover], expanded by the
   // [TileLayer.panBuffer], this method will do the following depending on
   // whether a matching TileImage already exists or not:
   //   * Exists: Mark it as current and initiate image loading if it has not
@@ -679,36 +678,38 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   //   * Does not exist: Creates the TileImage (they are current when created)
   //     and initiates loading.
   //
-  // Additionally, any current TileImages outside of the [tileLoadRange],
-  // expanded by the [TileLayer.panBuffer] + [TileLayer.keepBuffer], are marked
-  // as not current.
+  // New tiles start loading in order of their distance on screen from the
+  // center of the viewport of [camera].
   void _loadTiles(
-    DiscreteTileRange tileLoadRange, {
+    TileCover tileLoadCover,
+    MapCamera camera, {
     required bool pruneAfterLoad,
   }) {
-    final tileZoom = tileLoadRange.zoom;
-    final expandedTileLoadRange = tileLoadRange.expand(widget.panBuffer);
-
-    // Build the queue of tiles to load. Marks all tiles with valid coordinates
-    // in the tileLoadRange as current.
-    final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
     final tilesToLoad = _tileImageManager.createMissingTiles(
-      expandedTileLoadRange,
-      tileBoundsAtZoom,
+      tileLoadCover.expand(widget.panBuffer),
+      _tileBounds,
       createTile: (coordinates) => _createTileImage(
         coordinates: coordinates,
-        tileBoundsAtZoom: tileBoundsAtZoom,
         pruneAfterLoad: pruneAfterLoad,
       ),
     );
 
-    // Re-order the tiles by their distance to the center of the range.
-    final tileCenter = expandedTileLoadRange.center;
-    tilesToLoad.sort(
-      (a, b) => (a.coordinates.toOffset() - tileCenter)
-          .distanceSquared
-          .compareTo((b.coordinates.toOffset() - tileCenter).distanceSquared),
-    );
+    final pixelToScreen = camera.pixelToScreenTransform;
+    final viewportCenter = camera.nonRotatedSize.center(Offset.zero);
+    double distanceSquared(TileImage tile) {
+      final c = tile.coordinates;
+      final tileCenter = Offset(c.x + 0.5, c.y + 0.5) *
+          _tileDimension.toDouble() *
+          camera.getZoomScale(camera.zoom, c.z.toDouble());
+      return (MatrixUtils.transformPoint(pixelToScreen, tileCenter) -
+              viewportCenter)
+          .distanceSquared;
+    }
+
+    final distances = {
+      for (final tile in tilesToLoad) tile: distanceSquared(tile)
+    };
+    tilesToLoad.sort((a, b) => distances[a]!.compareTo(distances[b]!));
 
     // Create the new Tiles.
     for (final tile in tilesToLoad) {
@@ -746,15 +747,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   void _pruneWithCurrentCamera() {
-    final camera = MapCamera.of(context);
-    final visibleTileRange = _tileRangeCalculator.calculate(
-      camera: camera,
-      tileZoom: _clampToNativeZoom(camera.zoom),
-      center: camera.center,
-      viewingZoom: camera.zoom,
-    );
     _tileImageManager.prune(
-      visibleRange: visibleTileRange,
+      visibleRange: _visibleTileCover(MapCamera.of(context)),
       pruneBuffer: max(widget.panBuffer, widget.keepBuffer),
       evictStrategy: widget.evictErrorTileStrategy,
     );

@@ -486,6 +486,17 @@ class MapCamera {
   Offset? groundOffsetFromCenter(Offset offset) =>
       _groundFromCenter(offset, aboveHorizon: null);
 
+  /// The size on screen of one projected pixel at the ground point [offset]
+  /// from [center], where [offset] is in projected pixels at [zoom]. It is 1 at
+  /// [center] and on an unpitched map.
+  @internal
+  double groundScale(Offset offset) {
+    if (pitch == 0) return 1;
+    final depth =
+        _cameraDistance - offset.rotate(-rotationRad).dy * math.sin(pitchRad);
+    return _cameraDistance / depth;
+  }
+
   /// The offset, in projected pixels at [zoom], from [center] to the ground
   /// point under the screen position [offset], found by casting the view ray
   /// to the ground. Above the horizon, uses [aboveHorizon] as the divisor, or

@@ -95,8 +95,9 @@ class MapOptions {
   ///  * [CameraConstraint.contain] and [CameraConstraint.containLatitude]
   ///    ignore pitch, so ground beyond their bounds can be visible toward the
   ///    top of the map
-  ///  * the tile layer loads up to 7.5 times as many tiles at 60° as when
-  ///    unpitched
+  ///  * the tile layer loads coarser tiles for far ground, and near ground at
+  ///    the same zoom as when unpitched, so near tiles can look blurry; use
+  ///    vector tiles where the near ground must be sharp
   ///
   /// While [maxPitch] is above 0 and the interactive flags contain
   /// [InteractiveFlag.pitch], the user can pitch the map with a two-finger
