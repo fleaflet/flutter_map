@@ -3,6 +3,8 @@ import 'dart:math' show Point;
 import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_cover.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:meta/meta.dart';
@@ -39,7 +41,7 @@ Point<int> _ceil(Offset point) => Point<int>(point.dx.ceil(), point.dy.ceil());
 
 /// Every [TileRange] is a [DiscreteTileRange] if it's not an [EmptyTileRange].
 @immutable
-class DiscreteTileRange extends TileRange {
+class DiscreteTileRange extends TileRange implements TileCover {
   /// Bounds are inclusive
   final IntegerBounds _bounds;
 
@@ -67,6 +69,7 @@ class DiscreteTileRange extends TileRange {
   }
 
   /// Expand the [DiscreteTileRange] by a given amount in every direction.
+  @override
   DiscreteTileRange expand(int count) {
     if (count == 0) return this;
 
@@ -119,12 +122,15 @@ class DiscreteTileRange extends TileRange {
   }
 
   /// Check if a [Point] is inside of the bounds of the [DiscreteTileRange].
+  /// A [TileCoordinates] at another zoom is not.
   ///
   /// We use a modulo in order to prevent side-effects at the end of the world.
+  @override
   bool contains(
     Point<int> point, {
     bool replicatesWorldLongitude = false,
   }) {
+    if (point is TileCoordinates && point.z != zoom) return false;
     if (!replicatesWorldLongitude) {
       return _bounds.contains(point);
     }
@@ -164,6 +170,10 @@ class DiscreteTileRange extends TileRange {
       }
     }
   }
+
+  @override
+  Iterable<TileCoordinates> validCoordinatesIn(TileBounds bounds) =>
+      bounds.atZoom(zoom).validCoordinatesIn(this);
 
   @override
   String toString() => 'DiscreteTileRange($min, $max)';
