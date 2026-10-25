@@ -33,8 +33,8 @@ class _PitchPageState extends State<PitchPage> {
               children: [
                 const Text(
                   'Markers and labels face the viewer; tiles, polygons and '
-                  'polylines lie on the ground. At 60°, the tile layer loads '
-                  'up to 7.5 times as many tiles as when unpitched.',
+                  'polylines lie on the ground. Far ground uses coarser '
+                  'tiles.',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12),
                 ),

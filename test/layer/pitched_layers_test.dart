@@ -235,7 +235,8 @@ void main() {
     });
   }
 
-  testWidgets('tile under the top edge is loaded', (tester) async {
+  testWidgets('tile under the top edge is loaded, coarser than at the center',
+      (tester) async {
     final controller = await _pump(
       tester,
       pitch: 60,
@@ -248,12 +249,19 @@ void main() {
       ],
     );
     final camera = controller.camera;
-    final top = camera.projectAtZoom(
-        camera.screenOffsetToLatLng(const Offset(200, 1)), 12);
-    final expected =
-        TileCoordinates((top.dx / 256).floor(), (top.dy / 256).floor(), 12);
-    final quads = await _tileQuads(tester);
-    expect(quads.map((q) => q.$1), contains(expected));
+    final topEdge = camera.screenOffsetToLatLng(const Offset(200, 1));
+    TileCoordinates tileAt(LatLng position, int zoom) {
+      final pixel = camera.projectAtZoom(position, zoom.toDouble());
+      return TileCoordinates(
+          (pixel.dx / 256).floor(), (pixel.dy / 256).floor(), zoom);
+    }
+
+    final tiles = (await _tileQuads(tester)).map((q) => q.$1).toSet();
+    expect(tiles, contains(tileAt(camera.center, 12)));
+    expect(
+      tiles.where((t) => t.z < 12 && tiles.contains(tileAt(topEdge, t.z))),
+      isNotEmpty,
+    );
   });
 
   for (final rotate in [true, false]) {
