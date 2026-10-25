@@ -16,6 +16,7 @@ import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 part 'label/build_text_painter.dart';
+part 'label/label_painter.dart';
 part 'painter.dart';
 part 'polygon.dart';
 part 'projected_polygon.dart';
@@ -259,13 +260,17 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
             growable: false,
           );
 
-    return MobileLayerTransformer(
+    // When pitched, labels face the viewer, so they are drawn by a separate
+    // painter in screen space instead of on the ground with their polygons.
+    final pitchedLabels = camera.pitch != 0 && widget.polygonLabels;
+
+    final polygons = MobileLayerTransformer(
       child: CustomPaint(
         painter: _PolygonPainter(
           polygons: culled,
           triangles: triangles,
           camera: camera,
-          polygonLabels: widget.polygonLabels,
+          polygonLabels: widget.polygonLabels && !pitchedLabels,
           drawLabelsLast: widget.drawLabelsLast,
           painterFillMethod: widget.painterFillMethod,
           invertedFill: widget.invertedFill,
@@ -274,6 +279,19 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
         ),
         size: camera.size,
       ),
+    );
+    if (!pitchedLabels) return polygons;
+
+    return Stack(
+      children: [
+        polygons,
+        BillboardLayerTransformer(
+          child: CustomPaint(
+            painter: _PolygonLabelPainter(polygons: culled, camera: camera),
+            size: camera.nonRotatedSize,
+          ),
+        ),
+      ],
     );
   }
 

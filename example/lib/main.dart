@@ -17,6 +17,7 @@ import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
+import 'package:flutter_map_example/pages/pitch.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polygon_perf_stress.dart';
@@ -70,6 +71,7 @@ class MyApp extends StatelessWidget {
         ManyCirclesPage.route: (context) => const ManyCirclesPage(),
         CirclePage.route: (context) => const CirclePage(),
         OverlayImagePage.route: (context) => const OverlayImagePage(),
+        PitchPage.route: (context) => const PitchPage(),
         PolygonPage.route: (context) => const PolygonPage(),
         RepeatedWorldsPage.route: (context) => const RepeatedWorldsPage(),
         PolygonPerfStressPage.route: (context) => const PolygonPerfStressPage(),

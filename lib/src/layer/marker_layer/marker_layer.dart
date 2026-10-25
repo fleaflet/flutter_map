@@ -165,8 +165,10 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
     final worldWidth = camera.getWorldWidthAtZoom();
     final zoomScale = camera.crs.scale(camera.zoom);
+    final pixelToScreen = camera.pixelToScreenTransform;
+    final viewport = Offset.zero & camera.nonRotatedSize;
 
-    return MobileLayerTransformer(
+    return BillboardLayerTransformer(
       child: Stack(
         children: () sync* {
           for (int i = 0; i < widget.markers.length; i++) {
@@ -215,36 +217,50 @@ class _MarkerLayerState extends State<MarkerLayer> {
             final bottom = height - top;
 
             Positioned? getPositioned(double worldShift) {
-              final shiftedX = pxPoint.dx + worldShift;
+              final shifted = Offset(pxPoint.dx + worldShift, pxPoint.dy);
 
               // Cull if out of bounds
-              if (!camera.pixelBounds.overlaps(
-                Rect.fromPoints(
-                  Offset(shiftedX + left, pxPoint.dy - bottom),
-                  Offset(shiftedX - right, pxPoint.dy + top),
-                ),
-              )) {
-                return null;
+              if (camera.pitch == 0) {
+                if (!camera.pixelBounds.overlaps(
+                  Rect.fromPoints(
+                    Offset(shifted.dx + left, shifted.dy - bottom),
+                    Offset(shifted.dx - right, shifted.dy + top),
+                  ),
+                )) {
+                  return null;
+                }
+              } else {
+                // A point behind the camera has no screen position
+                if (_perspectiveDivisor(pixelToScreen, shifted) <= 0) {
+                  return null;
+                }
               }
 
-              // Shift original coordinate along worlds, then move into relative
-              // to origin space
-              final shiftedLocalPoint =
-                  Offset(shiftedX, pxPoint.dy) - camera.pixelOrigin;
+              final screen = MatrixUtils.transformPoint(pixelToScreen, shifted);
+
+              // Without rotation, the marker's corners are within the larger
+              // of its sizes from its point
+              if (camera.pitch != 0 &&
+                  !viewport.overlaps(Rect.fromCircle(
+                    center: screen,
+                    radius: width > height ? width : height,
+                  ))) {
+                return null;
+              }
 
               return Positioned(
                 key: m.key,
                 width: width,
                 height: height,
-                left: shiftedLocalPoint.dx - right,
-                top: shiftedLocalPoint.dy - bottom,
+                left: screen.dx - right,
+                top: screen.dy - bottom,
                 child: (m.rotate ?? widget.rotate)
-                    ? Transform.rotate(
-                        angle: -camera.rotationRad,
+                    ? m.child
+                    : Transform.rotate(
+                        angle: camera.rotationRad,
                         alignment: Alignment(-alignment.x, -alignment.y),
                         child: m.child,
-                      )
-                    : m.child,
+                      ),
               );
             }
 
@@ -280,3 +296,10 @@ class _MarkerLayerState extends State<MarkerLayer> {
     );
   }
 }
+
+/// The divisor of the perspective division of [matrix] at [point]; not
+/// positive for a point behind the camera.
+double _perspectiveDivisor(Matrix4 matrix, Offset point) =>
+    matrix.storage[3] * point.dx +
+    matrix.storage[7] * point.dy +
+    matrix.storage[15];

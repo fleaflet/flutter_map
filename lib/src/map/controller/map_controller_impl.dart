@@ -26,6 +26,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   late Offset _animationOffset;
   late Offset _flingMapCenterStartPoint;
 
+  /// The ground offsets, in projected pixels, of a one-pixel screen step along
+  /// x and along y at the viewport center, when the fling started on a pitched
+  /// map.
+  (Offset, Offset)? _flingGroundAxes;
+
   /// Constructor of the [MapController] implementation for internal usage.
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
       : super(
@@ -105,6 +110,14 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
 
   @override
+  bool pitch(double degree, {String? id}) => pitchRaw(
+        degree,
+        hasGesture: false,
+        source: MapEventSource.mapController,
+        id: id,
+      );
+
+  @override
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
     Offset? offset,
@@ -150,14 +163,13 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     LatLng center = newCenter;
     if (offset != Offset.zero) {
-      final newPoint = camera.projectAtZoom(newCenter, newZoom);
-      center = camera.unprojectAtZoom(
-        camera.rotatePoint(
-          newPoint,
-          newPoint - offset,
-        ),
-        newZoom,
+      final ground = camera.groundOffsetFromCenter(
+        camera.nonRotatedSize.center(Offset.zero) + offset,
       );
+      if (ground != null) {
+        final newPoint = camera.projectAtZoom(newCenter, newZoom);
+        center = camera.unprojectAtZoom(newPoint - ground, newZoom);
+      }
     }
 
     MapCamera? newCamera = camera.withPosition(
@@ -219,6 +231,37 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return true;
   }
 
+  /// Internal endpoint to change the pitch of the [MapCamera].
+  bool pitchRaw(
+    double newPitch, {
+    required bool hasGesture,
+    required MapEventSource source,
+    String? id,
+  }) {
+    final pitch = options.clampPitch(newPitch);
+    if (pitch == camera.pitch) return false;
+
+    final newCamera = options.cameraConstraint.constrain(
+      camera.withPitch(pitch),
+    );
+    if (newCamera == null) return false;
+
+    final oldCamera = camera;
+
+    // Update camera then emit events and callbacks
+    value = value.withMapCamera(newCamera);
+
+    _emitMapEvent(
+      MapEventPitch(
+        id: id,
+        source: source,
+        oldCamera: oldCamera,
+        camera: camera,
+      ),
+    );
+    return true;
+  }
+
   /// Internal endpoint to rotate around a point that is not in the center of
   /// the map.
   MoveAndRotateResult rotateAroundPointRaw(
@@ -244,9 +287,23 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
     }
 
+    final ground = camera.groundOffsetFromCenter(
+      camera.nonRotatedSize.center(Offset.zero) + offset!,
+    );
+    if (ground == null) {
+      return (
+        moveSuccess: true,
+        rotateSuccess: rotateRaw(
+          degree,
+          hasGesture: hasGesture,
+          source: source,
+          id: id,
+        ),
+      );
+    }
+
     final rotationDiff = degree - camera.rotation;
-    final rotationCenter = camera.projectAtZoom(camera.center) +
-        offset!.rotate(camera.rotationRad);
+    final rotationCenter = camera.projectAtZoom(camera.center) + ground;
 
     return (
       moveSuccess: moveRaw(
@@ -648,6 +705,16 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
     _flingMapCenterStartPoint = camera.projectAtZoom(camera.center);
+    if (camera.pitch == 0) {
+      _flingGroundAxes = null;
+    } else {
+      final center = camera.nonRotatedSize.center(Offset.zero);
+      final ground = camera.groundOffsetFromCenter(center)!;
+      _flingGroundAxes = (
+        camera.groundOffsetFromCenter(center + const Offset(1, 0))! - ground,
+        camera.groundOffsetFromCenter(center + const Offset(0, 1))! - ground,
+      );
+    }
 
     final distance = (Offset.zero & camera.nonRotatedSize).shortestSide;
 
@@ -713,8 +780,12 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   void _handleAnimation() {
     // fling animation
     if (_flingAnimation != null) {
+      final value = _flingAnimation!.value;
       final newCenterPoint = _flingMapCenterStartPoint +
-          _flingAnimation!.value.rotate(camera.rotationRad);
+          switch (_flingGroundAxes) {
+            null => value.rotate(camera.rotationRad),
+            (final x, final y) => x * value.dx + y * value.dy,
+          };
       moveRaw(
         camera.unprojectAtZoom(newCenterPoint),
         camera.zoom,
