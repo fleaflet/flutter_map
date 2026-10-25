@@ -367,6 +367,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   final _tileImageManager = TileImageManager();
   late TileBounds _tileBounds;
   late TileCoverCalculator _tileCoverCalculator;
+
+  /// The last result of [_visibleTileCover], which a build and the tile
+  /// update event of the same camera both use.
+  ({
+    MapCamera camera,
+    LatLng center,
+    double zoom,
+    TileCover cover
+  })? _lastTileCover;
   late TileScaleCalculator _tileScaleCalculator;
 
   // We have to hold on to the mapController hashCode to determine whether we
@@ -450,6 +459,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     // There is no caching in TileCoverCalculator so we can just replace it.
     _tileCoverCalculator = TileCoverCalculator(tileDimension: _tileDimension);
+    _lastTileCover = null;
 
     if (_tileBounds.shouldReplace(
         _tileBounds.crs, _tileDimension, widget.tileBounds)) {
@@ -661,14 +671,26 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     MapCamera camera, {
     LatLng? center,
     double? zoom,
-  }) =>
-      _tileCoverCalculator.calculate(
-        camera: camera,
-        tileZoom: _clampToNativeZoom(zoom ?? camera.zoom),
-        minNativeZoom: widget.minNativeZoom,
-        center: center,
-        viewingZoom: zoom,
-      );
+  }) {
+    center ??= camera.center;
+    zoom ??= camera.zoom;
+    final last = _lastTileCover;
+    if (last != null &&
+        last.camera == camera &&
+        last.center == center &&
+        last.zoom == zoom) {
+      return last.cover;
+    }
+    final cover = _tileCoverCalculator.calculate(
+      camera: camera,
+      tileZoom: _clampToNativeZoom(zoom),
+      minNativeZoom: widget.minNativeZoom,
+      center: center,
+      viewingZoom: zoom,
+    );
+    _lastTileCover = (camera: camera, center: center, zoom: zoom, cover: cover);
+    return cover;
+  }
 
   // For all valid TileCoordinates in the [tileLoadCover], expanded by the
   // [TileLayer.panBuffer], this method will do the following depending on
