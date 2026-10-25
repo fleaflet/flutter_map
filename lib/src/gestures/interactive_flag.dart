@@ -25,7 +25,8 @@ abstract class InteractiveFlag {
       doubleTapZoom |
       doubleTapDragZoom |
       scrollWheelZoom |
-      rotate;
+      rotate |
+      pitch;
 
   /// Disable all gesture interactions
   static const int none = 0;
@@ -59,8 +60,14 @@ abstract class InteractiveFlag {
   /// [InteractionOptions.cursorKeyboardRotationOptions].
   static const int rotate = 1 << 7;
 
+  /// Enable pitching with a two-finger vertical drag, and with a vertical
+  /// cursor/keyboard rotation drag
+  ///
+  /// Has no effect while [MapOptions.maxPitch] is 0.
+  static const int pitch = 1 << 8;
+
   /// Flags pertaining to gestures which require multiple fingers.
-  static const _multiFingerFlags = pinchMove | pinchZoom | rotate;
+  static const _multiFingerFlags = pinchMove | pinchZoom | rotate | pitch;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
   /// (intersection) for example [leftFlags]= [InteractiveFlag.drag] |
@@ -95,6 +102,9 @@ abstract class InteractiveFlag {
 
   /// True if the [rotate] interactive flag is enabled.
   static bool hasRotate(int flags) => hasFlag(flags, rotate);
+
+  /// True if the [pitch] interactive flag is enabled.
+  static bool hasPitch(int flags) => hasFlag(flags, pitch);
 
   /// True if the [scrollWheelZoom] interactive flag is enabled.
   static bool hasScrollWheelZoom(int flags) => hasFlag(flags, scrollWheelZoom);

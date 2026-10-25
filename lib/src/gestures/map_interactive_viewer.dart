@@ -23,6 +23,10 @@ typedef _KeyboardAnimationManager<T> = Map<
       Tween<T> repeatTween,
     })>;
 
+/// The state of the decision whether a multi-finger scale gesture is a pitch
+/// gesture.
+enum _PitchGesture { undecided, pitch, ruledOut }
+
 /// The method signature of the builder.
 typedef InteractiveViewerBuilder = Widget Function(
   BuildContext context,
@@ -85,6 +89,19 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   late Offset _focalStartLocal;
   late LatLng _focalStartLatLng;
 
+  // The pointers on the map, each with a start position and its current
+  // position. Adding or removing a pointer resets every start position to the
+  // current position, because adding or removing a pointer also restarts the
+  // scale gesture.
+  final _pointers = <int, ({Offset start, Offset position})>{};
+  Duration _lastPointerTimeStamp = Duration.zero;
+
+  var _pitchGesture = _PitchGesture.ruledOut;
+  var _pitchStarted = false;
+  late double _pitchAtStart;
+  Duration? _pitchFirstMove;
+  final _heldBackUpdates = <ScaleUpdateDetails>[];
+
   late final _flingController = AnimationController(vsync: this);
   late Animation<Offset> _flingAnimation;
 
@@ -109,6 +126,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   final _ckrTriggered = ValueNotifier(false);
   double _ckrClickDegrees = 0;
   double _ckrInitialDegrees = 0;
+  // While pitch gestures are enabled, cursor/keyboard rotation pitches and
+  // rotates the map as MapLibre GL JS's mouse handlers do.
+  var _ckrPitching = false;
+  Offset _ckrLastPosition = Offset.zero;
 
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
@@ -238,6 +259,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       }
 
       widget.controller.rotateEnded(MapEventSource.interactiveFlagsChanged);
+    }
+
+    if (_pitchStarted && !InteractiveFlag.hasPitch(newOptions.flags)) {
+      _pitchStarted = false;
+      widget.controller.pitchEnded(MapEventSource.interactiveFlagsChanged);
     }
 
     var emitMapEventMoveEnd = false;
@@ -387,13 +413,28 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     );
   }
 
+  void _restartPointerTracking() {
+    _pointers.updateAll(
+      (_, pointer) => (start: pointer.position, position: pointer.position),
+    );
+  }
+
   void _onPointerDown(PointerDownEvent event) {
     ++_pointerCounter;
+    _pointers[event.pointer] =
+        (start: event.localPosition, position: event.localPosition);
+    _restartPointerTracking();
+    _lastPointerTimeStamp = event.timeStamp;
 
     if (_ckrTriggered.value) {
       _ckrInitialDegrees = _camera.rotation;
       _ckrClickDegrees = getCursorRotationDegrees(event.localPosition);
       widget.controller.rotateStarted(MapEventSource.cursorKeyboardRotation);
+      _ckrPitching = _pitchEnabled;
+      if (_ckrPitching) {
+        _ckrLastPosition = event.localPosition;
+        widget.controller.pitchStarted(MapEventSource.cursorKeyboardRotation);
+      }
     }
 
     if (_options.onPointerDown != null) {
@@ -404,8 +445,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _onPointerUp(PointerUpEvent event) {
     --_pointerCounter;
+    _pointers.remove(event.pointer);
+    _restartPointerTracking();
 
-    if (_interactionOptions.cursorKeyboardRotationOptions.setNorthOnClick &&
+    if (_ckrPitching) {
+      _endCursorPitch();
+    } else if (_interactionOptions
+            .cursorKeyboardRotationOptions.setNorthOnClick &&
         _ckrTriggered.value &&
         _ckrInitialDegrees == _camera.rotation) {
       widget.controller.rotateRaw(
@@ -423,6 +469,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _onPointerCancel(PointerCancelEvent event) {
     --_pointerCounter;
+    _pointers.remove(event.pointer);
+    _restartPointerTracking();
+    if (_ckrPitching) _endCursorPitch();
 
     if (_options.onPointerCancel != null) {
       final latlng = _camera.offsetToCrs(event.localPosition);
@@ -438,11 +487,23 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   void _onPointerMove(PointerMoveEvent event) {
+    final pointer = _pointers[event.pointer];
+    if (pointer != null) {
+      _pointers[event.pointer] =
+          (start: pointer.start, position: event.localPosition);
+    }
+    _lastPointerTimeStamp = event.timeStamp;
+
     if (_options.onPointerMove != null) {
       final latLng = _camera.offsetToCrs(event.localPosition);
       _options.onPointerMove!(event, latLng);
     }
     if (!_ckrTriggered.value) return;
+
+    if (_ckrPitching) {
+      _handleCursorPitchAndRotation(event.localPosition);
+      return;
+    }
 
     final baseSetNorth =
         getCursorRotationDegrees(event.localPosition) - _ckrClickDegrees;
@@ -460,6 +521,48 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         CursorRotationBehaviour.setNorth) {
       _ckrClickDegrees = 0;
     }
+  }
+
+  void _handleCursorPitchAndRotation(Offset position) {
+    final previous = _ckrLastPosition;
+    _ckrLastPosition = position;
+    final center = _camera.nonRotatedSize.center(Offset.zero);
+
+    final double rotationDelta;
+    if ((center.dy - previous.dy).abs() > 100) {
+      // The angle through which the horizontal movement alone turns the
+      // cursor about the center.
+      final from = Offset(previous.dx, position.dy) - center;
+      final to = position - center;
+      rotationDelta = _normalizeDegrees(
+        (to.direction - from.direction) * radians2Degrees,
+      );
+    } else {
+      final turn = (position.dx - previous.dx) * 0.8;
+      rotationDelta = position.dy < center.dy ? turn : -turn;
+    }
+
+    widget.controller
+      ..rotateRaw(
+        _camera.rotation + rotationDelta,
+        hasGesture: true,
+        source: MapEventSource.cursorKeyboardRotation,
+      )
+      ..pitchRaw(
+        _camera.pitch - 0.5 * (position.dy - previous.dy),
+        hasGesture: true,
+        source: MapEventSource.cursorKeyboardRotation,
+      );
+  }
+
+  static double _normalizeDegrees(double degrees) =>
+      (degrees + 180) % 360 - 180;
+
+  void _endCursorPitch() {
+    _ckrPitching = false;
+    widget.controller
+      ..rotateEnded(MapEventSource.cursorKeyboardRotation)
+      ..pitchEnded(MapEventSource.cursorKeyboardRotation);
   }
 
   void _onPointerSignal(PointerSignalEvent pointerSignal) {
@@ -555,6 +658,66 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     _lastRotation = 0.0;
     _scaleCorrector = 0.0;
     _lastScale = 1.0;
+
+    _pitchGesture = !_dragMode && _canStartPitchGesture
+        ? _PitchGesture.undecided
+        : _PitchGesture.ruledOut;
+    _pitchStarted = false;
+    _pitchAtStart = _camera.pitch;
+    _pitchFirstMove = null;
+    _heldBackUpdates.clear();
+  }
+
+  bool get _pitchEnabled =>
+      InteractiveFlag.hasPitch(_interactionOptions.flags) &&
+      _options.maxPitch > 0;
+
+  bool get _canStartPitchGesture {
+    if (!_pitchEnabled || _pointers.length != 2) return false;
+    final [a, b] = _pointers.values.toList();
+    final line = a.start - b.start;
+    return line.dy.abs() <= line.dx.abs();
+  }
+
+  static bool _isVertical(Offset vector) => vector.dy.abs() > vector.dx.abs();
+
+  _PitchGesture _decidePitchGesture() {
+    if (_pointers.length != 2) return _PitchGesture.ruledOut;
+    final threshold = _interactionOptions.pitchThreshold;
+    final [a, b] = [
+      for (final pointer in _pointers.values) pointer.position - pointer.start,
+    ];
+    final moved = [a, b]
+        .where(
+            (vector) => vector != Offset.zero && vector.distance >= threshold)
+        .toList();
+    if (moved.isEmpty) return _PitchGesture.undecided;
+    if (!moved.every(_isVertical)) return _PitchGesture.ruledOut;
+    if (moved.length == 1) {
+      // GL JS's ALLOWED_SINGLE_TOUCH_TIME: the other finger can start moving
+      // later.
+      final firstMove = _pitchFirstMove ??= _lastPointerTimeStamp;
+      return _lastPointerTimeStamp - firstMove <
+              const Duration(milliseconds: 100)
+          ? _PitchGesture.undecided
+          : _PitchGesture.ruledOut;
+    }
+    return (a.dy > 0) == (b.dy > 0)
+        ? _PitchGesture.pitch
+        : _PitchGesture.ruledOut;
+  }
+
+  void _handleScalePitch() {
+    if (!_pitchStarted) return;
+    final verticalMovement = _pointers.values
+            .map((pointer) => (pointer.position - pointer.start).dy)
+            .reduce((a, b) => a + b) /
+        _pointers.length;
+    widget.controller.pitchRaw(
+      _pitchAtStart - 0.5 * verticalMovement,
+      hasGesture: true,
+      source: MapEventSource.onMultiFinger,
+    );
   }
 
   void _handleScaleUpdate(ScaleUpdateDetails details) {
@@ -563,6 +726,28 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       return;
     }
 
+    switch (_pitchGesture) {
+      case _PitchGesture.ruledOut:
+        _applyScaleUpdate(details);
+      case _PitchGesture.undecided:
+        _heldBackUpdates.add(details);
+        _pitchGesture = _decidePitchGesture();
+        if (_pitchGesture == _PitchGesture.ruledOut) {
+          _heldBackUpdates.forEach(_applyScaleUpdate);
+          _heldBackUpdates.clear();
+        } else if (_pitchGesture == _PitchGesture.pitch) {
+          _heldBackUpdates.clear();
+          _pitchStarted = true;
+          widget.controller
+              .pitchStarted(MapEventSource.multiFingerGestureStart);
+          _handleScalePitch();
+        }
+      case _PitchGesture.pitch:
+        _handleScalePitch();
+    }
+  }
+
+  void _applyScaleUpdate(ScaleUpdateDetails details) {
     final currentRotation = details.rotation * radians2Degrees;
     if (_dragMode) {
       _handleScaleDragUpdate(details);
@@ -772,6 +957,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
+
+    if (_pitchGesture != _PitchGesture.ruledOut) {
+      if (_pitchStarted) {
+        _pitchStarted = false;
+        widget.controller.pitchEnded(MapEventSource.multiFingerEnd);
+      }
+      _heldBackUpdates.clear();
+      return;
+    }
 
     final eventSource =
         _dragMode ? MapEventSource.dragEnd : MapEventSource.multiFingerEnd;

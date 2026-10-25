@@ -95,6 +95,11 @@ class MapOptions {
   ///    pitched
   ///  * the tile layer loads up to 7.5 times as many tiles at 60° as when
   ///    unpitched
+  ///
+  /// While [maxPitch] is above 0 and the interactive flags contain
+  /// [InteractiveFlag.pitch], the user can pitch the map with a two-finger
+  /// vertical drag (see [InteractionOptions.pitchThreshold]) and with
+  /// cursor/keyboard rotation (see [CursorKeyboardRotationOptions]).
   final double maxPitch;
 
   /// The largest [maxPitch] that takes effect. Above it, the visible ground
