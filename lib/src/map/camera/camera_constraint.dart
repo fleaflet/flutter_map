@@ -34,6 +34,10 @@ abstract class CameraConstraint {
   ///
   /// To instead constrain the center coordinate of the camera to these bounds,
   /// use [CameraConstraint.containCenter].
+  ///
+  /// The edges are those of the map at pitch 0, at every pitch, as in
+  /// MapLibre GL JS. When the map is pitched, ground beyond [bounds] can be
+  /// visible toward the top of the map.
   const factory CameraConstraint.contain({
     required LatLngBounds bounds,
   }) = ContainCamera._;
@@ -42,6 +46,10 @@ abstract class CameraConstraint {
   ///
   /// Defaults to 90 & -90, to prevent the background color from appearing
   /// at the 'top' and 'bottom' of the typical map.
+  ///
+  /// The edges are those of the map at pitch 0, at every pitch, as in
+  /// MapLibre GL JS. When the map is pitched, ground beyond [a] and [b] can be
+  /// visible toward the top of the map.
   const factory CameraConstraint.containLatitude([
     double a,
     double b,
@@ -123,7 +131,11 @@ class ContainCamera extends CameraConstraint {
     final nePixel = camera.projectAtZoom(bounds.northEast, testZoom);
     final swPixel = camera.projectAtZoom(bounds.southWest, testZoom);
 
-    final halfSize = camera.size / 2;
+    // Not [MapCamera.size], which is the visible ground's bounding box when
+    // pitched: the constraint ignores pitch, as MapLibre GL JS's does.
+    final halfSize =
+        MapCamera.calculateRotatedSize(camera.rotation, camera.nonRotatedSize) /
+            2;
 
     // Find the limits for the map center which would keep the camera within the
     // [latLngBounds].
@@ -186,7 +198,11 @@ class ContainCameraLatitude extends CameraConstraint {
     final Offset aPixel = camera.projectAtZoom(LatLng(a, 0), testZoom);
     final Offset bPixel = camera.projectAtZoom(LatLng(b, 0), testZoom);
 
-    final Size halfSize = camera.size / 2;
+    // Not [MapCamera.size], which is the visible ground's bounding box when
+    // pitched: the constraint ignores pitch, as MapLibre GL JS's does.
+    final Size halfSize =
+        MapCamera.calculateRotatedSize(camera.rotation, camera.nonRotatedSize) /
+            2;
 
     // Find the limits for the map center which would keep the camera within the
     // [north] and [south] bounds.
