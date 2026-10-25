@@ -12,6 +12,32 @@ import 'package:latlong2/latlong.dart';
 
 part 'package:flutter_map/src/gestures/compound_animations.dart';
 
+class _MapScaleGestureRecognizer extends ScaleGestureRecognizer {
+  _MapScaleGestureRecognizer({
+    required this.allowSinglePointer,
+    super.debugOwner,
+  });
+
+  final bool Function() allowSinglePointer;
+
+  bool get _canAccept => pointerCount >= 2 || allowSinglePointer();
+
+  @override
+  void resolve(GestureDisposition disposition) {
+    if (disposition == GestureDisposition.accepted && !_canAccept) return;
+    super.resolve(disposition);
+  }
+
+  @override
+  void acceptGesture(int pointer) {
+    if (!_canAccept) {
+      super.rejectGesture(pointer);
+      return;
+    }
+    super.acceptGesture(pointer);
+  }
+}
+
 typedef _KeyboardAnimationManager<T> = Map<
     PhysicalKeyboardKey,
     ({
@@ -327,9 +353,18 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
               // Absorbing horizontal drags
             };
         }),
-      ScaleGestureRecognizer:
-          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-        () => ScaleGestureRecognizer(debugOwner: this),
+      _MapScaleGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<_MapScaleGestureRecognizer>(
+        () => _MapScaleGestureRecognizer(
+          debugOwner: this,
+          allowSinglePointer: () =>
+              InteractiveFlag.hasDrag(_interactionOptions.flags) ||
+              InteractiveFlag.hasFlingAnimation(_interactionOptions.flags) ||
+              _ckrTriggered.value ||
+              (_tapUpCounter == 1 &&
+                  InteractiveFlag.hasDoubleTapDragZoom(
+                      _interactionOptions.flags)),
+        ),
         (recognizer) {
           recognizer
             ..onStart = _handleScaleStart
