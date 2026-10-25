@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_cover.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_cover_calculator.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:test/test.dart';
@@ -45,6 +45,32 @@ void main() {
         center: center,
         viewingZoom: viewingZoom,
       );
+
+  /// The tiles at [tileZoom] that the tile layer of the release the fork
+  /// starts from loads for an unpitched [camera], viewed from [center] at
+  /// [viewingZoom].
+  DiscreteTileRange unpitchedRange(
+    MapCamera camera,
+    int tileZoom, {
+    int tileDimension = 256,
+    LatLng? center,
+    double? viewingZoom,
+  }) {
+    final scale =
+        camera.getZoomScale(viewingZoom ?? camera.zoom, tileZoom.toDouble());
+    final pixelCenter = camera
+        .projectAtZoom(center ?? camera.center, tileZoom.toDouble())
+        .floor();
+    final halfSize = camera.size / (scale * 2);
+    return DiscreteTileRange.fromPixelBounds(
+      zoom: tileZoom,
+      tileDimension: tileDimension,
+      pixelBounds: Rect.fromPoints(
+        pixelCenter - halfSize.bottomRight(Offset.zero),
+        pixelCenter + halfSize.bottomRight(Offset.zero),
+      ),
+    );
+  }
 
   /// For each screen position on a grid, the tile of [tiles] that contains the
   /// ground there, and the scale there.
@@ -101,8 +127,8 @@ void main() {
         ]) {
           final c = camera(center: center, zoom: zoom);
           final tileZoom = zoom.round();
-          final range = TileRangeCalculator(tileDimension: tileDimension)
-              .calculate(camera: c, tileZoom: tileZoom);
+          final range =
+              unpitchedRange(c, tileZoom, tileDimension: tileDimension);
           expect(
             cover(c, tileDimension: tileDimension).coordinates.toSet(),
             range.coordinates.toSet(),
@@ -115,12 +141,7 @@ void main() {
     test('equals the range at an overridden center and zoom', () {
       final c = camera();
       const center = LatLng(45.6, -122.5);
-      final range = const TileRangeCalculator(tileDimension: 256).calculate(
-        camera: c,
-        tileZoom: 15,
-        center: center,
-        viewingZoom: 15.3,
-      );
+      final range = unpitchedRange(c, 15, center: center, viewingZoom: 15.3);
       expect(
         cover(c, center: center, viewingZoom: 15.3).coordinates.toSet(),
         range.coordinates.toSet(),
@@ -129,8 +150,7 @@ void main() {
 
     test('equals the range above the maximum native zoom', () {
       final c = camera(zoom: 16.3);
-      final range = const TileRangeCalculator(tileDimension: 256)
-          .calculate(camera: c, tileZoom: 14);
+      final range = unpitchedRange(c, 14);
       expect(
         cover(c, maxNativeZoom: 14).coordinates.toSet(),
         range.coordinates.toSet(),
@@ -139,16 +159,14 @@ void main() {
 
     test('of an empty viewport equals the range', () {
       final c = camera(nonRotatedSize: Size.zero);
-      final range = const TileRangeCalculator(tileDimension: 256)
-          .calculate(camera: c, tileZoom: 14);
+      final range = unpitchedRange(c, 14);
       expect(cover(c).coordinates.toSet(), range.coordinates.toSet());
     });
   });
 
   test('rotated, contains only tiles that the viewport touches', () {
     final c = camera(rotation: 45);
-    final range = const TileRangeCalculator(tileDimension: 256)
-        .calculate(camera: c, tileZoom: 14);
+    final range = unpitchedRange(c, 14);
     final tiles = cover(c);
     final touched = {
       for (final (screen, tile, _) in sample(c, tiles, step: 1))
