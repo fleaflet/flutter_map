@@ -91,8 +91,10 @@ class MapOptions {
   ///  * a layer that computes screen positions itself, instead of drawing at
   ///    `projectAtZoom(coordinate) - pixelOrigin`, must use
   ///    [MapCamera.latLngToScreenOffset] and [MapCamera.screenOffsetToLatLng]
-  ///  * [CameraFit] and [CameraConstraint] compute as if the map were not
-  ///    pitched
+  ///  * the built-in [CameraFit]s fit at the current pitch and rotation
+  ///  * [CameraConstraint.contain] and [CameraConstraint.containLatitude]
+  ///    ignore pitch, so ground beyond their bounds can be visible toward the
+  ///    top of the map
   ///  * the tile layer loads up to 7.5 times as many tiles at 60° as when
   ///    unpitched
   ///
