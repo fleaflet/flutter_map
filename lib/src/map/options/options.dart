@@ -75,6 +75,7 @@ class MapOptions {
 
   /// The largest pitch, in degrees, that the map allows. Defaults to 0, which
   /// keeps the map unpitched. Must be in the range from 0 to [pitchLimit].
+  /// See [InteractiveFlag.pitch] for the gestures that pitch the map.
   final double maxPitch;
 
   /// The largest [maxPitch] that takes effect. Above it, the visible ground

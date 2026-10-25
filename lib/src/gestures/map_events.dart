@@ -362,6 +362,26 @@ class MapEventRotateEnd extends MapEvent {
   });
 }
 
+/// Event which is fired when a pitch gesture starts
+@immutable
+class MapEventPitchStart extends MapEvent {
+  /// Create a new map event that represents the start of a pitch gesture.
+  const MapEventPitchStart({
+    required super.source,
+    required super.camera,
+  });
+}
+
+/// Event which is fired when a pitch gesture ends
+@immutable
+class MapEventPitchEnd extends MapEvent {
+  /// Create a new map event that represents the end of a pitch gesture.
+  const MapEventPitchEnd({
+    required super.source,
+    required super.camera,
+  });
+}
+
 /// Event that fires when the map widget changes size, e.g. when the app window
 /// gets changed in size.
 @immutable
