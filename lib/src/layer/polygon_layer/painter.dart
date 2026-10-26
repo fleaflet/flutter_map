@@ -145,6 +145,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   void paint(Canvas canvas, Size size) {
     super.paint(canvas, size);
 
+    final nearClip = NearClip.of(camera);
+    List<Offset> inFront(List<Offset> ring) => nearClip?.ring(ring) ?? ring;
+
     final trianglePoints = <Offset>[];
 
     Path filledPath = Path();
@@ -328,7 +331,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             return WorldWorkControl.invisible;
           }
 
-          unfillPolygon(fillOffsets);
+          unfillPolygon(inFront(fillOffsets));
 
           if (_invertedHoles) {
             for (final singleHolePoints in projectedPolygon.holePoints) {
@@ -336,8 +339,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
                 points: singleHolePoints,
                 shift: shift,
               );
-              unfillPolygon(holeOffsets);
-              invertFillPolygonHole(holeOffsets);
+              final holeInFront = inFront(holeOffsets);
+              unfillPolygon(holeInFront);
+              invertFillPolygonHole(holeInFront);
             }
           }
           return WorldWorkControl.visible;
@@ -369,7 +373,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
       /// Draws on a "single-world"
       WorldWorkControl drawIfVisible(double shift) {
-        final (fillOffsets, addedWorldWidthForHoles) = _helper.getOffsetsXY(
+        var (fillOffsets, addedWorldWidthForHoles) = _helper.getOffsetsXY(
           points: projectedPolygon.points,
           holePoints:
               polygonTriangles != null ? projectedPolygon.holePoints : null,
@@ -377,6 +381,15 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         );
         if (!areOffsetsVisible(fillOffsets)) {
           return WorldWorkControl.invisible;
+        }
+        // The triangles index the unclipped points, so a clipped polygon is
+        // filled through its path.
+        final clipped = nearClip != null && !nearClip.contains(fillOffsets);
+        if (clipped) {
+          fillOffsets = nearClip.ring(_helper
+              .getOffsetsXY(points: projectedPolygon.points, shift: shift)
+              .$1);
+          if (fillOffsets.isEmpty) return WorldWorkControl.invisible;
         }
 
         if (debugAltRenderer) {
@@ -415,7 +428,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
         // First add fills and borders to path.
         if (polygon.color != null) {
-          if (polygonTriangles != null) {
+          if (polygonTriangles != null && !clipped) {
             final len = polygonTriangles.length;
             for (int i = 0; i < len; ++i) {
               trianglePoints.add(fillOffsets[polygonTriangles[i]]);
@@ -435,12 +448,12 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             );
 
         if (borderPaint != null) {
-          addBorderToPath(_helper
+          addBorderToPath(inFront(_helper
               .getOffsetsXY(
                 points: projectedPolygon.points,
                 shift: shift,
               )
-              .$1);
+              .$1));
         }
 
         // Afterwards deal with more complicated holes.
@@ -453,9 +466,11 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             shift: shift,
             forcedAddedWorldWidth: addedWorldWidthForHoles,
           );
-          unfillPolygon(holeOffsets);
+          final holeInFront = inFront(holeOffsets);
+          if (holeInFront.isEmpty) continue;
+          unfillPolygon(holeInFront);
           if (!polygon.disableHolesBorder && borderPaint != null) {
-            addBorderToPath(holeOffsets);
+            addBorderToPath(holeInFront);
           }
         }
 

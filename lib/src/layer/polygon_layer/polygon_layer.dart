@@ -10,6 +10,7 @@ import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_de
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
+import 'package:flutter_map/src/layer/shared/near_clip.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_in_polygon.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
