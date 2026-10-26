@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 
@@ -29,6 +30,12 @@ class MobileLayerTransformer extends StatelessWidget {
     // The child's top-left corner is at [MapCamera.pixelOrigin], which is not
     // centered on the map's center when pitched.
     final origin = camera.pixelOrigin;
+    // Clipped to the visible ground, because a point behind the camera would
+    // be drawn mirrored, and nothing is drawn beyond the far limit.
+    final fromOrigin = camera.projectAtZoom(camera.center) - origin;
+    final ground = [
+      for (final corner in camera.visibleGroundFromCenter) fromOrigin + corner,
+    ];
     return OverflowBox(
       alignment: Alignment.topLeft,
       minWidth: camera.size.width,
@@ -38,8 +45,24 @@ class MobileLayerTransformer extends StatelessWidget {
       child: Transform(
         transform: camera.pixelToScreenTransform
           ..multiply(Matrix4.translationValues(origin.dx, origin.dy, 0)),
-        child: child,
+        child: ClipPath(
+          clipper: _PolygonClipper(ground),
+          child: child,
+        ),
       ),
     );
   }
+}
+
+class _PolygonClipper extends CustomClipper<Path> {
+  final List<Offset> points;
+
+  const _PolygonClipper(this.points);
+
+  @override
+  Path getClip(Size size) => Path()..addPolygon(points, true);
+
+  @override
+  bool shouldReclip(_PolygonClipper oldClipper) =>
+      !listEquals(oldClipper.points, points);
 }
