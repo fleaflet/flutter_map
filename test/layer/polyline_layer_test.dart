@@ -10,6 +10,139 @@ import 'package:latlong2/latlong.dart';
 import '../test_utils/test_app.dart';
 
 void main() {
+  for (final shape in [
+    'straight',
+    'crossing',
+    'backtrack',
+    'shallow_corner',
+    'hairpin',
+  ]) {
+    final crossing = shape == 'crossing';
+    final backtrack = shape == 'backtrack';
+    testWidgets('multicolor edges match reference antialiasing shape=$shape',
+        (tester) async {
+      final controller = MapController();
+      final boundaryKey = GlobalKey();
+      await tester.pumpWidget(_RenderingTestApp(
+        boundaryKey: boundaryKey,
+        controller: controller,
+      ));
+      final points = [
+        controller.camera.screenOffsetToLatLng(const Offset(40, 60)),
+        controller.camera.screenOffsetToLatLng(
+          shape == 'shallow_corner'
+              ? const Offset(100, 100)
+              : const Offset(160, 140),
+        ),
+        if (crossing) ...[
+          controller.camera.screenOffsetToLatLng(const Offset(160, 60)),
+          controller.camera.screenOffsetToLatLng(const Offset(40, 140)),
+        ],
+        if (backtrack)
+          controller.camera.screenOffsetToLatLng(const Offset(40, 60)),
+        if (shape == 'shallow_corner')
+          controller.camera.screenOffsetToLatLng(const Offset(160, 120)),
+        if (shape == 'hairpin')
+          controller.camera.screenOffsetToLatLng(const Offset(45, 72)),
+      ];
+      const colors = [Colors.red, Colors.blue, Colors.green, Colors.purple];
+      // Build the expected image using ordinary two-point gradient polylines.
+      // Flat segment ends plus a disk at each shared vertex form round joins
+      // without calling the multicolor renderer under test.
+      await tester.pumpWidget(_RenderingTestApp(
+        boundaryKey: boundaryKey,
+        controller: controller,
+        polylines: [
+          for (var i = 1; i < points.length; i++)
+            Polyline(
+              points: [points[i - 1], points[i]],
+              gradientColors: [colors[i - 1], colors[i]],
+              colorsStop: const [0, 1],
+              strokeWidth: 8,
+              strokeCap: StrokeCap.butt,
+            ),
+        ],
+        referenceJoins: [
+          for (var i = 1; i < points.length - 1; i++)
+            // Half the stroke width; endpoints keep their flat caps.
+            (point: points[i], radius: 4.0, color: colors[i]),
+        ],
+      ));
+      final reference = await _capturePixels(tester, boundaryKey);
+      await tester.pumpWidget(_RenderingTestApp(
+        boundaryKey: boundaryKey,
+        controller: controller,
+        polylines: [
+          MulticolorPolyline(
+            points: points,
+            vertexColors: colors.take(points.length).toList(),
+            strokeWidth: 8,
+            strokeCap: StrokeCap.butt,
+          ),
+        ],
+      ));
+      final result = await _capturePixels(tester, boundaryKey);
+      var differingPixels = 0;
+      for (var y = 50; y < 150; y++) {
+        for (var x = 30; x < 170; x++) {
+          final expected = reference.colorAt(x, y);
+          final actual = result.colorAt(x, y);
+          if ((expected.r - actual.r).abs() > 0.04 ||
+              (expected.g - actual.g).abs() > 0.04 ||
+              (expected.b - actual.b).abs() > 0.04) {
+            differingPixels++;
+          }
+        }
+      }
+      expect(differingPixels, 0);
+      await tester.pumpWidget(const SizedBox.shrink());
+      controller.dispose();
+    });
+  }
+  for (final alpha in [255, 128]) {
+    testWidgets('solid and gradient segments preserve color alpha=$alpha',
+        (tester) async {
+      final controller = MapController();
+      final boundaryKey = GlobalKey();
+      final red = Colors.red.withAlpha(alpha);
+      final blue = Colors.blue.withAlpha(alpha);
+      await tester.pumpWidget(_RenderingTestApp(
+        boundaryKey: boundaryKey,
+        controller: controller,
+      ));
+      await tester.pumpWidget(_RenderingTestApp(
+        boundaryKey: boundaryKey,
+        controller: controller,
+        polylines: [
+          MulticolorPolyline(
+            points: [
+              for (final x in [20.0, 60.0, 100.0, 140.0, 180.0])
+                controller.camera.screenOffsetToLatLng(Offset(x, 100)),
+            ],
+            // Alternate constant and varying colors to exercise reuse of Paint
+            // across solid strokes and shaders, including translucent colors.
+            vertexColors: [red, red, blue, blue, red],
+            strokeWidth: 20,
+          ),
+        ],
+      ));
+      final pixels = await _capturePixels(tester, boundaryKey);
+      for (final (x, color) in [
+        (40, red),
+        (80, Color.lerp(red, blue, 0.5)!),
+        (120, blue),
+        (160, Color.lerp(blue, red, 0.5)!),
+      ]) {
+        final expected = Color.alphaBlend(color, Colors.white);
+        final actual = pixels.colorAt(x, 100);
+        expect(actual.r, closeTo(expected.r, 0.03));
+        expect(actual.g, closeTo(expected.g, 0.03));
+        expect(actual.b, closeTo(expected.b, 0.03));
+      }
+      await tester.pumpWidget(const SizedBox.shrink());
+      controller.dispose();
+    });
+  }
   test('polyline equality is symmetric across rendering subtypes', () {
     const points = [LatLng(0, 0), LatLng(0, 1)];
     final plain = Polyline(points: points);
@@ -422,11 +555,14 @@ void main() {
   });
 }
 
+typedef _ReferenceJoin = ({LatLng point, double radius, Color color});
+
 class _RenderingTestApp extends StatelessWidget {
   const _RenderingTestApp({
     required this.boundaryKey,
     required this.controller,
     this.polylines = const [],
+    this.referenceJoins = const [],
     this.simplificationTolerance = 0.4,
     this.cullingMargin,
   });
@@ -434,6 +570,7 @@ class _RenderingTestApp extends StatelessWidget {
   final GlobalKey boundaryKey;
   final MapController controller;
   final List<Polyline> polylines;
+  final List<_ReferenceJoin> referenceJoins;
   final double simplificationTolerance;
   final double? cullingMargin;
 
@@ -462,6 +599,16 @@ class _RenderingTestApp extends StatelessWidget {
                         cullingMargin: cullingMargin,
                         simplificationTolerance: simplificationTolerance,
                       ),
+                    if (referenceJoins.isNotEmpty)
+                      Builder(
+                        builder: (context) => CustomPaint(
+                          painter: _ReferenceJoinPainter(
+                            referenceJoins,
+                            MapCamera.of(context),
+                          ),
+                          size: const Size(200, 200),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -469,6 +616,27 @@ class _RenderingTestApp extends StatelessWidget {
           ),
         ),
       );
+}
+
+class _ReferenceJoinPainter extends CustomPainter {
+  const _ReferenceJoinPainter(this.joins, this.camera);
+
+  final List<_ReferenceJoin> joins;
+  final MapCamera camera;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Draw the reference disks directly to keep the expected image independent
+    // of CircleLayer projection, culling, and radius conversion.
+    for (final join in joins) {
+      canvas.drawCircle(camera.getOffsetFromOrigin(join.point), join.radius,
+          Paint()..color = join.color);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ReferenceJoinPainter oldDelegate) =>
+      joins != oldDelegate.joins || camera != oldDelegate.camera;
 }
 
 class _CapturedPixels {
