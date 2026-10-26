@@ -1,11 +1,5 @@
 # Raster vs Vector Tiles
 
-{% hint style="info" %}
-It is important to note that 'flutter\_map' only supports raster tiles natively. Vector tiles can be used with a community maintained plugin.
-
-This is described in more detail at the bottom of this page.
-{% endhint %}
-
 There are 2 main types of tiles a server can serve: raster and vector; each has their own advantages and drawbacks. This page is designed to help you choose a type for your app, and help you use vector tiles if you choose to.
 
 ## Raster Tiles
@@ -19,3 +13,7 @@ However, raster tiles cannot be easily themed: a theme needs a whole new set of 
 Vector tiles can be considered the 'newer' standard. These images might contain a specialised format (such as .pbf) dictating the mathematics and coordinates used to draw lines and shapes. Because these tiles are drawn at render time instead of at request/server time, theming can be used to make the map fit in better with an app's theme. The math-based image means that the images/tiles can be scaled without any loss of clarity.
 
 However it does add complexity to the rendering process as each element needs to be parsed and painted individually, meaning an impact to performance. Text elements and certain shapes can also be rotated (unlike raster tiles) to match the user's orientation, not the orientation of the map; but calculating this rotation needs to be done every frame, meaning an even larger impact on performance.
+
+## Our Support
+
+flutter\_map natively supports a [raster-tile-layer](../../layers/raster-tile-layer/ "mention"). Community maintained plugins are available for [vector-tile-layer.md](../../layers/vector-tile-layer.md "mention").
