@@ -96,7 +96,7 @@ Check the OSM policy for all the adjustments you might need to make. Here's some
 
 *   **Enable conforming caching**
 
-    <div data-gb-custom-block data-tag="hint" data-style="success" class="hint hint-success"><p>v8.2.0 introduces automatically enabled <a data-mention href="../layers/tile-layer/caching.md">caching.md</a>! This is designed to meet the caching requirements of the usage policy. Upgrade to v8.2.0 to enable this functionality.</p></div>
+    <div data-gb-custom-block data-tag="hint" data-style="success" class="hint hint-success"><p>v8.2.0 introduces automatically enabled <a data-mention href="../layers/raster-tile-layer/caching.md">caching.md</a>! This is designed to meet the caching requirements of the usage policy. Upgrade to v8.2.0 to enable this functionality.</p></div>
 
     There's also other options to implement caching or offline mapping to meet the requirements, and go beyond the capabilities of the built-in caching.
 *   **Add sufficient attribution**
@@ -106,7 +106,7 @@ Check the OSM policy for all the adjustments you might need to make. Here's some
     You can also add attribution in any other way that meets the requirements.
 *   **Set a more specific user-agent to identify your client**
 
-    <div data-gb-custom-block data-tag="hint" data-style="success" class="hint hint-success"><p>You should set <code>TileLayer.userAgentPackageName</code>: see the <a data-mention href="../layers/tile-layer/#recommended-setup">#recommended-setup</a> for the <code>TileLayer</code>.<br>This is not necessary when running solely on the web, where it is not possible to set a User-Agent manually.</p></div>
+    <div data-gb-custom-block data-tag="hint" data-style="success" class="hint hint-success"><p>You should set <code>TileLayer.userAgentPackageName</code>: see the <a data-mention href="../layers/raster-tile-layer/#recommended-setup">#recommended-setup</a> for the <code>TileLayer</code>.<br>This is not necessary when running solely on the web, where it is not possible to set a User-Agent manually.</p></div>
 {% endstep %}
 {% endstepper %}
 

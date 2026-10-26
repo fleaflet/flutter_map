@@ -23,13 +23,13 @@ Temporary caching is automatically implemented by Flutter's `ImageCache` when us
 
 However, many tile servers, such as the OpenStreetMap tile server, will require you to implement longer-term caching!&#x20;
 
-Since v8.2.0, flutter\_map provides [caching.md](../layers/tile-layer/caching.md "mention") functionality built-in - this automatically enables long-term caching, and is extensible to allow other caching providers to be used. The default built-in provider satisfies many requirements of both users and tile servers automatically.
+Since v8.2.0, flutter\_map provides [caching.md](../layers/raster-tile-layer/caching.md "mention") functionality built-in - this automatically enables long-term caching, and is extensible to allow other caching providers to be used. The default built-in provider satisfies many requirements of both users and tile servers automatically.
 
 If you'd prefer not to use built-in caching, you can:
 
 * **Try another `MapCachingProvider` implementation if you still only need simple caching**\
   These are compatible with the standard `NetworkTileProvider` (and cancellable version), as with built-in caching, but use a different storage mechanism.\
-  You can create an implementation yourself, or use one provided by a 3rd-party/plugin. See [#using-other-providers](../layers/tile-layer/caching.md#using-other-providers "mention") for more info.
+  You can create an implementation yourself, or use one provided by a 3rd-party/plugin. See [#using-other-providers](../layers/raster-tile-layer/caching.md#using-other-providers "mention") for more info.
 * **Use a caching HTTP client**\
   `NetworkTileProvider.httpClient` can be used to set a custom HTTP client. Some packages, such as '[package:http\_cache\_client](https://pub.dev/packages/http_cache_client)', offer clients which perform HTTP caching, similar to built-in caching.
 * **Use a different `TileProvider`**\

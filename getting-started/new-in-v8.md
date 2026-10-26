@@ -15,7 +15,7 @@ Here's some highlights since v8.0:
 
 The `NetworkTileProvider` has had a massive functionality boost!
 
-Built-in caching helps you, your users, and the tile server, and is enabled by default for maximum ease. You could also switch it out with a custom implementation, or disable it altogether if you prefer. Find out more in [caching.md](../layers/tile-layer/caching.md "mention").
+Built-in caching helps you, your users, and the tile server, and is enabled by default for maximum ease. You could also switch it out with a custom implementation, or disable it altogether if you prefer. Find out more in [caching.md](../layers/raster-tile-layer/caching.md "mention").
 
 You may be using the `CancellableNetworkTileProvider`, which allowed in-flight HTTP requests to be aborted when the tiles would no longer be displayed, helping to improve performance and usability. Unfortunately, it isn't compatible with built-in caching. Fortunately, it's also been deprecated - its functionality is now available in the core! 'package:http' v1.5.0-beta ([#1773](https://github.com/dart-lang/http/pull/1773)) supports aborting requests with the 3 default clients natively, so Dio is no longer required. This makes it easier for you and for us!
 {% endhint %}
@@ -53,7 +53,7 @@ See how to migrate to the new system below.
 
 This documentation has also had a bit of a renewal!
 
-* Follow the new guide to setup a `TileLayer` as we recommend: [#recommended-setup](../layers/tile-layer/#recommended-setup "mention").&#x20;
+* Follow the new guide to setup a `TileLayer` as we recommend: [#recommended-setup](../layers/raster-tile-layer/#recommended-setup "mention").&#x20;
 * Follow the new guide to generate an initial position for your map following good practices: [generating-an-initial-position.md](../usage/options/generating-an-initial-position.md "mention").
 * The guide for interactive layers has been simplified, reworked, and example added. Check it out: [layer-interactivity](../layers/layer-interactivity/ "mention").
 * We've added some information about using flutter\_map with the OpenStreetMap public tile servers: [using-openstreetmap-direct.md](../tile-servers/using-openstreetmap-direct.md "mention").

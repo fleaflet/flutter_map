@@ -24,7 +24,7 @@ There's loads of ways to source (see Tile Servers), store ([raster-vs-vector-til
 
 However, you don't need to worry about most of this! Just follow the instructions from your source and it's easy to figure out how to use them in flutter\_map.
 
-See [tile-layer](../../layers/tile-layer/ "mention")for more information.
+See [raster-tile-layer](../../layers/raster-tile-layer/ "mention")for more information.
 {% endstep %}
 
 {% step %}

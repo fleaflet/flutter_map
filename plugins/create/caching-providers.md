@@ -1,6 +1,6 @@
 # Caching Providers
 
-[caching.md](../../layers/tile-layer/caching.md "mention") is extensible.
+[caching.md](../../layers/raster-tile-layer/caching.md "mention") is extensible.
 
 To create a new caching provider which is compatible with all tile providers which are compatible with built-in caching, create a class which implements `MapCachingProvider` and its required interface.
 

@@ -26,6 +26,8 @@ layout:
     visible: true
   actions:
     visible: false
+  anchors:
+    visible: false
 ---
 
 # flutter\_map
@@ -50,14 +52,6 @@ layout:
 {% content-ref url="why-and-how/showcase.md" %}
 [showcase.md](why-and-how/showcase.md)
 {% endcontent-ref %}
-
-{% hint style="info" %}
-## Vector tile support
-
-If you're looking for [vector tiles](why-and-how/how-does-it-work/raster-vs-vector-tiles.md), we don't currently support them natively. We only support raster tiles at the moment.
-
-However, [options are available](why-and-how/how-does-it-work/raster-vs-vector-tiles.md#using-vector-tiles), and the we and the community are actively exploring & developing future support!
-{% endhint %}
 
 ## Code Demo
 

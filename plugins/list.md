@@ -1,23 +1,17 @@
 # Plugins List
 
-There are many independently maintained 'plugins' created by the 'flutter\_map' community that give extra, prebuilt functionality, saving you even more time and potentially money.
+flutter\_map has an extensive community-based ecosystem of plugins which add functionality.
 
-Some pages in this documentation provide direct links to these plugins to make it easier for you to find a suitable plugin.
+Here's a catalogue of some of the ones we're aware of, but there's more out there!
 
-However, if you're just browsing, a full list is provided below (in no particular order), containing many of the available plugins. You can click on any of the tiles to visit its GitHub repo or pub.dev package.
+{% hint style="warning" %}
+Use community-maintained plugins at your own risk.
 
-{% hint style="danger" %}
-Although these plugins have been checked by 'flutter\_map' maintainers, we do not accept responsibility for any issues or threats posed by independently maintained plugins.
-
-Use plugins at your own risk.
+flutter\_map does not promote any particular plugin.
 {% endhint %}
 
 {% hint style="warning" %}
 There is no guarantee that any of these plugins will support the latest version of flutter\_map. Please remain patient with the plugin authors/owners.
-{% endhint %}
-
-{% hint style="info" %}
-Many plugins provide multiple methods to achieve similar goals. It is recommended to read the documentation of each potential plugin before using it in your project, as they might have slightly different feature sets or stability.
 {% endhint %}
 
 ## Tools
@@ -26,7 +20,11 @@ Many plugins provide multiple methods to achieve similar goals. It is recommende
 
 ## Additional Layers
 
-<table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><strong>vector_map_tiles (greensopinion)</strong></td><td>Suite of tools and layers for working with vector maps and associated style files</td><td><a href="https://github.com/greensopinion/flutter-vector-map-tiles">https://github.com/greensopinion/flutter-vector-map-tiles</a></td></tr><tr><td><strong>flutter_map_geojson2 (Zverik)</strong></td><td>Parse GeoJSON into map features, with simplespec styling support</td><td><a href="https://pub.dev/packages/flutter_map_geojson2">https://pub.dev/packages/flutter_map_geojson2</a></td></tr><tr><td><strong>flutter_map_polywidget (TimBaumgart)</strong></td><td>Layer that allows any widget to be displayed inside a positioned box, similar to <a data-mention href="../layers/overlay-image-layer.md">overlay-image-layer.md</a></td><td><a href="https://pub.dev/packages/flutter_map_polywidget">https://pub.dev/packages/flutter_map_polywidget</a></td></tr><tr><td><strong>fluttermap_heatmap (tprebs)</strong></td><td>Layer that represents multiple data points in a density-to-color relationship</td><td><a href="https://github.com/tprebs/fluttermap_heatmap">https://github.com/tprebs/fluttermap_heatmap</a></td></tr><tr><td><strong>flutter_map_compass (josxha)</strong></td><td>Simple compass that illustrates the direction of the map rotation (not the user's real heading)</td><td><a href="https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_compass">https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_compass</a></td></tr></tbody></table>
+<table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><strong>flutter_map_geojson2 (Zverik)</strong></td><td>Parse GeoJSON into map features, with simplespec styling support</td><td><a href="https://pub.dev/packages/flutter_map_geojson2">https://pub.dev/packages/flutter_map_geojson2</a></td></tr><tr><td><strong>flutter_map_polywidget (TimBaumgart)</strong></td><td>Layer that allows any widget to be displayed inside a positioned box, similar to <a data-mention href="../layers/overlay-image-layer.md">overlay-image-layer.md</a></td><td><a href="https://pub.dev/packages/flutter_map_polywidget">https://pub.dev/packages/flutter_map_polywidget</a></td></tr><tr><td><strong>fluttermap_heatmap (tprebs)</strong></td><td>Layer that represents multiple data points in a density-to-color relationship</td><td><a href="https://github.com/tprebs/fluttermap_heatmap">https://github.com/tprebs/fluttermap_heatmap</a></td></tr><tr><td><strong>flutter_map_compass (josxha)</strong></td><td>Simple compass that illustrates the direction of the map rotation (not the user's real heading)</td><td><a href="https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_compass">https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_compass</a></td></tr></tbody></table>
+
+{% hint style="info" %}
+Looking for vector support? Check out [vector-tile-layer.md](../layers/vector-tile-layer.md "mention").
+{% endhint %}
 
 ## Offline Mapping
 

@@ -6,3 +6,7 @@
   label: GUIDED
   icon: book-open-lines
   color: violet
+- tag: beta
+  label: BETA
+  icon: flask
+  color: cyan

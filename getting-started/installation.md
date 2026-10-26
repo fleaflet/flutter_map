@@ -82,7 +82,7 @@ Add the following lines to `macos/Runner/Release.entitlements`**:**
 {% hint style="info" %}
 ## Having issues loading tiles?
 
-1. Check you've correctly configured your `TileLayer`: [tile-layer](../layers/tile-layer/ "mention")
+1. Check you've correctly configured your `TileLayer`: [raster-tile-layer](../layers/raster-tile-layer/ "mention")
 2. Check you've followed the steps above for your platform
 3. Use Flutter DevTools on native platforms, or the browser devtools on web, and check the HTTP responses of tile requests
 4. Try requesting a tile manually using your browser or a command line utility which supports setting any required headers (for example, for authorization)

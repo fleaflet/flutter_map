@@ -41,7 +41,7 @@ Prefer overriding `getImageWithCancelLoadingSupport` for `TileProvider`s that ca
 {% tab title="With Cancel Loading Support" %}
 In addition to the coordinates and `TileLayer`, the method also takes a `Future<void>` that is completed when the tile is pruned. It should be listened to for completion (for example, with `then`), then used to trigger the cancellation.
 
-For an example of this, see [#cancellablenetworktileprovider](../../layers/tile-layer/tile-providers.md#cancellablenetworktileprovider "mention").
+For an example of this, see [#cancellablenetworktileprovider](../../layers/raster-tile-layer/tile-providers.md#cancellablenetworktileprovider "mention").
 
 ```dart
     @override

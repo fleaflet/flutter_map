@@ -19,17 +19,3 @@ However, raster tiles cannot be easily themed: a theme needs a whole new set of 
 Vector tiles can be considered the 'newer' standard. These images might contain a specialised format (such as .pbf) dictating the mathematics and coordinates used to draw lines and shapes. Because these tiles are drawn at render time instead of at request/server time, theming can be used to make the map fit in better with an app's theme. The math-based image means that the images/tiles can be scaled without any loss of clarity.
 
 However it does add complexity to the rendering process as each element needs to be parsed and painted individually, meaning an impact to performance. Text elements and certain shapes can also be rotated (unlike raster tiles) to match the user's orientation, not the orientation of the map; but calculating this rotation needs to be done every frame, meaning an even larger impact on performance.
-
-### Using Vector Tiles
-
-Due to the complications mentioned above, 'flutter\_map' does not natively support vector tiles. However, vector tiles can be used with a [community maintained plugin (`vector_map_tiles`)](https://github.com/greensopinion/flutter-vector-map-tiles) to do this.
-
-{% hint style="warning" %}
-Worried about vector tiles performance?
-
-Using vector tiles may significantly cut FPS and introduce jank, and that's because of the amount of UI work that must be performed on the main thread.
-
-The community and FM maintainers are looking to improve the situation!
-
-Keep up to date and subscribe to the issue: [https://github.com/greensopinion/flutter-vector-map-tiles/issues/120](https://github.com/greensopinion/flutter-vector-map-tiles/issues/120).
-{% endhint %}

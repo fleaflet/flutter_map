@@ -37,11 +37,11 @@ To create a new style based on the Standard style, choose a template when creati
 
 <figure><img src="../.gitbook/assets/Tile Provider Integration - Mapbox" alt="" width="563"><figcaption></figcaption></figure>
 
-#### Configuring [Retina Mode](../layers/tile-layer/#retina-mode)
+#### Configuring [Retina Mode](../layers/raster-tile-layer/#retina-mode)
 
 The URL includes an '@2x' string, which forces usage of high-definition tiles on all displays, without extra setup.
 
-Should you need to let flutter\_map interfere, and only use retina tiles on retina/high-density displays, replace it with the '{r}' placeholder, then see [#retina-mode](../layers/tile-layer/#retina-mode "mention") for more information.
+Should you need to let flutter\_map interfere, and only use retina tiles on retina/high-density displays, replace it with the '{r}' placeholder, then see [#retina-mode](../layers/raster-tile-layer/#retina-mode "mention") for more information.
 
 #### Other configurations
 

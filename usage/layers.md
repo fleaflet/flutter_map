@@ -1,6 +1,6 @@
 # Layers
 
-To display anything on the map, you'll need to include at least one layer. This is usually a [`TileLayer`](../layers/tile-layer/), which displays the map tiles themselves: without it, the map isn't really a very good map!
+To display anything on the map, you'll need to include at least one layer. This is usually a [`TileLayer`](../layers/raster-tile-layer/), which displays the map tiles themselves: without it, the map isn't really a very good map!
 
 <div align="center" data-full-width="false"><figure><img src="../.gitbook/assets/ExampleMap.jpg" alt="Example FlutterMap widget, containing multiple feature layers, atop a TileLayer" width="563"><figcaption><p>Example <code>FlutterMap</code> widget, containing multiple feature layers, atop a <code>TileLayer</code></p></figcaption></figure></div>
 

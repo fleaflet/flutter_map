@@ -28,9 +28,10 @@
 
 ## Layers
 
-* [Tile Layer](layers/tile-layer/README.md)
-  * [Tile Providers](layers/tile-layer/tile-providers.md)
-  * [Caching](layers/tile-layer/caching.md)
+* [Raster Tile Layer](layers/raster-tile-layer/README.md)
+  * [Tile Providers](layers/raster-tile-layer/tile-providers.md)
+  * [Caching](layers/raster-tile-layer/caching.md)
+* [Vector Tile Layer](layers/vector-tile-layer.md)
 * [Marker Layer](layers/marker-layer.md)
 * [Polygon Layer](layers/polygon-layer.md)
 * [Polyline Layer](layers/polyline-layer.md)
