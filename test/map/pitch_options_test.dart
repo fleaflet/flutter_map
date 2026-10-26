@@ -39,6 +39,12 @@ void main() {
     expect(() => MapOptions(initialPitch: -1), throwsAssertionError);
   });
 
+  testWidgets('maximum pitch above 60', (tester) async {
+    final controller =
+        await _pump(tester, const MapOptions(initialPitch: 75, maxPitch: 75));
+    expect(controller.camera.pitch, 75);
+  });
+
   test('a camera pitch of 90 degrees or more is rejected', () {
     MapCamera camera(double pitch) => MapCamera(
           crs: const Epsg3857(),

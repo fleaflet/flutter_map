@@ -34,7 +34,8 @@ class _PitchPageState extends State<PitchPage> {
                 const Text(
                   'Markers and labels face the viewer; tiles, polygons and '
                   'polylines lie on the ground. Far ground uses coarser '
-                  'tiles.',
+                  'tiles. Above a pitch of about 71°, the ground ends at a '
+                  'far limit, and the background color shows above it.',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12),
                 ),
@@ -86,6 +87,7 @@ class _PitchPageState extends State<PitchPage> {
                 initialZoom: 14,
                 initialPitch: _pitch,
                 maxPitch: MapOptions.pitchLimit,
+                backgroundColor: const Color(0xFFCFE3F3),
                 onMapEvent: (event) {
                   if (event.camera.pitch != _pitch ||
                       event.camera.rotation != _rotation) {
@@ -112,6 +114,7 @@ class _PitchPageState extends State<PitchPage> {
                       borderColor: Colors.purple,
                       borderStrokeWidth: 3,
                       label: 'Polygon',
+                      rotateLabel: true,
                       labelStyle: const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,

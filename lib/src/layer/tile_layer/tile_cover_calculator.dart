@@ -55,8 +55,8 @@ class _Cover {
   final int minNativeZoom;
   final double viewingZoom;
 
-  /// The ground under the corners of the viewport, from the center, in pixels
-  /// at [viewingZoom].
+  /// The ground under the corners of [MapCamera.groundViewport], from the
+  /// center, in pixels at [viewingZoom].
   final List<Offset> _corners;
   final Offset _pixelCenter;
   final int _tileZoom;
@@ -74,15 +74,7 @@ class _Cover {
             camera.projectAtZoom(center, tileZoom.toDouble()).floor(),
         _corners = camera.nonRotatedSize.isEmpty
             ? const [Offset.zero]
-            : [
-                Offset.zero,
-                Offset(camera.nonRotatedSize.width, 0),
-                Offset(
-                    camera.nonRotatedSize.width, camera.nonRotatedSize.height),
-                Offset(0, camera.nonRotatedSize.height),
-              ]
-                .map((corner) => camera.groundOffsetFromCenter(corner)!)
-                .toList();
+            : camera.visibleGroundFromCenter;
 
   int _zoomAtScale(double scale) => (viewingZoom + math.log(scale) / math.ln2)
       .round()

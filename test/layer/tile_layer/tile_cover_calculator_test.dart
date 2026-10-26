@@ -85,7 +85,9 @@ void main() {
     final pixelCenter =
         camera.projectAtZoom(camera.center, tileZoom.toDouble()).floor();
     final result = <(Offset, TileCoordinates?, double)>[];
-    for (var y = 0.0; y <= camera.nonRotatedSize.height; y += step) {
+    for (var y = camera.groundViewport.top;
+        y <= camera.nonRotatedSize.height;
+        y += step) {
       for (var x = 0.0; x <= camera.nonRotatedSize.width; x += step) {
         final screen = Offset(x, y);
         final ground = camera.groundOffsetFromCenter(screen)!;
@@ -255,6 +257,61 @@ void main() {
       };
       expect(worldEdge, {true, false});
     });
+
+    test('at pitch 60 is unchanged', () {
+      final c = MapCamera(
+        crs: const Epsg3857(),
+        center: const LatLng(45.5, -122.6),
+        zoom: 10,
+        rotation: 30,
+        pitch: 60,
+        nonRotatedSize: const Size(400, 300),
+      );
+      expect(
+        cover(c).coordinates,
+        const [
+          TileCoordinates(80, 181, 9),
+          TileCoordinates(81, 181, 9),
+          TileCoordinates(80, 182, 9),
+          TileCoordinates(162, 364, 10),
+          TileCoordinates(163, 364, 10),
+          TileCoordinates(162, 365, 10),
+          TileCoordinates(163, 365, 10),
+          TileCoordinates(161, 366, 10),
+          TileCoordinates(162, 366, 10),
+          TileCoordinates(163, 366, 10),
+          TileCoordinates(162, 367, 10),
+          TileCoordinates(163, 367, 10),
+          TileCoordinates(164, 366, 10),
+        ],
+      );
+    });
+
+    for (final rotation in [0.0, 45.0]) {
+      test(
+          'at pitch 85 covers the viewport below the far limit, '
+          'rotation $rotation', () {
+        final c = camera(zoom: 14.45, rotation: rotation, pitch: 85);
+        expect(c.groundViewport.top, greaterThan(0));
+        final tiles = cover(c);
+        final largestScale = <TileCoordinates, double>{};
+        for (final (screen, tile, scale) in sample(c, tiles, step: 4)) {
+          expect(tile, isNotNull, reason: 'no tile at $screen');
+          largestScale[tile!] = math.max(largestScale[tile] ?? 0, scale);
+        }
+        for (final tile in tiles.coordinates.where((t) => t.z < 14)) {
+          final scale = largestScale[tile];
+          if (scale == null) continue;
+          expect(
+            scale * math.pow(2, 14.45 - tile.z),
+            lessThanOrEqualTo(math.sqrt2),
+            reason: '$tile',
+          );
+        }
+        expect(tiles.coordinates.map((t) => t.z).reduce(math.min),
+            lessThanOrEqualTo(12));
+      });
+    }
 
     test('the buffer adds neighbors outside the visible ground', () {
       final c = camera(rotation: 45, pitch: 60);

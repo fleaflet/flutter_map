@@ -159,5 +159,55 @@ void main() {
         lessThan(0.1),
       );
     });
+
+    group('at pitch 85', () {
+      final camera = _camera(pitch: 85, rotation: 30);
+      final area = Rect.fromLTRB(0, camera.farLimit, 400, 600);
+
+      test('the far limit is in the viewport', () {
+        expect(area.top, greaterThan(100));
+      });
+
+      test('fit bounds', () {
+        final fitted = CameraFit.bounds(bounds: _bounds).fit(camera);
+        expect(fitted.pitch, 85);
+        expect(fitted.rotation, 30);
+        final margin = _margin(_screen(fitted, _corners), area);
+        expect(margin, greaterThan(-0.01));
+        expect(margin, lessThan(1));
+      });
+
+      test('fit coordinates with padding', () {
+        final fitted = CameraFit.coordinates(
+          coordinates: _coordinates,
+          padding: const EdgeInsets.all(20),
+        ).fit(camera);
+        final positions = _screen(fitted, _coordinates);
+        final margin = _margin(positions, area.deflate(20));
+        // The top padding is above the far limit, so the far limit is the
+        // edge there.
+        expect(_margin(positions, Rect.fromLTRB(20, area.top, 380, 580)),
+            greaterThan(-0.01));
+        expect(margin, lessThan(21));
+      });
+
+      test('fit inside bounds', () {
+        final fitted = CameraFit.insideBounds(bounds: _bounds).fit(camera);
+        final projectedBounds = Rect.fromPoints(
+          fitted.projectAtZoom(_bounds.southEast),
+          fitted.projectAtZoom(_bounds.northWest),
+        );
+        final ground = [
+          area.topLeft,
+          area.topRight,
+          area.bottomRight,
+          area.bottomLeft,
+        ].map((corner) =>
+            fitted.projectAtZoom(fitted.screenOffsetToLatLng(corner)));
+        final margin = _margin(ground, projectedBounds);
+        expect(margin, greaterThan(-0.01));
+        expect(margin, lessThan(1));
+      });
+    });
   });
 }
