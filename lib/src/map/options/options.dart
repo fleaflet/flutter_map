@@ -98,6 +98,12 @@ class MapOptions {
   ///  * the tile layer loads coarser tiles for far ground, and near ground at
   ///    the same zoom as when unpitched, so near tiles can look blurry; use
   ///    vector tiles where the near ground must be sharp
+  ///  * above a pitch of about 70.8 degrees, the visible ground ends at a far
+  ///    limit, a horizontal line where the view ray is 89.25 degrees from
+  ///    straight down, as in MapLibre Native; above it, layers in a
+  ///    [MobileLayerTransformer] draw nothing and [backgroundColor] shows,
+  ///    [MapCamera.maybeScreenOffsetToLatLng] returns null, and gestures act
+  ///    at the far limit directly below the pointer
   ///
   /// While [maxPitch] is above 0 and the interactive flags contain
   /// [InteractiveFlag.pitch], the user can pitch the map with a two-finger
@@ -105,9 +111,9 @@ class MapOptions {
   /// cursor/keyboard rotation (see [CursorKeyboardRotationOptions]).
   final double maxPitch;
 
-  /// The largest [maxPitch] that takes effect. Above it, the visible ground
-  /// grows without bound.
-  static const pitchLimit = 60.0;
+  /// The largest [maxPitch] that takes effect, as in MapLibre GL JS by
+  /// default.
+  static const pitchLimit = 85.0;
 
   /// Defines the visible bounds when the map is first loaded. Takes precedence
   /// over [initialCenter]/[initialZoom].

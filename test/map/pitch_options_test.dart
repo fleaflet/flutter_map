@@ -30,11 +30,17 @@ void main() {
     expect(controller.camera.pitch, 45);
   });
 
+  testWidgets('maximum pitch above 60', (tester) async {
+    final controller =
+        await _pump(tester, const MapOptions(initialPitch: 75, maxPitch: 75));
+    expect(controller.camera.pitch, 75);
+  });
+
   testWidgets('maximum pitch above the limit takes effect as the limit',
       (tester) async {
     final controller =
-        await _pump(tester, const MapOptions(initialPitch: 75, maxPitch: 75));
-    expect(controller.camera.pitch, MapOptions.pitchLimit);
+        await _pump(tester, const MapOptions(initialPitch: 90, maxPitch: 90));
+    expect(controller.camera.pitch, 85);
   });
 
   testWidgets('negative initial pitch is limited to 0', (tester) async {

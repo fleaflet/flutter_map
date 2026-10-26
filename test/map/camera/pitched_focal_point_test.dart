@@ -34,10 +34,16 @@ void main() {
     }
   }
 
-  test('focusedZoomCenter keeps the center above the horizon', () {
+  test('focusedZoomCenter above the horizon keeps the far limit', () {
     final camera = _camera();
-    expect(
-        camera.focusedZoomCenter(const Offset(200, -1000), 12), camera.center);
+    final onFarLimit = Offset(200, camera.farLimit);
+    final coordinate = camera.screenOffsetToLatLng(onFarLimit);
+    final zoomed = camera.withPosition(
+      center: camera.focusedZoomCenter(const Offset(200, -1000), 10.25),
+      zoom: 10.25,
+    );
+    expect((zoomed.latLngToScreenOffset(coordinate) - onFarLimit).distance,
+        lessThan(0.5));
   });
 
   test('offsetToCrs is the coordinate under the offset', () {

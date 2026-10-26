@@ -774,13 +774,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         widget.controller.moveStarted(MapEventSource.dragStart);
       }
 
-      final groundShift = _groundShift(
-        _lastFocalLocal,
-        details.localFocalPoint,
+      widget.controller.dragUpdated(
+        MapEventSource.onDrag,
+        _groundShift(_lastFocalLocal, details.localFocalPoint),
       );
-      if (groundShift == null) return;
-
-      widget.controller.dragUpdated(MapEventSource.onDrag, groundShift);
     }
   }
 
@@ -889,8 +886,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final oldFocalPt =
         _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
     final zoomDifference = oldFocalPt - newFocalPt;
-    final moveDifference =
-        _groundShift(_focalStartLocal, _lastFocalLocal) ?? Offset.zero;
+    final moveDifference = _groundShift(_focalStartLocal, _lastFocalLocal);
 
     final newCenterPt = oldCenterPt + zoomDifference + moveDifference;
     return _camera.unprojectAtZoom(newCenterPt, zoomAfterPinchZoom);
@@ -1011,8 +1007,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     if (_camera.pitch != 0) {
       _flingCenterStart = _camera.center;
       _flingGroundStep =
-          _groundShift(_lastFocalLocal + direction, _lastFocalLocal) ??
-              _rotateOffset(direction);
+          _groundShift(_lastFocalLocal + direction, _lastFocalLocal);
       _flingDirection = direction;
       _flingOffset = flingOffset;
     }
@@ -1622,26 +1617,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   /// The offset, in projected pixels, by which to move the center so that the
-  /// ground under the screen position [from] moves under [to], or null if
-  /// either is above the horizon.
-  Offset? _groundShift(Offset from, Offset to) {
-    final fromGround = _camera.groundOffsetFromCenter(from);
-    final toGround = _camera.groundOffsetFromCenter(to);
-    if (fromGround == null || toGround == null) return null;
-    return fromGround - toGround;
-  }
-
-  Offset _rotateOffset(Offset offset) {
-    final radians = _camera.rotationRad;
-    if (radians != 0.0) {
-      final cos = math.cos(radians);
-      final sin = math.sin(radians);
-      final nx = (cos * offset.dx) + (sin * offset.dy);
-      final ny = (cos * offset.dy) - (sin * offset.dx);
-
-      return Offset(nx, ny);
-    }
-
-    return offset;
-  }
+  /// ground under the screen position [from] moves under [to]. A position
+  /// above the far limit of the visible ground acts as the position on the far
+  /// limit directly below it, so that the ground moves by a bounded distance.
+  Offset _groundShift(Offset from, Offset to) =>
+      _camera.clampedGroundOffsetFromCenter(from) -
+      _camera.clampedGroundOffsetFromCenter(to);
 }

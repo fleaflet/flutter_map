@@ -25,7 +25,7 @@ Future<MapController> _pump(
             initialZoom: 12,
             initialRotation: rotation,
             initialPitch: pitch,
-            maxPitch: 60,
+            maxPitch: 85,
           ),
           children: const [],
         ),
@@ -126,6 +126,40 @@ void main() {
     await tester.pumpAndSettle();
     expect(controller.camera.zoom, greaterThan(12));
     expect(_distanceOnScreen(controller, coordinate, cursor), lessThan(0.5));
+  });
+
+  testWidgets('drag from above the far limit', (tester) async {
+    final controller = await _pump(tester, pitch: 85);
+    final farLimit = controller.camera.farLimit;
+    expect(farLimit, greaterThan(100));
+    final coordinate =
+        controller.camera.screenOffsetToLatLng(Offset(200, farLimit));
+    final gesture = await tester.startGesture(const Offset(200, 40));
+    for (int i = 1; i <= 24; i++) {
+      await gesture.moveTo(Offset(200, 40 + i * 20.0));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(
+      _distanceOnScreen(controller, coordinate, const Offset(200, 520)),
+      lessThan(0.5),
+    );
+    await gesture.up();
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('scroll-wheel zoom with the cursor above the far limit',
+      (tester) async {
+    final controller = await _pump(tester, pitch: 85);
+    const cursor = Offset(300, 40);
+    final onFarLimit = Offset(300, controller.camera.farLimit);
+    final coordinate = controller.camera.screenOffsetToLatLng(onFarLimit);
+    await tester.sendEventToBinding(
+      const PointerScrollEvent(position: cursor, scrollDelta: Offset(0, -100)),
+    );
+    await tester.pumpAndSettle();
+    expect(controller.camera.zoom, greaterThan(12));
+    expect(
+        _distanceOnScreen(controller, coordinate, onFarLimit), lessThan(0.5));
   });
 
   // The unpitched gesture already leaves a drift proportional to the rotation

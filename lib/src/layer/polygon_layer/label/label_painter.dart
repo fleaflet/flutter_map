@@ -42,12 +42,15 @@ class _PolygonLabelPainter<R extends Object> extends CustomPainter
             0) {
           return WorldWorkControl.invisible;
         }
+        final screen = MatrixUtils.transformPoint(canvasToScreen, point);
+        // Beyond the far limit; see the marker layer
+        if (screen.dy < camera.farLimit) return WorldWorkControl.invisible;
 
         // In screen space, a label that turns with the map is rotated and an
         // upright label is not: the reverse of the unpitched painter.
         final painter = _buildLabelTextPainter(
           mapSize: size,
-          placementPoint: MatrixUtils.transformPoint(canvasToScreen, point),
+          placementPoint: screen,
           bounds: bounds,
           textPainter: textPainter,
           rotationRad: -camera.rotationRad,

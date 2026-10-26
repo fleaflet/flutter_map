@@ -246,15 +246,16 @@ class FitInsideBounds extends CameraFit {
   /// projected pixels, has the same shape at every zoom, so the zoom follows
   /// from the ratio of its bounding box to the projected bounds.
   MapCamera _fitPitched(MapCamera camera) {
-    final viewport = padding.deflateRect(Offset.zero & camera.nonRotatedSize);
-    final ground = [
+    final viewport = padding
+        .deflateRect(Offset.zero & camera.nonRotatedSize)
+        .intersect(camera.groundViewport);
+    if (viewport.width <= 0 || viewport.height <= 0) return camera;
+    final visible = RectExtension.containing([
       viewport.topLeft,
       viewport.topRight,
       viewport.bottomRight,
       viewport.bottomLeft,
-    ].map(camera.groundOffsetFromCenter);
-    if (ground.contains(null)) return camera;
-    final visible = RectExtension.containing(ground.nonNulls.toList());
+    ].map(camera.clampedGroundOffsetFromCenter).toList());
 
     final projectedBounds = Rect.fromPoints(
       camera.projectAtZoom(bounds.southEast),
@@ -594,12 +595,13 @@ double _limitZoom(
 }
 
 /// The camera, with the rotation and pitch of [start], at which [points] lie
-/// inside the viewport reduced by [padding], at the largest zoom that
-/// [limitZoom] allows.
+/// inside the viewport reduced by [padding] and to the part below the far
+/// limit of the visible ground, at the largest zoom that [limitZoom] allows.
 ///
-/// Starts from [start] and repeats one step until it converges: move the
-/// center so that the middle of the points' screen extent is at the middle of
-/// the padded viewport, and change the zoom by the ratio of the two extents.
+/// The screen extent of the points changes too unevenly with the zoom near the
+/// far limit for a step by the ratio of the extents to converge, so this
+/// searches for the largest zoom at which the points, centered in the area,
+/// fit: in steps of 1 from [start], then by bisection.
 MapCamera _fitPitched(
   MapCamera camera,
   List<LatLng> points,
@@ -607,24 +609,64 @@ MapCamera _fitPitched(
   required MapCamera start,
   required double Function(double zoom) limitZoom,
 }) {
-  final target = padding.deflateRect(Offset.zero & camera.nonRotatedSize);
+  final target = padding
+      .deflateRect(Offset.zero & camera.nonRotatedSize)
+      .intersect(camera.groundViewport);
   if (target.width <= 0 || target.height <= 0 || points.isEmpty) return start;
 
   var fitted = start;
-  var zoomChange = double.infinity;
-  for (var i = 0; i < 20 && zoomChange.abs() >= 1e-4; i++) {
-    final extent = _screenExtent(fitted, points);
-    if (extent == null) {
-      zoomChange = -1;
-    } else {
-      fitted = _centered(fitted, extent.center, target.center);
-      final scale = math.min(
-        target.width / extent.width,
-        target.height / extent.height,
-      );
-      zoomChange = scale.isFinite ? math.log(scale) / math.ln2 : 0;
+
+  /// [fitted] at [zoom], with the middle of the points' screen extent at the
+  /// middle of [target], or null if a point is behind the camera.
+  MapCamera? centeredAt(double zoom) {
+    var centered = fitted.withPosition(zoom: zoom);
+    for (var i = 0; i < 20; i++) {
+      final extent = _screenExtent(centered, points);
+      if (extent == null) return null;
+      if ((extent.center - target.center).distance < 0.1) break;
+      centered = _centered(centered, extent.center, target.center);
     }
-    fitted = fitted.withPosition(zoom: fitted.zoom + zoomChange);
+    return centered;
+  }
+
+  final tolerance = target.inflate(0.01);
+  bool fits(MapCamera? centered) {
+    if (centered == null) return false;
+    final extent = _screenExtent(centered, points);
+    return extent != null && tolerance.expandToInclude(extent) == tolerance;
+  }
+
+  final startExtent = _screenExtent(start, points);
+  if (startExtent == null || !startExtent.isEmpty) {
+    var low = start.zoom;
+    var high = start.zoom;
+    var lowCamera = centeredAt(low);
+    if (fits(lowCamera)) {
+      for (var i = 0; i < 32; i++) {
+        high = low + 1;
+        final higher = centeredAt(high);
+        if (!fits(higher)) break;
+        low = high;
+        lowCamera = higher;
+      }
+    } else {
+      for (var i = 0; i < 32 && !fits(lowCamera); i++) {
+        high = low;
+        low -= 1;
+        lowCamera = centeredAt(low);
+      }
+    }
+    while (high - low > 1e-3 && lowCamera != null) {
+      final middle = (low + high) / 2;
+      final middleCamera = centeredAt(middle);
+      if (fits(middleCamera)) {
+        low = middle;
+        lowCamera = middleCamera;
+      } else {
+        high = middle;
+      }
+    }
+    if (lowCamera != null) fitted = lowCamera;
   }
 
   fitted = fitted.withPosition(zoom: limitZoom(fitted.zoom));
@@ -657,9 +699,8 @@ Rect? _screenExtent(MapCamera camera, List<LatLng> points) {
 /// [camera] with its center moved so that the ground under the screen
 /// position [from] is at [to].
 MapCamera _centered(MapCamera camera, Offset from, Offset to) {
-  final fromGround = camera.groundOffsetFromCenter(from);
-  final toGround = camera.groundOffsetFromCenter(to);
-  if (fromGround == null || toGround == null) return camera;
+  final fromGround = camera.clampedGroundOffsetFromCenter(from);
+  final toGround = camera.clampedGroundOffsetFromCenter(to);
   return camera.withPosition(
     center: camera.unprojectAtZoom(
       camera.projectAtZoom(camera.center) + fromGround - toGround,

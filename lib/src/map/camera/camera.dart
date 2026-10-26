@@ -428,16 +428,19 @@ class MapCamera {
 
   /// Calculate the [LatLng] coordinates for a [offset].
   ///
-  /// When the map is pitched and [offset] is above the horizon, there is no
-  /// coordinate at [offset]; this returns a distant coordinate in its
-  /// direction instead. [maybeScreenOffsetToLatLng] returns null there.
+  /// When the map is pitched and [offset] is above the far limit of the
+  /// visible ground, there is no visible ground at [offset]; this returns the
+  /// coordinate on the far limit directly below [offset] instead.
+  /// [maybeScreenOffsetToLatLng] returns null there.
   LatLng screenOffsetToLatLng(Offset offset) =>
-      unprojectAtZoom(_screenToPixel(offset, aboveHorizon: _distantGround)!);
+      unprojectAtZoom(_screenToPixel(offset, clampToFarLimit: true)!);
 
   /// Calculate the [LatLng] coordinates for a [offset], or null when the map
-  /// is pitched and [offset] is above the horizon.
+  /// is pitched and [offset] is above the far limit of the visible ground.
+  /// The far limit is where the view ray is 89.25 degrees from straight down,
+  /// just below the horizon.
   LatLng? maybeScreenOffsetToLatLng(Offset offset) {
-    final pixel = _screenToPixel(offset, aboveHorizon: null);
+    final pixel = _screenToPixel(offset, clampToFarLimit: false);
     return pixel == null ? null : unprojectAtZoom(pixel);
   }
 
@@ -450,17 +453,7 @@ class MapCamera {
   /// [nonRotatedSize], [rotation] and [pitch], because [zoom] is the scale at
   /// [center].
   Rect get _visibleGroundFromCenter => _footprintFromCenter ??= () {
-        final projectedCenter = projectAtZoom(center);
-        final corners = [
-          Offset.zero,
-          Offset(nonRotatedSize.width, 0),
-          Offset(nonRotatedSize.width, nonRotatedSize.height),
-          Offset(0, nonRotatedSize.height),
-        ]
-            .map((corner) =>
-                _screenToPixel(corner, aboveHorizon: _distantGround)! -
-                projectedCenter)
-            .toList();
+        final corners = visibleGroundFromCenter;
         return Rect.fromLTRB(
           corners.map((c) => c.dx).reduce(math.min),
           corners.map((c) => c.dy).reduce(math.min),
@@ -469,22 +462,62 @@ class MapCamera {
         );
       }();
 
-  /// The smallest divisor of [_screenToPixel] that [screenOffsetToLatLng]
-  /// uses above the horizon, where the divisor is not positive.
-  static const _distantGround = 1e-3;
+  /// The angle from straight down of the view ray at the far limit of the
+  /// visible ground, as in MapLibre Native.
+  static const _farLimitAngle = 89.25 * degrees2Radians;
+
+  /// The y position in the map view, before rotation, of the far limit of the
+  /// visible ground: ground points whose view ray is [_farLimitAngle] from
+  /// straight down. It is above the map view, and may be negative infinity,
+  /// unless [pitch] is above about 70.8 degrees.
+  @internal
+  double get farLimit => pitch == 0
+      ? double.negativeInfinity
+      : nonRotatedSize.height / 2 -
+          _cameraDistance * math.tan(_farLimitAngle - pitchRad);
+
+  /// The part of the map view, before rotation, that shows ground: the map
+  /// view, with its top moved down to [farLimit] when [farLimit] is in it.
+  @internal
+  Rect get groundViewport => Rect.fromLTRB(
+        0,
+        math.max(0, farLimit),
+        nonRotatedSize.width,
+        nonRotatedSize.height,
+      );
+
+  /// The ground under the corners of [groundViewport], clockwise from the
+  /// top-left, as offsets in projected pixels at [zoom] from [center].
+  @internal
+  List<Offset> get visibleGroundFromCenter {
+    final viewport = groundViewport;
+    return [
+      viewport.topLeft,
+      viewport.topRight,
+      viewport.bottomRight,
+      viewport.bottomLeft,
+    ].map(clampedGroundOffsetFromCenter).toList();
+  }
 
   /// The projected pixel at [zoom] of the ground point under the screen
   /// position [offset]. See [_groundFromCenter].
-  Offset? _screenToPixel(Offset offset, {required double? aboveHorizon}) {
-    final fromCenter = _groundFromCenter(offset, aboveHorizon: aboveHorizon);
+  Offset? _screenToPixel(Offset offset, {required bool clampToFarLimit}) {
+    final fromCenter =
+        _groundFromCenter(offset, clampToFarLimit: clampToFarLimit);
     return fromCenter == null ? null : projectAtZoom(center) + fromCenter;
   }
 
   /// The offset, in projected pixels at [zoom], from [center] to the ground
-  /// point under the screen position [offset], or null above the horizon.
+  /// point under the screen position [offset], or null above [farLimit].
   @internal
   Offset? groundOffsetFromCenter(Offset offset) =>
-      _groundFromCenter(offset, aboveHorizon: null);
+      _groundFromCenter(offset, clampToFarLimit: false);
+
+  /// As [groundOffsetFromCenter], but above [farLimit] uses the position on
+  /// [farLimit] directly below [offset].
+  @internal
+  Offset clampedGroundOffsetFromCenter(Offset offset) =>
+      _groundFromCenter(offset, clampToFarLimit: true)!;
 
   /// The size on screen of one projected pixel at the ground point [offset]
   /// from [center], where [offset] is in projected pixels at [zoom]. It is 1 at
@@ -499,20 +532,23 @@ class MapCamera {
 
   /// The offset, in projected pixels at [zoom], from [center] to the ground
   /// point under the screen position [offset], found by casting the view ray
-  /// to the ground. Above the horizon, uses [aboveHorizon] as the divisor, or
-  /// returns null if it is null.
+  /// to the ground. Above [farLimit], uses the position on [farLimit] directly
+  /// below [offset] if [clampToFarLimit], or returns null otherwise.
   ///
   /// The result doesn't depend on [center] or [zoom], because [zoom] is the
   /// scale at [center].
-  Offset? _groundFromCenter(Offset offset, {required double? aboveHorizon}) {
-    final fromCenter = offset - nonRotatedSize.center(Offset.zero);
+  Offset? _groundFromCenter(Offset offset, {required bool clampToFarLimit}) {
+    final farLimit = this.farLimit;
+    final belowFarLimit = offset.dy >= farLimit
+        ? offset
+        : clampToFarLimit
+            ? Offset(offset.dx, farLimit)
+            : null;
+    if (belowFarLimit == null) return null;
+    final fromCenter = belowFarLimit - nonRotatedSize.center(Offset.zero);
     final sinPitch = math.sin(pitchRad);
-    var divisor =
+    final divisor =
         math.cos(pitchRad) + fromCenter.dy * sinPitch / _cameraDistance;
-    if (divisor <= 0) {
-      if (aboveHorizon == null) return null;
-      divisor = aboveHorizon;
-    }
     final y = fromCenter.dy / divisor;
     final x = fromCenter.dx * (1 - y * sinPitch / _cameraDistance);
     return Offset(x, y).rotate(rotationRad);
@@ -554,11 +590,12 @@ class MapCamera {
   /// zoom level. If [zoom] is not provided the current zoom level of the
   /// [MapCamera] gets used.
   ///
-  /// When the map is pitched and [offset] is above the horizon, this returns a
-  /// distant coordinate in its direction.
+  /// When the map is pitched and [offset] is above the far limit of the
+  /// visible ground, this returns the coordinate on the far limit directly
+  /// below [offset].
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt = projectAtZoom(center, zoom ?? this.zoom);
-    final point = _groundFromCenter(offset, aboveHorizon: _distantGround)!;
+    final point = _groundFromCenter(offset, clampToFarLimit: true)!;
 
     final newCenterPt = focalStartPt + point;
     final worldWidth = getWorldWidthAtZoom(zoom ?? this.zoom);
@@ -577,11 +614,11 @@ class MapCamera {
   /// Calculate the center point which would keep the same point of the map
   /// visible at the given [cursorPos] with the zoom set to [zoom].
   ///
-  /// When the map is pitched and [cursorPos] is above the horizon, this
-  /// returns [center].
+  /// When the map is pitched and [cursorPos] is above the far limit of the
+  /// visible ground, this keeps the point on the far limit directly below
+  /// [cursorPos] instead.
   LatLng focusedZoomCenter(Offset cursorPos, double zoom) {
-    final offset = _groundFromCenter(cursorPos, aboveHorizon: null);
-    if (offset == null) return center;
+    final offset = clampedGroundOffsetFromCenter(cursorPos);
     // Match new center coordinate to mouse cursor position
     final scale = getZoomScale(zoom, this.zoom);
     final newOffset = offset * (1.0 - 1.0 / scale);
