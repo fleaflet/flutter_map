@@ -380,12 +380,20 @@ class _PolylinePainter<R extends Object> extends CustomPainter
       }
 
       final colorIndex = projectedPolyline.sourceIndexAt(i);
-
-      strokePaint.shader = ui.Gradient.linear(
-        start,
-        end,
-        [colors[colorIndex], colors[projectedPolyline.sourceIndexAt(i + 1)]],
-      );
+      final startColor = colors[colorIndex];
+      final endColor = colors[projectedPolyline.sourceIndexAt(i + 1)];
+      if (startColor == endColor) {
+        strokePaint.shader = null;
+        strokePaint.color = startColor;
+      } else {
+        // Paint.color's alpha modulates shaders too; reset the last solid alpha.
+        strokePaint.color = const Color(0xFF000000);
+        strokePaint.shader = ui.Gradient.linear(
+          start,
+          end,
+          [startColor, endColor],
+        );
+      }
       canvas.drawLine(start, end, strokePaint);
     }
 
