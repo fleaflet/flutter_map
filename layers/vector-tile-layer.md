@@ -21,7 +21,7 @@ There's a lot happening in the flutter\_map ecosystem around vector support righ
 
 Historically, vector support has had major limitations:
 
-* The original vector plugin ('[pkg:(flutter-)vector-map-tiles](https://pub.dev/packages/vector_map_tiles)') struggled to provide performance suitable for production use.
+* The original vector plugin ('[pkg:(flutter-)vector-map-tiles](https://pub.dev/packages/vector_map_tiles)') [struggled to provide performance suitable for production use](https://github.com/greensopinion/flutter-vector-map-tiles/issues/120).
 * That plugin has a [beta version](https://github.com/greensopinion/flutter-vector-map-tiles) using [FlutterGPU](https://github.com/flutter/flutter/blob/66b3ad90177ccbd2963836a5556076b370622fe4/docs/engine/impeller/Flutter-GPU.md), showing much improved performance, potentially suitable for production use. However, FlutterGPU is in beta and currently has major limitations.
 
 More recently, two new plugins have been released. We haven't yet tested these independently, but they are very promising!
