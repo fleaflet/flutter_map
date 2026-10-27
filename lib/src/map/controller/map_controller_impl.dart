@@ -341,8 +341,6 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       'MapCamera is no longer within the cameraConstraint after an option change.',
     );
 
-    // Without a viewer there are no gestures to update: the viewer reads the
-    // current interaction options when it is created.
     if (value.options != null &&
         value.options!.interactionOptions != newOptions.interactionOptions) {
       _interactiveViewerState?.updateGestures(
@@ -710,7 +708,6 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   }
 
   void _emitMapEvent(MapEvent event) {
-    // Without a viewer there is no gesture animation to interrupt.
     if (event.source == MapEventSource.mapController && event is MapEventMove) {
       _interactiveViewerState?.interruptAnimatedMovement(event);
     }
