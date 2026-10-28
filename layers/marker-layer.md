@@ -17,6 +17,8 @@ layout:
     visible: true
   actions:
     visible: true
+  anchors:
+    visible: true
 ---
 
 # Marker Layer
@@ -45,12 +47,6 @@ MarkerLayer(
   ],
 ),
 ```
-
-{% hint style="warning" %}
-Excessive use of markers may create performance issues.
-
-Consider using a clustering plugin to merge nearby markers together, reducing the work that needs to be done when rendering: [#marker-clustering](../plugins/list.md#marker-clustering "mention").
-{% endhint %}
 
 ## Size
 
@@ -86,6 +82,10 @@ There is no built-in support to rotate markers to a specific degree. However, th
 
 ## Handling State
 
+{% hint style="danger" %}
+`Marker`s with `key`s set will cause the map to crash if the same marker appears at the same time across multiple worlds. Follow issue [#2229](https://github.com/fleaflet/flutter_map/issues/2229) for more information.
+{% endhint %}
+
 Often, marker children do not have their own internal state (they are `StatelessWidget`s). However, some use-cases may require them to be stateful.
 
 {% hint style="warning" %}
@@ -94,9 +94,14 @@ Markers are culled when they go offscreen, and the marker child is not built whe
 When multiple of the same marker is visible at once, across multiple worlds, the marker child is built multiple times. Therefore, the widget states are not synchronized, and any keys in the child subtree may not be unique.
 {% endhint %}
 
-Marker children should not be `StatefulWidget`s, and keys should not be used in the child's tree. Instead, the state should be detached and moved up in the tree, using an inherited approach. For example, a state management package, or Flutter's built-in options like `InheritedWidget` or `ValueNotifier` - remember that `FlutterMap.children` can contain widgets wrapped around layers like this.
+Therefore, children should not be `StatefulWidget`s, unless:
 
-Then, some map should be kept linking a unique property of the marker (its `point` could be suitable and easily accessed in most dynamic marker layer systems) to its state. The marker child can then lookup this state.
+* It is safe for the state to be reset when being rebuilt after culling, and
+* It is safe for the state of the same marker in different worlds to be different
+
+Instead, the state should be detached and moved up in the tree, using an inherited approach. For example, a state management package, or Flutter's built-in options like `InheritedWidget` or `ValueNotifier` - remember that `FlutterMap.children` can contain widgets wrapped around layers like this.
+
+Then, some map should be kept linking a unique property of the marker (its `point` could be suitable and easily accessed in most dynamic marker layer systems) to its state. The child can then lookup this state.
 
 For example:
 
@@ -149,10 +154,12 @@ class MyMarker extends StatelessWidget {
 {% hint style="info" %}
 The maintainer team is looking into improving the `MarkerLayer` to improve this situation:
 
-* Providing a `keepAlive` option directly on `Marker`s - although this means culled markers still need to be built (although not necessarily painted), which could be expensive compared to the solution above (which requires more boilerplate but should scale better)
-* Painting a marker multiple times across worlds while only building it once - although this is fairly complicated, but in combination with the option above could eventually allow the `Marker` size parameters to become unnecessary/optional
+* Providing a 'keep alive' facility\
+  This requires a massive change and a lot of implementation work, as it requires very custom render objects - it may also not resolve the issue of states of the same marker across worlds being different (although this needs further investigation), and its impact on performance is uncertain
+* Painting a marker multiple times across worlds while only building it once\
+  As far as we are aware, this is not possible unless it can be assured that the child tree does not contain any widgets like `RepaintBoundary` which change the way render layers are composited. We would appricate your help if you know how this could be implemented: get in touch with us!
 
-Any contributors would be appreciated, although the second point is quite complicated to implement!
+Any contributors would be appreciated!
 {% endhint %}
 
 ## Handling Gestures
