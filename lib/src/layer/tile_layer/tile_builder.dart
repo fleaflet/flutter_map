@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 /// Builder function that returns a [TileBuilder] instance.
@@ -56,15 +56,7 @@ Widget coordinateDebugTileBuilder(
     ),
     child: Stack(
       fit: StackFit.passthrough,
-      children: [
-        tileWidget,
-        Center(
-          child: Text(
-            readableKey,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-        ),
-      ],
+      children: [tileWidget, Center(child: Text(readableKey))],
     ),
   );
 }
@@ -88,15 +80,7 @@ Widget loadingTimeDebugTileBuilder(
     ),
     child: Stack(
       fit: StackFit.passthrough,
-      children: [
-        tileWidget,
-        Center(
-          child: Text(
-            time,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-        ),
-      ],
+      children: [tileWidget, Center(child: Text(time))],
     ),
   );
 }

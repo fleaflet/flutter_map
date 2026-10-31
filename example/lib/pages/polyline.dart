@@ -179,7 +179,7 @@ class _PolylinePageState extends State<PolylinePage> {
           initialZoom: 5,
         ),
         children: [
-          openStreetMapTileLayer,
+          const PrimaryTileLayer(),
           MouseRegion(
             hitTestBehavior: HitTestBehavior.deferToChild,
             cursor: SystemMouseCursors.click,
