@@ -84,7 +84,7 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
               ),
             ),
             children: [
-              openStreetMapTileLayer,
+              const PrimaryTileLayer(),
               CircleLayer(
                 circles: allCircles
                     .take(displayedCirclesCount)

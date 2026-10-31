@@ -282,7 +282,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                 ),
                 children: [child!],
               ),
-              child: openStreetMapTileLayer,
+              child: const PrimaryTileLayer(),
             ),
           ),
         ],

@@ -88,7 +88,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
               ),
             ),
             children: [
-              openStreetMapTileLayer,
+              const PrimaryTileLayer(),
               MarkerLayer(
                 markers: allMarkers
                     .take(displayedMarkersCount)
