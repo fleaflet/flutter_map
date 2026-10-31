@@ -281,6 +281,7 @@ void main() {
       expect(tileRange.contains(const Point(2, 4)), isFalse);
       expect(tileRange.contains(const Point(3, 4)), isFalse);
       expect(tileRange.contains(const Point(4, 4)), isFalse);
+      expect(tileRange.contains(const TileCoordinates(3, 3, 0)), isFalse);
     });
   });
 }
