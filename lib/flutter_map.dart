@@ -31,6 +31,7 @@ export 'package:flutter_map/src/layer/attribution_layer/v2/simple/simple_attribu
 export 'package:flutter_map/src/layer/circle_layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/marker_layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer/overlay_image_layer.dart';
+export 'package:flutter_map/src/layer/placeholder_grid_layer/placeholder_grid_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer/label/deprecated_placements.dart';
 export 'package:flutter_map/src/layer/polygon_layer/label/placement_calculators/placement_calculator.dart';
 export 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
