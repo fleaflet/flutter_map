@@ -555,7 +555,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       return;
     }
 
-    final currentRotation = details.rotation * radians2Degrees;
+    // `details.rotation` is a raw difference of two `atan2` angles: two fingers
+    // side by side rotated by 4° may report -356°. Normalise to [-180, 180).
+    final currentRotation =
+        (details.rotation * radians2Degrees + 180) % 360 - 180;
     if (_dragMode) {
       _handleScaleDragUpdate(details);
     } else if (InteractiveFlag.hasMultiFinger(_interactionOptions.flags)) {
