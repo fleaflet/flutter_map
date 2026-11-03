@@ -182,6 +182,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _keyboardListenerFocusNode.dispose();
     }
     _disposeKeyboardAnimations();
+    _isPanLeaping.dispose();
+    _isZoomLeaping.dispose();
+    _isRotateLeaping.dispose();
 
     super.dispose();
   }
