@@ -29,6 +29,7 @@ Future<void> main() async {
   const N = 100000000;
 
   const crs = Epsg3857();
+  final cachedCrs = Epsg3857Cached();
   results.add(await timedRun('Concrete type: ${crs.code}.latLngToXY()', () {
     double x = 0;
     double y = 0;
@@ -40,6 +41,20 @@ Future<void> main() async {
     }
     return x + y;
   }));
+  results.add(await timedRun(
+    'Concrete type (cached): ${cachedCrs.code}.latLngToXY()',
+    () {
+      double x = 0;
+      double y = 0;
+      for (int i = 0; i < N; ++i) {
+        final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
+        final (cx, cy) = cachedCrs.latLngToXY(latlng, 1);
+        x += cx;
+        y += cy;
+      }
+      return x + y;
+    },
+  ));
 
   results.add(await timedRun('Concrete type: ${crs.code}.latLngToOffset()', () {
     double x = 0;
@@ -53,13 +68,30 @@ Future<void> main() async {
     return x + y;
   }));
 
-  const crss = <Crs>[
-    Epsg3857(),
-    Epsg4326(),
+  results.add(await timedRun(
+    'Concrete type (cached): ${cachedCrs.code}.latLngToOffset()',
+    () {
+      double x = 0;
+      double y = 0;
+      for (int i = 0; i < N; ++i) {
+        final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
+        final p = cachedCrs.latLngToOffset(latlng, 1);
+        x += p.dx;
+        y += p.dy;
+      }
+      return x + y;
+    },
+  ));
+
+  final crss = <(String, Crs)>[
+    ('EPSG:3857', const Epsg3857()),
+    ('EPSG:3857 (cached)', Epsg3857Cached()),
+    ('EPSG:4326', const Epsg4326()),
+    ('EPSG:4326 (cached)', Epsg4326Cached()),
   ];
 
-  for (final crs in crss) {
-    results.add(await timedRun('${crs.code}.latLngToXY()', () {
+  for (final (label, crs) in crss) {
+    results.add(await timedRun('$label.latLngToXY()', () {
       double x = 0;
       double y = 0;
       for (int i = 0; i < N; ++i) {
@@ -71,7 +103,7 @@ Future<void> main() async {
       return x + y;
     }));
 
-    results.add(await timedRun('${crs.code}.latlngToPoint()', () {
+    results.add(await timedRun('$label.latlngToPoint()', () {
       double x = 0;
       double y = 0;
       for (int i = 0; i < N; ++i) {
@@ -83,7 +115,7 @@ Future<void> main() async {
       return x + y;
     }));
 
-    results.add(await timedRun('${crs.code}.pointToLatLng()', () {
+    results.add(await timedRun('$label.pointToLatLng()', () {
       double x = 0;
       double y = 0;
       for (int i = 0; i < N; ++i) {
