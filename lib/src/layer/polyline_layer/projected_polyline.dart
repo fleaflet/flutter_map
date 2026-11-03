@@ -5,6 +5,16 @@ class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
   final Polyline<R> polyline;
   final List<Offset> points;
 
+  /// Index of the first projected point in the source polyline's points.
+  ///
+  /// Used to preserve per-vertex metadata when culling creates fragments.
+  final int sourceStartIndex;
+
+  final List<int>? sourceIndices;
+
+  int sourceIndexAt(int index) =>
+      sourceIndices?[index] ?? sourceStartIndex + index;
+
   /// Bounding box of [points], in projected space (cached)
   ///
   /// Computed lazily: culled fragments never use it.
@@ -16,6 +26,8 @@ class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
   _ProjectedPolyline._({
     required this.polyline,
     required this.points,
+    this.sourceStartIndex = 0,
+    this.sourceIndices,
   });
 
   _ProjectedPolyline._fromPolyline(

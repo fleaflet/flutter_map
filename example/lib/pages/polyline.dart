@@ -7,6 +7,24 @@ import 'package:latlong2/latlong.dart';
 
 typedef HitValue = ({String title, String subtitle});
 
+const _gpsMetricPoints = [
+  LatLng(50.8, -4.2),
+  LatLng(51.2, -3),
+  LatLng(51, -1.8),
+  LatLng(51.5, -0.4),
+  LatLng(52, 0.8),
+  LatLng(52.4, 2),
+];
+
+// GPS metrics contain one value per recorded coordinate.
+const _gpsSpeedKph = <double>[8, 14, 27, 21, 35, 18];
+
+Color _speedColor(double speedKph) => Color.lerp(
+      const Color(0xFF1565C0),
+      const Color(0xFFF4511E),
+      ((speedKph - 5) / 30).clamp(0.0, 1.0),
+    )!;
+
 class PolylinePage extends StatefulWidget {
   static const String route = '/polyline';
 
@@ -22,6 +40,17 @@ class _PolylinePageState extends State<PolylinePage> {
   List<Polyline<HitValue>>? _hoverLines;
 
   final _polylinesRaw = <Polyline<HitValue>>[
+    MulticolorPolyline(
+      points: _gpsMetricPoints,
+      vertexColors: _gpsSpeedKph.map(_speedColor).toList(growable: false),
+      strokeWidth: 8,
+      borderStrokeWidth: 2,
+      borderColor: Colors.white,
+      hitValue: (
+        title: 'GPS Speed Line',
+        subtitle: 'Color encodes speed at each recorded GPS point',
+      ),
+    ),
     Polyline(
       points: const [
         LatLng(40, 150),

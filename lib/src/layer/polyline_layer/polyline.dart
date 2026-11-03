@@ -68,6 +68,9 @@ class Polyline<R extends Object> with HitDetectableElement<R> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Polyline &&
+          // Subclasses can add rendering state; compare matching types so
+          // equality stays symmetric between base and specialized polylines.
+          runtimeType == other.runtimeType &&
           strokeWidth == other.strokeWidth &&
           color == other.color &&
           borderStrokeWidth == other.borderStrokeWidth &&

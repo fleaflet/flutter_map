@@ -13,9 +13,11 @@ import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
+import 'package:flutter_map/src/misc/simplify_colored.dart';
 import 'package:latlong2/latlong.dart';
 
 part 'painter.dart';
+part 'multicolor_polyline.dart';
 part 'polyline.dart';
 part 'projected_polyline.dart';
 
@@ -93,15 +95,35 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
   _ProjectedPolyline<R> simplifyProjectedElement({
     required _ProjectedPolyline<R> projectedElement,
     required double tolerance,
-  }) =>
-      _ProjectedPolyline._(
-        polyline: projectedElement.polyline,
-        points: simplifyPoints(
-          points: projectedElement.points,
-          tolerance: tolerance,
-          highQuality: true,
-        ),
+  }) {
+    final polyline = projectedElement.polyline;
+    if (polyline is MulticolorPolyline<R>) {
+      final indices = simplifyColoredPoints(
+        points: projectedElement.points,
+        colors: polyline.simplificationColors ?? polyline.vertexColors,
+        tolerance: tolerance,
       );
+      if (indices.length == projectedElement.points.length) {
+        return projectedElement;
+      }
+      return _ProjectedPolyline._(
+        polyline: polyline,
+        points: [for (final index in indices) projectedElement.points[index]],
+        sourceIndices: [
+          for (final index in indices) projectedElement.sourceIndexAt(index),
+        ],
+      );
+    }
+
+    return _ProjectedPolyline._(
+      polyline: polyline,
+      points: simplifyPoints(
+        points: projectedElement.points,
+        tolerance: tolerance,
+        highQuality: true,
+      ),
+    );
+  }
 
   @override
   List<Polyline<R>> get elements => widget.polylines;
@@ -202,7 +224,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       // First check, bullet-proof, focusing on latitudes.
       if (!isOverlappingLatitude()) continue;
 
-      // Gradient polylines cannot be easily segmented
+      // Global gradients cannot be segmented without changing their shader.
       if (polyline.gradientColors != null) {
         yield projectedPolyline;
         continue;
@@ -261,6 +283,9 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
             yield _ProjectedPolyline._(
               polyline: polyline,
               points: projectedPolyline.points.sublist(start, i + 1),
+              sourceStartIndex: projectedPolyline.sourceStartIndex + start,
+              sourceIndices:
+                  projectedPolyline.sourceIndices?.sublist(start, i + 1),
             );
 
             // Reset start.
@@ -276,8 +301,9 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
             ? projectedPolyline
             : _ProjectedPolyline._(
                 polyline: polyline,
-                // Special case: the entire polyline is visible
                 points: projectedPolyline.points.sublist(start),
+                sourceStartIndex: projectedPolyline.sourceStartIndex + start,
+                sourceIndices: projectedPolyline.sourceIndices?.sublist(start),
               );
       }
     }
