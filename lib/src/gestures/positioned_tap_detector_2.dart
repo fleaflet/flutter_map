@@ -20,6 +20,7 @@ class PositionedTapDetector2 extends StatefulWidget {
     this.child,
     this.onTap,
     this.onDoubleTap,
+    this.onDoubleTapDown,
     this.onSecondaryTap,
     this.onLongPress,
     Duration? doubleTapDelay,
@@ -33,6 +34,7 @@ class PositionedTapDetector2 extends StatefulWidget {
   final Widget? child;
   final HitTestBehavior? behavior;
   final TapPositionCallback? onTap;
+  final TapPositionCallback? onDoubleTapDown;
   final TapPositionCallback? onSecondaryTap;
   final TapPositionCallback? onDoubleTap;
   final TapPositionCallback? onLongPress;
@@ -54,6 +56,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   PositionedTapController? _tapController;
   TapDownDetails? _pendingTap;
   TapDownDetails? _firstTap;
+  TapDownDetails? _firstTapCandidate;
 
   @override
   void initState() {
@@ -98,6 +101,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   void _onTapConfirmed(TapDownDetails details) {
     if (_firstTap == null) {
       _firstTap = details;
+      _firstTapCandidate = null;
     } else {
       _handleSecondTap(details);
     }
@@ -125,6 +129,12 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
 
   void _onTapDownEvent(TapDownDetails details) {
     _pendingTap = details;
+    final firstTap = _firstTap ?? _firstTapCandidate;
+    if (firstTap != null && _isDoubleTap(firstTap, details)) {
+      widget.onDoubleTapDown?.call(
+        TapPosition(details.globalPosition, details.localPosition),
+      );
+    }
   }
 
   void _onTapEvent() {
@@ -134,6 +144,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
     if (widget.onDoubleTap == null) {
       _postCallback(pending, widget.onTap);
     } else {
+      if (_firstTap == null) _firstTapCandidate = pending;
       _sink.add(pending);
     }
 
@@ -165,6 +176,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
     TapPositionCallback? callback,
   ) async {
     _firstTap = null;
+    _firstTapCandidate = null;
     if (callback != null) {
       callback(TapPosition(details.globalPosition, details.localPosition));
     }
