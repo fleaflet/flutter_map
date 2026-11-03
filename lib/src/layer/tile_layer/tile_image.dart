@@ -157,6 +157,18 @@ class TileImage extends ChangeNotifier {
   }
 
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
+    if (imageInfo.image.width == 1 && imageInfo.image.height == 1) {
+      // TileProvider.transparentImage. Evicted so the next tile at these
+      // coordinates refetches instead of hitting it in the URL-keyed cache.
+      try {
+        unawaited(imageProvider.evict().catchError((Object _) => false));
+      } catch (_) {
+        // As in `dispose`, `evict` can also throw synchronously.
+      }
+      _onImageLoadError(const TileLoadAbandonedException(), null);
+      return;
+    }
+
     loadError = false;
     this.imageInfo = imageInfo;
 
@@ -176,15 +188,17 @@ class TileImage extends ChangeNotifier {
     }
   }
 
-  // Initiates fading in and marks this TileImage as readyToDisplay when fading
-  // finishes. If fading is disabled or a loading error occurred this TileImage
-  // becomes readyToDisplay immediately.
+  // Called once loading has settled, successfully or not. Initiates fading in
+  // and marks this TileImage as readyToDisplay when fading finishes; immediate
+  // if fading is disabled, or if loading failed and there is an errorImage to
+  // paint instead. A failure with nothing to paint never becomes
+  // readyToDisplay.
   void _display() {
     final previouslyLoaded = loadFinishedAt != null;
     loadFinishedAt = DateTime.now();
 
     if (loadError) {
-      _readyToDisplay = true;
+      _readyToDisplay = errorImage != null;
       if (!_disposed) notifyListeners();
       return;
     }
@@ -257,4 +271,17 @@ class TileImage extends ChangeNotifier {
   String toString() {
     return 'TileImage($coordinates, readyToDisplay: $_readyToDisplay)';
   }
+}
+
+/// Thrown when a tile resolves to [TileProvider.transparentImage], which a
+/// [TileProvider] returns in place of an error it cannot throw, usually a
+/// cancellation.
+class TileLoadAbandonedException implements Exception {
+  /// Create a [TileLoadAbandonedException].
+  const TileLoadAbandonedException();
+
+  @override
+  String toString() =>
+      'TileLoadAbandonedException: the tile provider returned the transparent '
+      'placeholder instead of tile data';
 }

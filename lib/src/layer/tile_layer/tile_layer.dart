@@ -722,7 +722,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       zoom.round().clamp(widget.minNativeZoom, widget.maxNativeZoom);
 
   void _onTileLoadError(TileImage tile, Object error, StackTrace? stackTrace) {
-    debugPrint(error.toString());
+    // An abandoned load is routine while panning, not a fault to report.
+    if (error is! TileLoadAbandonedException) debugPrint(error.toString());
     widget.errorTileCallback?.call(tile, error, stackTrace);
   }
 
