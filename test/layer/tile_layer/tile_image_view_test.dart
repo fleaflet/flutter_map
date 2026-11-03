@@ -64,6 +64,39 @@ void main() {
       );
     });
 
+    test(
+        'loaded descendants are not stale while the tile obscuring them is '
+        'still loading, even when a loaded ancestor is available', () {
+      // Zooming out from z2 to z1. The z2 tile on screen is loaded, the z1
+      // tile replacing it has not loaded, and a loaded z0 ancestor is still
+      // cached but no longer positioned. Retaining that ancestor must not
+      // stop the z2 tile being retained too, or the view drops to the
+      // coarser ancestor part way through the zoom.
+      //
+      // (1, 1) at z2 lies outside the z1 keep range, so it is stale unless
+      // something retains it as a descendant.
+      final tileImages = tileImagesMappingFrom([
+        MockTileImage(0, 0, 0),
+        MockTileImage(0, 0, 1, loadFinished: false, readyToDisplay: false),
+        MockTileImage(1, 1, 2),
+      ]);
+
+      final removalState = TileImageView(
+        tileImages: tileImages,
+        positionCoordinates: {
+          const TileCoordinates(0, 0, 1),
+          const TileCoordinates(1, 1, 2),
+        },
+        visibleRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
+        keepRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
+      );
+
+      expect(
+        removalState.staleTiles,
+        isNot(contains(const TileCoordinates(1, 1, 2))),
+      );
+    });
+
     test('descendant tile is not stale if there is no loaded tile obscuring it',
         () {
       final tileImages = tileImagesMappingFrom([
@@ -139,6 +172,36 @@ void main() {
   });
 
   group('renderTiles', () {
+    test(
+        'loaded descendants are still rendered when a loaded ancestor is also '
+        'available', () {
+      // Zooming out from z2 to z1. The z1 tile being zoomed to has not
+      // loaded; both a coarse z0 ancestor and the sharp z2 tiles already on
+      // screen could stand in for it. Both are wanted — render order draws
+      // the higher resolution one on top — so finding the ancestor must not
+      // stop the descendants being collected.
+      final tileImages = tileImagesMappingFrom([
+        MockTileImage(0, 0, 0),
+        MockTileImage(0, 0, 1, loadFinished: false, readyToDisplay: false),
+        MockTileImage(1, 1, 2),
+      ]);
+
+      final tileImageView = TileImageView(
+        tileImages: tileImages,
+        positionCoordinates: Set<TileCoordinates>.from(tileImages.keys),
+        visibleRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
+        keepRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
+      );
+
+      expect(
+        tileImageView.renderTiles,
+        containsAll(const [
+          TileCoordinates(0, 0, 0),
+          TileCoordinates(1, 1, 2),
+        ]),
+      );
+    });
+
     test('%.retainChildren uses correct coordinates for z+2 fallback', () {
       // This test verifies that _retainChildren correctly calculates
       // descendant coordinates when recursing to z+2 level.
