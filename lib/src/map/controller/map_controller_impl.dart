@@ -16,7 +16,14 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     implements MapController {
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 
-  late MapInteractiveViewerState _interactiveViewerState;
+  /// The viewer of the map this controller is attached to, or `null` while it
+  /// does not exist yet.
+  ///
+  /// The viewer is created during layout, so a `FlutterMap` that has been
+  /// built but not laid out - for example one on a route that another route
+  /// covers from the first frame - has none, even though `onMapReady` has
+  /// already fired.
+  MapInteractiveViewerState? _interactiveViewerState;
 
   Animation<LatLng>? _moveAnimation;
   Animation<double>? _zoomAnimation;
@@ -336,7 +343,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
     if (value.options != null &&
         value.options!.interactionOptions != newOptions.interactionOptions) {
-      _interactiveViewerState.updateGestures(
+      _interactiveViewerState?.updateGestures(
         value.options!.interactionOptions,
         newOptions.interactionOptions,
       );
@@ -702,7 +709,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   void _emitMapEvent(MapEvent event) {
     if (event.source == MapEventSource.mapController && event is MapEventMove) {
-      _interactiveViewerState.interruptAnimatedMovement(event);
+      _interactiveViewerState?.interruptAnimatedMovement(event);
     }
 
     options.onMapEvent?.call(event);
