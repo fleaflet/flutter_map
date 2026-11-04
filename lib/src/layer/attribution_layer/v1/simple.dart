@@ -2,6 +2,15 @@ import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
+/// DEPRECATED: Use [SimpleAttributionLayer] instead.
+///
+/// The new layer looks very similar to this widget, but does not prefix any
+/// text by default and is more flexible. It also does not use Material theming,
+/// and may require its background color to be set if the map background is not
+/// the intended color.
+///
+/// ---
+///
 /// A simple, classic style, attribution layer
 ///
 /// Displayed as a padded translucent [backgroundColor] box with the following
@@ -11,7 +20,13 @@ import 'package:flutter_map/flutter_map.dart';
 ///
 ///  * [RichAttributionWidget], which is dynamic, supports more customization,
 ///    and has a more complex appearance.
-@immutable
+@Deprecated('''Use `SimpleAttributionLayer` instead.
+The new layer looks very similar to this widget, but does not prefix any text by
+default and is more flexible. It also does not use Material theming, and may
+require its background color to be set if the map background is not the intended
+color. This widget will be removed when flutter_map removes its dependency on
+Material in a future breaking release.
+''')
 class SimpleAttributionWidget extends StatelessWidget {
   /// Attribution text, such as 'OpenStreetMap contributors'
   final Text source;

@@ -82,6 +82,10 @@ class TileBuilderPageState extends State<TileBuilderPage> {
                   ),
                   const SizedBox.square(dimension: 12),
                   const Tooltip(
+                    message: 'Show Background Grid While Tiles Load',
+                    child: Icon(Icons.grid_on),
+                  ),
+                  const Tooltip(
                     message: 'Show Coordinates',
                     child: Icon(Icons.location_on),
                   ),
@@ -113,16 +117,19 @@ class TileBuilderPageState extends State<TileBuilderPage> {
           ),
           Expanded(
             child: FlutterMap(
-              options: const MapOptions(
-                initialCenter: LatLng(51.5, -0.09),
+              options: MapOptions(
+                initialCenter: const LatLng(51.5, -0.09),
                 initialZoom: 5,
+                backgroundColor:
+                    darkMode ? Colors.grey[900]! : Colors.grey[200]!,
               ),
               children: [
                 _darkModeContainerIfEnabled(
                   TileLayer(
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.demo',
+                    maxNativeZoom: 19,
                     tileBuilder: tileBuilder,
                   ),
                 ),
@@ -148,7 +155,6 @@ class TileBuilderPageState extends State<TileBuilderPage> {
 
   Widget _darkModeContainerIfEnabled(Widget child) {
     if (!darkMode) return child;
-
     return darkModeTilesContainerBuilder(context, child);
   }
 }
