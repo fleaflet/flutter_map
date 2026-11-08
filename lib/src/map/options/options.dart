@@ -80,9 +80,26 @@ class MapOptions {
   /// additional zoom level restrictions.
   final double? maxZoom;
 
-  /// The background color of the [FlutterMap] widget, defaults to a
-  /// yellow grey-ish color.
+  /// Background color of the [FlutterMap] widget.
+  ///
+  /// It is usually recommended to set this to the background color of the app/
+  /// screen, such as the scaffold background color held within the inherited
+  /// theme, or at least a dark color if the app and map run in dark mode.
+  ///
+  /// Defaults to a light yellow-gray-ish color.
   final Color backgroundColor;
+
+  /// Configuration of an optional grid to display on the map background.
+  ///
+  /// By default, a grid is drawn on top of the [backgroundColor] with a stroke
+  /// color which will automatically work on most backgrounds.
+  ///
+  /// Set to `null` to disable the grid. The grid is automatically disabled if
+  /// the [backgroundColor] is fully transparent.
+  ///
+  /// A grid can be inserted anywhere within the map stack (or outside of the
+  /// map context) using a [PlaceholderGridLayer] manually.
+  final PlaceholderGridOptions? backgroundGridOptions;
 
   /// Callback that fires when the map gets tapped or clicked with the
   /// primary mouse button. This is normally the left mouse button. This
@@ -167,6 +184,7 @@ class MapOptions {
     this.minZoom,
     this.maxZoom,
     this.backgroundColor = const Color(0xFFE0E0E0),
+    this.backgroundGridOptions = const PlaceholderGridOptions(),
     this.onTap,
     this.onSecondaryTap,
     this.onLongPress,
@@ -204,6 +222,7 @@ class MapOptions {
       minZoom == other.minZoom &&
       maxZoom == other.maxZoom &&
       backgroundColor == other.backgroundColor &&
+      backgroundGridOptions == other.backgroundGridOptions &&
       onTap == other.onTap &&
       onSecondaryTap == other.onSecondaryTap &&
       onLongPress == other.onLongPress &&
@@ -228,6 +247,7 @@ class MapOptions {
         minZoom,
         maxZoom,
         backgroundColor,
+        backgroundGridOptions,
         onTap,
         onSecondaryTap,
         onLongPress,
