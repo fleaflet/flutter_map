@@ -139,6 +139,28 @@ void main() {
   });
 
   group('renderTiles', () {
+    test('a tile of another zoom level is not rendered as visible', () {
+      // Every visible z10 tile is ready: no fallback is needed. The z9 tile
+      // has x/y inside the z10 visible range but belongs to another level.
+      final tileImages = tileImagesMappingFrom([
+        MockTileImage(2, 2, 10),
+        MockTileImage(3, 2, 10),
+        MockTileImage(2, 3, 10),
+        MockTileImage(3, 3, 10),
+        MockTileImage(2, 2, 9),
+      ]);
+      final tileImageView = TileImageView(
+        tileImages: tileImages,
+        positionCoordinates: Set<TileCoordinates>.from(tileImages.keys),
+        visibleRange: discreteTileRange(2, 2, 3, 3, zoom: 10),
+        keepRange: discreteTileRange(2, 2, 3, 3, zoom: 10),
+      );
+      expect(
+        tileImageView.renderTiles,
+        isNot(contains(const TileCoordinates(2, 2, 9))),
+      );
+    });
+
     test('%.retainChildren uses correct coordinates for z+2 fallback', () {
       // This test verifies that _retainChildren correctly calculates
       // descendant coordinates when recursing to z+2 level.
