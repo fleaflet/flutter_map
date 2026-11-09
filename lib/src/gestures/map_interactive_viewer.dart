@@ -1392,10 +1392,12 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   // Utilities
 
+  // Through the CRS rather than `log2`: the ratio between zoom levels is not
+  // 2 in every CRS (e.g. `Proj4Crs` with custom resolutions).
   double _getZoomForScale(double startZoom, double scale) {
-    final resultZoom =
-        scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
-    return _camera.clampZoom(resultZoom);
+    if (scale == 1.0) return _camera.clampZoom(startZoom);
+    final crs = _camera.crs;
+    return _camera.clampZoom(crs.zoom(crs.scale(startZoom) * scale));
   }
 
   Offset _rotateOffset(Offset offset) {
