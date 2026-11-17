@@ -83,23 +83,24 @@ mixin FeatureLayerUtils on CustomPainter {
 
     if (worldWidth == 0) return false;
 
-    // These loops must not be exited with a labeled `break` from inside a
-    // `switch`: DDC (Dart 3.14) compiles it to a `break` of the `switch` only,
-    // so the loop never ends.
+    // Each direction leaves its loop with a `return`, never with a labeled
+    // `break` from inside the `switch`: DDC (Dart 3.14) compiles the latter to
+    // a `break` of the `switch` only, so the loop never ends.
     // See https://github.com/dart-lang/sdk/issues/64941.
-    for (double shift = -worldWidth;; shift -= worldWidth) {
-      protectInfiniteLoop();
-      final control = work(shift);
-      if (control == WorldWorkControl.hit) return true;
-      if (control == WorldWorkControl.invisible) break;
+    bool workInDirection(double worldShift) {
+      for (double shift = worldShift;; shift += worldShift) {
+        protectInfiniteLoop();
+        switch (work(shift)) {
+          case WorldWorkControl.hit:
+            return true;
+          case WorldWorkControl.invisible:
+            return false;
+          case WorldWorkControl.visible:
+        }
+      }
     }
 
-    for (double shift = worldWidth;; shift += worldWidth) {
-      protectInfiniteLoop();
-      final control = work(shift);
-      if (control == WorldWorkControl.hit) return true;
-      if (control == WorldWorkControl.invisible) return false;
-    }
+    return workInDirection(-worldWidth) || workInDirection(worldWidth);
   }
 
   /// Returns the world size in pixels.
