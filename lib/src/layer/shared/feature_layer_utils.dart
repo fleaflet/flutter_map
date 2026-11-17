@@ -83,27 +83,22 @@ mixin FeatureLayerUtils on CustomPainter {
 
     if (worldWidth == 0) return false;
 
-    negativeWorldsLoop:
+    // These loops must not be exited with a labeled `break` from inside a
+    // `switch`: DDC (Dart 3.14) compiles it to a `break` of the `switch` only,
+    // so the loop never ends.
+    // See https://github.com/dart-lang/sdk/issues/64941.
     for (double shift = -worldWidth;; shift -= worldWidth) {
       protectInfiniteLoop();
-      switch (work(shift)) {
-        case WorldWorkControl.hit:
-          return true;
-        case WorldWorkControl.invisible:
-          break negativeWorldsLoop;
-        case WorldWorkControl.visible:
-      }
+      final control = work(shift);
+      if (control == WorldWorkControl.hit) return true;
+      if (control == WorldWorkControl.invisible) break;
     }
 
     for (double shift = worldWidth;; shift += worldWidth) {
       protectInfiniteLoop();
-      switch (work(shift)) {
-        case WorldWorkControl.hit:
-          return true;
-        case WorldWorkControl.invisible:
-          return false;
-        case WorldWorkControl.visible:
-      }
+      final control = work(shift);
+      if (control == WorldWorkControl.hit) return true;
+      if (control == WorldWorkControl.invisible) return false;
     }
   }
 
