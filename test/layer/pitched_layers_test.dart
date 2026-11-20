@@ -338,6 +338,43 @@ void main() {
     expect(find.byKey(const ValueKey('behind')), findsNothing);
   });
 
+  for (final pitch in [0.0, 60.0]) {
+    testWidgets('rotating marker at the edge of the viewport, pitch $pitch',
+        (tester) async {
+      // At rotation 45, the top-left corner of a 10 x 10 px marker aligned at
+      // its top left is 10 * sqrt(2) px straight above its point. The point is
+      // below the viewport, and 3 px of the marker are inside it.
+      const center = LatLng(45.5, -122.6);
+      final point = MapCamera(
+        crs: const Epsg3857(),
+        center: center,
+        zoom: 12,
+        rotation: 45,
+        pitch: pitch,
+        nonRotatedSize: const Size(400, 300),
+      ).screenOffsetToLatLng(const Offset(200, 300 + 10 * sqrt2 - 3));
+      await _pump(
+        tester,
+        pitch: pitch,
+        rotation: 45,
+        children: [
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: point,
+                width: 10,
+                height: 10,
+                alignment: Alignment.topLeft,
+                child: const SizedBox.expand(key: ValueKey('marker')),
+              ),
+            ],
+          ),
+        ],
+      );
+      expect(find.byKey(const ValueKey('marker')), findsOneWidget);
+    });
+  }
+
   testWidgets('polygon labels face the viewer', (tester) async {
     Polygon square(double lat, double lng, String label, bool rotateLabel) =>
         Polygon(

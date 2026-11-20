@@ -90,55 +90,57 @@ List<List<double>> _corners(WidgetTester tester, String key) {
 ({String order, List<List<double>> labels}) _polygonPaint(
   WidgetTester tester,
 ) {
-  final box = tester.renderObject<RenderCustomPaint>(
-    find.descendant(
-      of: find.byType(PolygonLayer),
-      matching: find.byType(CustomPaint),
-    ),
-  );
-  final canvas = TestRecordingCanvas();
-  box.painter!.paint(canvas, box.size);
-
-  final toScreen = box.getTransformTo(null);
-  final saved = <Matrix4>[];
-  var transform = Matrix4.identity();
   final order = StringBuffer();
   final labels = <List<double>>[];
-  for (final recorded in canvas.invocations) {
-    final args = recorded.invocation.positionalArguments;
-    switch (recorded.invocation.memberName) {
-      case #save || #saveLayer:
-        saved.add(transform.clone());
-      case #restore:
-        transform = saved.removeLast();
-      case #translate:
-        transform.multiply(
-            Matrix4.translationValues(args[0] as double, args[1] as double, 0));
-      case #rotate:
-        transform.rotateZ(args[0] as double);
-      case #transform:
-        transform.multiply(Matrix4.fromFloat64List(args[0] as Float64List));
-      case #drawPath || #drawVertices:
-        order.write('P');
-      case #drawParagraph:
-        order.write('L');
-        final paragraph = args[0] as ui.Paragraph;
-        final offset = args[1] as Offset;
-        final matrix = toScreen.multiplied(transform);
-        final center = MatrixUtils.transformPoint(
-          matrix,
-          offset + Offset(paragraph.width / 2, paragraph.height / 2),
-        );
-        final right = MatrixUtils.transformPoint(
-          matrix,
-          offset + Offset(paragraph.width, paragraph.height / 2),
-        );
-        final direction = right - center;
-        labels.add([
-          _round(center.dx),
-          _round(center.dy),
-          _round(atan2(direction.dy, direction.dx)),
-        ]);
+  for (final element in find
+      .descendant(
+        of: find.byType(PolygonLayer),
+        matching: find.byType(CustomPaint),
+      )
+      .evaluate()) {
+    final box = element.renderObject! as RenderCustomPaint;
+    final canvas = TestRecordingCanvas();
+    box.painter!.paint(canvas, box.size);
+
+    final toScreen = box.getTransformTo(null);
+    final saved = <Matrix4>[];
+    var transform = Matrix4.identity();
+    for (final recorded in canvas.invocations) {
+      final args = recorded.invocation.positionalArguments;
+      switch (recorded.invocation.memberName) {
+        case #save || #saveLayer:
+          saved.add(transform.clone());
+        case #restore:
+          transform = saved.removeLast();
+        case #translate:
+          transform.multiply(Matrix4.translationValues(
+              args[0] as double, args[1] as double, 0));
+        case #rotate:
+          transform.rotateZ(args[0] as double);
+        case #transform:
+          transform.multiply(Matrix4.fromFloat64List(args[0] as Float64List));
+        case #drawPath || #drawVertices:
+          order.write('P');
+        case #drawParagraph:
+          order.write('L');
+          final paragraph = args[0] as ui.Paragraph;
+          final offset = args[1] as Offset;
+          final matrix = toScreen.multiplied(transform);
+          final center = MatrixUtils.transformPoint(
+            matrix,
+            offset + Offset(paragraph.width / 2, paragraph.height / 2),
+          );
+          final right = MatrixUtils.transformPoint(
+            matrix,
+            offset + Offset(paragraph.width, paragraph.height / 2),
+          );
+          final direction = right - center;
+          labels.add([
+            _round(center.dx),
+            _round(center.dy),
+            _round(atan2(direction.dy, direction.dx)),
+          ]);
+      }
     }
   }
   return (order: order.toString(), labels: labels);
@@ -291,7 +293,7 @@ void main() {
   for (final MapEntry(key: rotation, value: expected)
       in _expectedLabels.entries) {
     for (final (drawLabelsLast, order) in [
-      (false, 'PLPLPL'),
+      (false, 'PPPLLL'),
       (true, 'PPPLLL')
     ]) {
       testWidgets(

@@ -101,102 +101,19 @@ class FitBounds extends CameraFit {
 
   /// Returns a new [MapCamera] which fits this classes configuration.
   @override
-  MapCamera fit(MapCamera camera) {
-    if (camera.pitch == 0) return _fitUnpitched(camera);
-    return _fitPitched(
-      camera,
-      [
-        bounds.northWest,
-        bounds.northEast,
-        bounds.southEast,
-        bounds.southWest,
-      ],
-      padding,
-      start: _fitUnpitched(camera.withPitch(0)).withPitch(camera.pitch),
-      limitZoom: (zoom) => _limitZoom(
+  MapCamera fit(MapCamera camera) => _fitPoints(
         camera,
-        zoom,
+        [
+          bounds.northWest,
+          bounds.northEast,
+          bounds.southEast,
+          bounds.southWest,
+        ],
+        padding,
         minZoom: minZoom,
         maxZoom: maxZoom,
         forceIntegerZoomLevel: forceIntegerZoomLevel,
-      ),
-    );
-  }
-
-  MapCamera _fitUnpitched(MapCamera camera) {
-    final paddingTL = Offset(padding.left, padding.top);
-    final paddingBR = Offset(padding.right, padding.bottom);
-
-    final paddingTotalXY = paddingTL + paddingBR;
-
-    var newZoom = _getBoundsZoom(camera, paddingTotalXY);
-    if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
-
-    final paddingOffset = (paddingBR - paddingTL) / 2;
-    final swPoint = camera.projectAtZoom(bounds.southWest, newZoom);
-    final nePoint = camera.projectAtZoom(bounds.northEast, newZoom);
-
-    final Offset projectedCenter;
-    if (camera.rotation != 0.0) {
-      final swPointRotated = swPoint.rotate(-camera.rotationRad);
-      final nePointRotated = nePoint.rotate(-camera.rotationRad);
-      final centerRotated =
-          (swPointRotated + nePointRotated) / 2 + paddingOffset;
-
-      projectedCenter = centerRotated.rotate(camera.rotationRad);
-    } else {
-      projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
-    }
-
-    final center = camera.unprojectAtZoom(projectedCenter, newZoom);
-    return camera.withPosition(
-      center: center,
-      zoom: newZoom,
-    );
-  }
-
-  double _getBoundsZoom(
-    MapCamera camera,
-    Offset pixelPadding,
-  ) {
-    final nw = bounds.northWest;
-    final se = bounds.southEast;
-    var size = camera.nonRotatedSize - pixelPadding as Size;
-    // Prevent negative size which results in NaN zoom value later on in the calculation
-
-    size = Size(math.max(0, size.width), math.max(0, size.height));
-    var boundsSize = Rect.fromPoints(
-      camera.projectAtZoom(se, camera.zoom),
-      camera.projectAtZoom(nw, camera.zoom),
-    ).size;
-    if (camera.rotation != 0.0) {
-      final cosAngle = math.cos(camera.rotationRad).abs();
-      final sinAngle = math.sin(camera.rotationRad).abs();
-      boundsSize = Size(
-        (boundsSize.width * cosAngle) + (boundsSize.height * sinAngle),
-        (boundsSize.height * cosAngle) + (boundsSize.width * sinAngle),
       );
-    }
-
-    final scale = math.min(
-        size.width / boundsSize.width, size.height / boundsSize.height);
-
-    var boundsZoom = camera.getScaleZoom(scale);
-
-    if (forceIntegerZoomLevel) {
-      boundsZoom = boundsZoom.floorToDouble();
-    }
-
-    final min = math.max(
-      camera.minZoom ?? 0,
-      minZoom,
-    );
-    final max = math.min(
-      camera.maxZoom ?? double.infinity,
-      maxZoom ?? double.infinity,
-    );
-    return boundsZoom.clamp(min, max);
-  }
 }
 
 /// A [CameraFit] that should get be within given [LatLngBounds].
@@ -238,14 +155,11 @@ class FitInsideBounds extends CameraFit {
     this.forceIntegerZoomLevel = false,
   });
 
-  @override
-  MapCamera fit(MapCamera camera) =>
-      camera.pitch == 0 ? _fitUnpitched(camera) : _fitPitched(camera);
-
   /// The ground under the padded viewport, as offsets from the center in
   /// projected pixels, has the same shape at every zoom, so the zoom follows
   /// from the ratio of its bounding box to the projected bounds.
-  MapCamera _fitPitched(MapCamera camera) {
+  @override
+  MapCamera fit(MapCamera camera) {
     final viewport = padding
         .deflateRect(Offset.zero & camera.nonRotatedSize)
         .intersect(camera.groundViewport);
@@ -265,12 +179,9 @@ class FitInsideBounds extends CameraFit {
       visible.width / projectedBounds.width,
       visible.height / projectedBounds.height,
     );
-    var newZoom = camera.zoom + math.log(scale) / math.ln2;
+    var newZoom = camera.getScaleZoom(scale);
     if (forceIntegerZoomLevel) newZoom = newZoom.ceilToDouble();
-    newZoom = newZoom.clamp(
-      math.max(camera.minZoom ?? 0, minZoom),
-      math.min(camera.maxZoom ?? double.infinity, maxZoom ?? double.infinity),
-    );
+    newZoom = _clampZoom(camera, newZoom, minZoom: minZoom, maxZoom: maxZoom);
 
     final boundsCenter = Rect.fromPoints(
       camera.projectAtZoom(bounds.southEast, newZoom),
@@ -280,172 +191,6 @@ class FitInsideBounds extends CameraFit {
       center: camera.unprojectAtZoom(boundsCenter - visible.center, newZoom),
       zoom: newZoom,
     );
-  }
-
-  MapCamera _fitUnpitched(MapCamera camera) {
-    final paddingTL = Offset(padding.left, padding.top);
-    final paddingBR = Offset(padding.right, padding.bottom);
-    final paddingTotalXY = paddingTL + paddingBR;
-    final paddingOffset = (paddingBR - paddingTL) / 2;
-
-    final cameraSize = camera.nonRotatedSize - paddingTotalXY as Size;
-
-    final projectedBoundsSize = Rect.fromPoints(
-      camera.projectAtZoom(bounds.southEast, camera.zoom),
-      camera.projectAtZoom(bounds.northWest, camera.zoom),
-    ).size;
-
-    final scale = _rectInRotRectScale(
-      angleRad: camera.rotationRad,
-      smallRectHalfWidth: cameraSize.width / 2.0,
-      smallRectHalfHeight: cameraSize.height / 2.0,
-      bigRectHalfWidth: projectedBoundsSize.width / 2.0,
-      bigRectHalfHeight: projectedBoundsSize.height / 2.0,
-    );
-
-    var newZoom = camera.getScaleZoom(1.0 / scale);
-
-    if (forceIntegerZoomLevel) {
-      newZoom = newZoom.ceilToDouble();
-    }
-
-    final min = math.max(
-      camera.minZoom ?? 0,
-      minZoom,
-    );
-    final max = math.min(
-      camera.maxZoom ?? double.infinity,
-      maxZoom ?? double.infinity,
-    );
-    newZoom = newZoom.clamp(min, max);
-
-    final newCenter = _getCenter(
-      camera,
-      newZoom: newZoom,
-      paddingOffset: paddingOffset,
-    );
-
-    return camera.withPosition(
-      center: newCenter,
-      zoom: newZoom,
-    );
-  }
-
-  LatLng _getCenter(
-    MapCamera camera, {
-    required double newZoom,
-    required Offset paddingOffset,
-  }) {
-    if (camera.rotation == 0.0) {
-      final swPoint = camera.projectAtZoom(bounds.southWest, newZoom);
-      final nePoint = camera.projectAtZoom(bounds.northEast, newZoom);
-      final projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
-      final newCenter = camera.unprojectAtZoom(projectedCenter, newZoom);
-
-      return newCenter;
-    }
-
-    // Handle rotation
-    final projectedCenter = camera.projectAtZoom(bounds.center, newZoom);
-    final rotatedCenter = projectedCenter.rotate(-camera.rotationRad);
-    final adjustedCenter = rotatedCenter + paddingOffset;
-    final derotatedAdjustedCenter = adjustedCenter.rotate(camera.rotationRad);
-    final newCenter = camera.unprojectAtZoom(derotatedAdjustedCenter, newZoom);
-
-    return newCenter;
-  }
-
-  static double _normalize(double value, double start, double end) {
-    final width = end - start;
-    final offsetValue = value - start;
-
-    return (offsetValue - (offsetValue / width).floorToDouble() * width) +
-        start;
-  }
-
-  /// Given two rectangles with their centers at the origin and an angle by
-  /// which the big rectangle is rotated, calculates the coefficient that would
-  /// be needed to scale the small rectangle such that it fits perfectly in the
-  /// larger rectangle while maintaining its aspect ratio.
-  ///
-  /// This algorithm has been adapted from https://stackoverflow.com/a/75907251
-  static double _rectInRotRectScale({
-    required double angleRad,
-    required double smallRectHalfWidth,
-    required double smallRectHalfHeight,
-    required double bigRectHalfWidth,
-    required double bigRectHalfHeight,
-  }) {
-    final normalizedAngleRad = _normalize(angleRad, 0, 2.0 * math.pi);
-
-    var kmin = double.infinity;
-    final quadrant = (2.0 * normalizedAngleRad / math.pi).floor();
-    if (quadrant.isOdd) {
-      final px = bigRectHalfWidth * math.cos(normalizedAngleRad) +
-          bigRectHalfHeight * math.sin(normalizedAngleRad);
-      final py = bigRectHalfWidth * math.sin(normalizedAngleRad) -
-          bigRectHalfHeight * math.cos(normalizedAngleRad);
-      final dx = -math.cos(normalizedAngleRad);
-      final dy = -math.sin(normalizedAngleRad);
-
-      if (smallRectHalfWidth * dy - smallRectHalfHeight * dx != 0) {
-        var k = (px * dy - py * dx) /
-            (smallRectHalfWidth * dy - smallRectHalfHeight * dx);
-        if (quadrant >= 2) {
-          k = -k;
-        }
-
-        if (k > 0) {
-          kmin = math.min(kmin, k);
-        }
-      }
-
-      if (-smallRectHalfWidth * dx + smallRectHalfHeight * dy != 0) {
-        var k = (px * dx + py * dy) /
-            (-smallRectHalfWidth * dx + smallRectHalfHeight * dy);
-        if (quadrant >= 2) {
-          k = -k;
-        }
-
-        if (k > 0) {
-          kmin = math.min(kmin, k);
-        }
-      }
-
-      return kmin;
-    } else {
-      final px = bigRectHalfWidth * math.cos(normalizedAngleRad) -
-          bigRectHalfHeight * math.sin(normalizedAngleRad);
-      final py = bigRectHalfWidth * math.sin(normalizedAngleRad) +
-          bigRectHalfHeight * math.cos(normalizedAngleRad);
-      final dx = math.sin(normalizedAngleRad);
-      final dy = -math.cos(normalizedAngleRad);
-      if (smallRectHalfWidth * dy - smallRectHalfHeight * dx != 0) {
-        var k = (px * dy - py * dx) /
-            (smallRectHalfWidth * dy - smallRectHalfHeight * dx);
-        if (quadrant >= 2) {
-          k = -k;
-        }
-
-        if (k > 0) {
-          kmin = math.min(kmin, k);
-        }
-      }
-
-      if (-smallRectHalfWidth * dx + smallRectHalfHeight * dy != 0) {
-        var k = (px * dx + py * dy) /
-            (-smallRectHalfWidth * dx + smallRectHalfHeight * dy);
-        if (quadrant >= 2) {
-          k = -k;
-        }
-
-        if (k > 0) {
-          kmin = math.min(kmin, k);
-        }
-      }
-
-      return kmin;
-    }
   }
 }
 
@@ -491,107 +236,83 @@ class FitCoordinates extends CameraFit {
 
   /// Returns a new [MapCamera] which fits this classes configuration.
   @override
-  MapCamera fit(MapCamera camera) {
-    if (camera.pitch == 0) return _fitUnpitched(camera);
-    return _fitPitched(
-      camera,
-      coordinates,
-      padding,
-      start: _fitUnpitched(camera.withPitch(0)).withPitch(camera.pitch),
-      limitZoom: (zoom) => _limitZoom(
+  MapCamera fit(MapCamera camera) => _fitPoints(
         camera,
-        zoom,
+        coordinates,
+        padding,
         minZoom: minZoom,
         maxZoom: maxZoom,
         forceIntegerZoomLevel: forceIntegerZoomLevel,
-      ),
-    );
-  }
-
-  MapCamera _fitUnpitched(MapCamera camera) {
-    final paddingTL = Offset(padding.left, padding.top);
-    final paddingBR = Offset(padding.right, padding.bottom);
-
-    final paddingTotalXY = paddingTL + paddingBR;
-
-    var newZoom = _getCoordinatesZoom(camera, paddingTotalXY);
-    if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
-
-    final projectedPoints =
-        coordinates.map((coord) => camera.projectAtZoom(coord, newZoom));
-
-    final rotatedBounds = RectExtension.containing(projectedPoints
-        .map((point) => point.rotate(-camera.rotationRad))
-        .toList());
-
-    // Apply padding
-    final paddingOffset = (paddingBR - paddingTL) / 2;
-    final rotatedNewCenter = rotatedBounds.center + paddingOffset;
-
-    // Undo the rotation
-    final unrotatedNewCenter = rotatedNewCenter.rotate(camera.rotationRad);
-
-    final newCenter = camera.unprojectAtZoom(unrotatedNewCenter, newZoom);
-
-    return camera.withPosition(
-      center: newCenter,
-      zoom: newZoom,
-    );
-  }
-
-  double _getCoordinatesZoom(
-    MapCamera camera,
-    Offset pixelPadding,
-  ) {
-    var size = camera.nonRotatedSize - pixelPadding as Size;
-    // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = Size(math.max(0, size.width), math.max(0, size.height));
-
-    final projectedPoints = [
-      for (final coord in coordinates) camera.projectAtZoom(coord)
-    ];
-
-    final rotatedBounds = RectExtension.containing(projectedPoints
-        .map((point) => point.rotate(-camera.rotationRad))
-        .toList());
-
-    final boundsSize = rotatedBounds.size;
-
-    // TODO this could be replaced with Size.shortestSide
-    final scaleX = size.width / boundsSize.width;
-    final scaleY = size.height / boundsSize.height;
-    final scale = math.min(scaleX, scaleY);
-
-    var newZoom = camera.getScaleZoom(scale);
-    if (forceIntegerZoomLevel) {
-      newZoom = newZoom.floorToDouble();
-    }
-
-    final min = math.max(
-      camera.minZoom ?? 0,
-      minZoom,
-    );
-    final max = math.min(
-      camera.maxZoom ?? double.infinity,
-      maxZoom ?? double.infinity,
-    );
-    return newZoom.clamp(min, max);
-  }
+      );
 }
 
-/// The zoom limits of a fit, applied to [zoom].
-double _limitZoom(
+/// [zoom] limited to the zoom limits of [camera] and of a fit.
+double _clampZoom(
   MapCamera camera,
   double zoom, {
   required double minZoom,
   required double? maxZoom,
+}) =>
+    zoom.clamp(
+      math.max(camera.minZoom ?? 0, minZoom),
+      math.min(camera.maxZoom ?? double.infinity, maxZoom ?? double.infinity),
+    );
+
+/// The fit of [points] for [FitBounds] and [FitCoordinates].
+MapCamera _fitPoints(
+  MapCamera camera,
+  List<LatLng> points,
+  EdgeInsets padding, {
+  required double minZoom,
+  required double? maxZoom,
   required bool forceIntegerZoomLevel,
+}) =>
+    _fitPitched(
+      camera,
+      points,
+      padding,
+      start: _ratioStep(
+        camera,
+        points,
+        padding,
+        clampZoom: (zoom) =>
+            _clampZoom(camera, zoom, minZoom: minZoom, maxZoom: maxZoom),
+      ),
+      limitZoom: (zoom) => _clampZoom(
+        camera,
+        forceIntegerZoomLevel ? zoom.floorToDouble() : zoom,
+        minZoom: minZoom,
+        maxZoom: maxZoom,
+      ),
+    );
+
+/// The start of the search of [_fitPitched]: [camera] at pitch 0 with its zoom
+/// changed by the scale at which the screen extent of [points] fits the
+/// viewport reduced by [padding], and that extent centered in it, at the pitch
+/// of [camera].
+///
+/// At pitch 0 the screen extent scales with the zoom scale, so this is the
+/// largest zoom at which [points] fit.
+MapCamera _ratioStep(
+  MapCamera camera,
+  List<LatLng> points,
+  EdgeInsets padding, {
+  required double Function(double zoom) clampZoom,
 }) {
-  final limited = forceIntegerZoomLevel ? zoom.floorToDouble() : zoom;
-  return limited.clamp(
-    math.max(camera.minZoom ?? 0, minZoom),
-    math.min(camera.maxZoom ?? double.infinity, maxZoom ?? double.infinity),
+  if (points.isEmpty) return camera;
+  final unpitched = camera.withPitch(0);
+  final target = padding.deflateRect(Offset.zero & camera.nonRotatedSize);
+  // At pitch 0 no point is behind the camera
+  final extent = _screenExtent(unpitched, points)!;
+  final scale = math.min(
+    math.max(0, target.width) / extent.width,
+    math.max(0, target.height) / extent.height,
   );
+  final zoomed =
+      unpitched.withPosition(zoom: clampZoom(unpitched.getScaleZoom(scale)));
+  final zoomedExtent = _screenExtent(zoomed, points)!;
+  return _centered(zoomed, zoomedExtent.center, target.center)
+      .withPitch(camera.pitch);
 }
 
 /// The camera, with the rotation and pitch of [start], at which [points] lie
