@@ -215,6 +215,14 @@ class _MarkerLayerState extends State<MarkerLayer> {
             final top = 0.5 * height * (alignment.y + 1);
             final right = width - left;
             final bottom = height - top;
+            final rotatesWithMap = !(m.rotate ?? widget.rotate);
+            // The distance from the point to the marker's farthest corner,
+            // which a marker that rotates with the map can reach in any
+            // direction
+            final reach = Offset(
+              left > right ? left : right,
+              top > bottom ? top : bottom,
+            ).distance;
 
             Positioned? getPositioned(double worldShift) {
               final shifted = Offset(pxPoint.dx + worldShift, pxPoint.dy);
@@ -245,13 +253,11 @@ class _MarkerLayerState extends State<MarkerLayer> {
                 return null;
               }
 
-              // Without rotation, the marker's corners are within the larger
-              // of its sizes from its point
               if (camera.pitch != 0 &&
-                  !viewport.overlaps(Rect.fromCircle(
-                    center: screen,
-                    radius: width > height ? width : height,
-                  ))) {
+                  !viewport.overlaps(rotatesWithMap
+                      ? Rect.fromCircle(center: screen, radius: reach)
+                      : Rect.fromLTRB(screen.dx - right, screen.dy - bottom,
+                          screen.dx + left, screen.dy + top))) {
                 return null;
               }
 
