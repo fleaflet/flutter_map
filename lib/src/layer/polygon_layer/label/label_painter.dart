@@ -1,7 +1,7 @@
 part of '../polygon_layer.dart';
 
-/// Draws the labels of a pitched map's polygons in screen space, so that they
-/// face the viewer instead of lying on the ground
+/// Draws the labels of a layer's polygons in screen space, after all of its
+/// polygons, so that they face the viewer when the map is pitched
 class _PolygonLabelPainter<R extends Object> extends CustomPainter
     with FeatureLayerUtils {
   _PolygonLabelPainter({required this.polygons, required this.camera})

@@ -227,21 +227,9 @@ class _MarkerLayerState extends State<MarkerLayer> {
             Positioned? getPositioned(double worldShift) {
               final shifted = Offset(pxPoint.dx + worldShift, pxPoint.dy);
 
-              // Cull if out of bounds
-              if (camera.pitch == 0) {
-                if (!camera.pixelBounds.overlaps(
-                  Rect.fromPoints(
-                    Offset(shifted.dx + left, shifted.dy - bottom),
-                    Offset(shifted.dx - right, shifted.dy + top),
-                  ),
-                )) {
-                  return null;
-                }
-              } else {
-                // A point behind the camera has no screen position
-                if (_perspectiveDivisor(pixelToScreen, shifted) <= 0) {
-                  return null;
-                }
+              // A point behind the camera has no screen position
+              if (_perspectiveDivisor(pixelToScreen, shifted) <= 0) {
+                return null;
               }
 
               final screen = MatrixUtils.transformPoint(pixelToScreen, shifted);
@@ -249,15 +237,15 @@ class _MarkerLayerState extends State<MarkerLayer> {
               // Beyond the far limit, which also ends the loop over worlds
               // when the horizon is in view: world copies far away converge
               // to it, inside the viewport
-              if (camera.pitch != 0 && screen.dy < camera.farLimit) {
+              if (screen.dy < camera.farLimit) {
                 return null;
               }
 
-              if (camera.pitch != 0 &&
-                  !viewport.overlaps(rotatesWithMap
-                      ? Rect.fromCircle(center: screen, radius: reach)
-                      : Rect.fromLTRB(screen.dx - right, screen.dy - bottom,
-                          screen.dx + left, screen.dy + top))) {
+              // Cull if out of the viewport
+              if (!viewport.overlaps(rotatesWithMap
+                  ? Rect.fromCircle(center: screen, radius: reach)
+                  : Rect.fromLTRB(screen.dx - right, screen.dy - bottom,
+                      screen.dx + left, screen.dy + top))) {
                 return null;
               }
 

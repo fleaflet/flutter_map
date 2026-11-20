@@ -91,9 +91,8 @@ base class PolygonLayer<R extends Object>
   /// Defaults to `true`.
   final bool polygonLabels;
 
-  /// Whether to draw labels last and thus over all the polygons
-  ///
-  /// Defaults to `false`.
+  /// Has no effect: labels are drawn after all polygons of the layer.
+  @Deprecated('Labels are drawn after all polygons. This has no effect.')
   final bool drawLabelsLast;
 
   /// Whether polygons should only be drawn/projected onto a single world
@@ -139,6 +138,7 @@ base class PolygonLayer<R extends Object>
     this.debugAltRenderer = false,
     this.polygonCulling = true,
     this.polygonLabels = true,
+    @Deprecated('Labels are drawn after all polygons. This has no effect.')
     this.drawLabelsLast = false,
     this.drawInSingleWorld = false,
     this.painterFillMethod = kIsWeb
@@ -261,18 +261,12 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
             growable: false,
           );
 
-    // When pitched, labels face the viewer, so they are drawn by a separate
-    // painter in screen space instead of on the ground with their polygons.
-    final pitchedLabels = camera.pitch != 0 && widget.polygonLabels;
-
     final polygons = MobileLayerTransformer(
       child: CustomPaint(
         painter: _PolygonPainter(
           polygons: culled,
           triangles: triangles,
           camera: camera,
-          polygonLabels: widget.polygonLabels && !pitchedLabels,
-          drawLabelsLast: widget.drawLabelsLast,
           painterFillMethod: widget.painterFillMethod,
           invertedFill: widget.invertedFill,
           debugAltRenderer: widget.debugAltRenderer,
@@ -281,7 +275,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
         size: camera.size,
       ),
     );
-    if (!pitchedLabels) return polygons;
+    if (!widget.polygonLabels) return polygons;
 
     return Stack(
       children: [

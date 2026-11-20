@@ -41,12 +41,8 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
   /// Styles to use for line segment joins.
   final StrokeJoin strokeJoin;
 
-  /// The optional label of the [Polygon].
-  ///
-  /// Note that specifying a label will reduce performance, as the internal
-  /// canvas must be drawn to and 'saved' more frequently to ensure the proper
-  /// stacking order is maintained. This can be avoided, potentially at the
-  /// expense of appearance, by setting [PolygonLayer.drawLabelsLast].
+  /// The optional label of the [Polygon], drawn after all polygons of the
+  /// [PolygonLayer].
   final String? label;
 
   /// The [TextStyle] of the [Polygon.label].

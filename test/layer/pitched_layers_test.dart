@@ -338,7 +338,7 @@ void main() {
     expect(find.byKey(const ValueKey('behind')), findsNothing);
   });
 
-  for (final pitch in [60.0]) {
+  for (final pitch in [0.0, 60.0]) {
     testWidgets('rotating marker at the edge of the viewport, pitch $pitch',
         (tester) async {
       // At rotation 45, the top-left corner of a 10 x 10 px marker aligned at
