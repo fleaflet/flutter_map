@@ -14,38 +14,38 @@ class ScaleBarPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Scale Bar Layer')),
       drawer: const MenuDrawer(ScaleBarPage.route),
-      body: FlutterMap(
-        options: const MapOptions(
+      body: const FlutterMap(
+        options: MapOptions(
           initialCenter: LatLng(51.5, -0.09),
           initialZoom: 5,
         ),
         children: [
-          openStreetMapTileLayer,
-          const Scalebar(
+          PrimaryTileLayer(),
+          Scalebar(
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             padding: EdgeInsets.only(right: 10, left: 10, bottom: 40),
             alignment: Alignment.bottomLeft,
           ),
-          const Scalebar(
+          Scalebar(
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             padding: EdgeInsets.only(right: 10, left: 10, bottom: 80),
             alignment: Alignment.bottomLeft,
             length: ScalebarLength.s,
           ),
-          const Scalebar(
+          Scalebar(
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             alignment: Alignment.bottomCenter,
             length: ScalebarLength.s,
           ),
-          const Scalebar(
+          Scalebar(
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             length: ScalebarLength.xxl,
           ),
-          const Scalebar(
+          Scalebar(
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             padding: EdgeInsets.only(right: 10, left: 10, top: 40),
           ),
-          const Scalebar(
+          Scalebar(
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             padding: EdgeInsets.only(right: 10, left: 10, top: 80),
             length: ScalebarLength.s,

@@ -63,9 +63,38 @@ class InteractionOptions {
   /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
-  /// The used velocity how fast the map should zoom in or out by scrolling
-  /// with the scroll wheel of a mouse.
+  /// The multipler applied to the scroll offset to calculate the zoom offset,
+  /// when smooth zooming is disabled.
+  ///
+  /// ---
+  ///
+  /// Since v8.4, this has been deprecated in favour of
+  /// [SnapScrollZoomOptions.zoomRate]. The new scroll zoom options allow for
+  /// the new smooth scrolling functionality to also be customised.
+  ///
+  /// To improve the end-user experience for more users, maps will use smooth
+  /// scrolling since v8.4 by default - **unless this property has been changed
+  /// from its default of 0.005** and the [scrollZoomOptions] have not been
+  /// changed from their default, in which case it is respected and the snap
+  /// behaviour will be used.
+  ///
+  /// To migrate, this argument should be removed (left to default), and the
+  /// desired value instead used by setting [scrollZoomOptions] to
+  /// [ScrollZoomOptions.snap] and setting the argument in the constructor.
+  ///
+  /// Defaults to `1 / 200`. Overriden by [SnapScrollZoomOptions.zoomRate]
+  /// if set.
+  @Deprecated(
+    'Prefer `SnapScrollZoomOptions.zoomRate`. See documentation on this '
+    'property for more information. Will be removed in an upcoming major '
+    'release.',
+  )
   final double scrollWheelVelocity;
+
+  /// Options to configure scroll wheel/trackpad zoom behavior.
+  ///
+  /// By default, scroll wheel zoom uses smooth animated zooming.
+  final ScrollZoomOptions scrollZoomOptions;
 
   /// Calculates the zoom difference to apply to the initial zoom level when a
   /// user is performing a double-tap drag zoom gesture
@@ -133,7 +162,13 @@ class InteractionOptions {
     this.pinchMoveThreshold = 40.0,
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+    @Deprecated(
+      'Prefer `SnapScrollZoomOptions.zoomRate`. See documentation on this '
+      'property for more information. Will be removed in an upcoming major '
+      'release.',
+    )
     this.scrollWheelVelocity = 0.005,
+    this.scrollZoomOptions = const ScrollZoomOptions.smooth(),
     this.doubleTapDragZoomChangeCalculator =
         defaultDoubleTapDragZoomChangeCalculator,
     this.doubleTapZoomDuration = const Duration(milliseconds: 200),
@@ -181,6 +216,7 @@ class InteractionOptions {
       pinchMoveThreshold == other.pinchMoveThreshold &&
       pinchMoveWinGestures == other.pinchMoveWinGestures &&
       scrollWheelVelocity == other.scrollWheelVelocity &&
+      scrollZoomOptions == other.scrollZoomOptions &&
       doubleTapDragZoomChangeCalculator ==
           other.doubleTapDragZoomChangeCalculator &&
       doubleTapZoomDuration == other.doubleTapZoomDuration &&
@@ -200,6 +236,7 @@ class InteractionOptions {
         pinchMoveThreshold,
         pinchMoveWinGestures,
         scrollWheelVelocity,
+        scrollZoomOptions,
         doubleTapDragZoomChangeCalculator,
         doubleTapZoomDuration,
         doubleTapZoomCurve,

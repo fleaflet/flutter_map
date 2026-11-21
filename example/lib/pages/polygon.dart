@@ -308,7 +308,7 @@ class _PolygonPageState extends State<PolygonPage> {
               initialZoom: 4,
             ),
             children: [
-              openStreetMapTileLayer,
+              const PrimaryTileLayer(),
               MouseRegion(
                 hitTestBehavior: HitTestBehavior.deferToChild,
                 cursor: SystemMouseCursors.click,
