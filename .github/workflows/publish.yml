@@ -113,7 +113,7 @@ jobs:
         with:
           subject-path: artifacts/*.*
       - name: Create GitHub release
-        uses: ncipollo/release-action@389305c50bc7406ce7e55077eb8b863e0f0a3083
+        uses: ncipollo/release-action@4197432cf2a5d841d2b2bd8b3dff50ec1284542b
         with:
           artifacts: artifacts/*.*
           prerelease: ${{contains(github.ref_name, '-dev')}}
