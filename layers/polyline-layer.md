@@ -17,6 +17,8 @@ layout:
     visible: true
   actions:
     visible: true
+  anchors:
+    visible: true
 ---
 
 # Polyline Layer
@@ -73,7 +75,7 @@ The `PolylineLayer` paints its `Polyline`s across all visible worlds by default.
 ## Performance Optimizations
 
 {% hint style="success" %}
-The example application includes a stress test which generates a `Polyline` with 200,000 points.
+The example application includes a stress test which generates a `Polyline` with 300,000 points.
 {% endhint %}
 
 ### Culling
