@@ -98,8 +98,11 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     final chunkEvents = StreamController<ImageChunkEvent>();
 
     var loaded = false;
-    // An aborted load completes with a transparent image. Until then, another
-    // tile with this URL would share it from the image cache, so remove it now.
+    // We evict this as quickly as possible on abort if not loaded, rather than
+    // waiting for the handler in the load image, which might trigger with a
+    // delay. This would mean that a new tile for the same URL hooks into the
+    // empty cache before it's evicted, showing the aborted tile.
+    // See issue #2290.
     abortTrigger?.then((_) {
       if (!loaded) PaintingBinding.instance.imageCache.evict(key);
     });
