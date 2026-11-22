@@ -72,7 +72,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ["3.44.0", ""]
+        sdk: ["3.47.0", ""]
     defaults:
       run:
         working-directory: ./example
