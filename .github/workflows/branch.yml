@@ -35,7 +35,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.47.0
           channel: "stable"
           cache: true
       - name: Get dependencies
@@ -97,7 +96,7 @@ jobs:
       - name: Rename output APK
         run: mv build/app/outputs/apk/release/app-release.apk build/app/outputs/apk/release/android-demo.apk
       - name: Upload as artifact
-        if: ${{ matrix.sdk == '3.47.0' }}
+        if: ${{ matrix.sdk == '' }}
         uses: actions/upload-artifact@v7
         with:
           path: example/build/app/outputs/apk/release/android-demo.apk
