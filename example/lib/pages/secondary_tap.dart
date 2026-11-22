@@ -31,7 +31,9 @@ class SecondaryTapPage extends StatelessWidget {
                 initialCenter: const LatLng(51.5, -0.09),
                 initialZoom: 5,
               ),
-              children: [openStreetMapTileLayer],
+              children: [
+                const PrimaryTileLayer(),
+              ],
             ),
           ),
         ],

@@ -186,7 +186,7 @@ class _MarkerPageState extends State<MarkerPage> {
                 ),
               ),
               children: [
-                openStreetMapTileLayer,
+                const PrimaryTileLayer(),
                 MarkerLayer(
                   rotate: counterRotate,
                   markers: [

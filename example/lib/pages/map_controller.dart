@@ -139,7 +139,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   minZoom: 3,
                 ),
                 children: [
-                  openStreetMapTileLayer,
+                  const PrimaryTileLayer(),
                   const MarkerLayer(markers: _markers),
                 ],
               ),

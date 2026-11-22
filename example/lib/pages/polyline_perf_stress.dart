@@ -62,7 +62,7 @@ class _PolylinePerfStressPageState extends State<PolylinePerfStressPage> {
               ),
             ),
             children: [
-              openStreetMapTileLayer,
+              const PrimaryTileLayer(),
               PolylineLayer(
                 simplificationTolerance: simplificationTolerance,
                 polylines: [

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 /// Allows descendents of [FlutterMap] to access the [MapCamera], [MapOptions]

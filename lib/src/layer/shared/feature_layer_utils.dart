@@ -83,28 +83,20 @@ mixin FeatureLayerUtils on CustomPainter {
 
     if (worldWidth == 0) return false;
 
-    negativeWorldsLoop:
-    for (double shift = -worldWidth;; shift -= worldWidth) {
-      protectInfiniteLoop();
-      switch (work(shift)) {
-        case WorldWorkControl.hit:
-          return true;
-        case WorldWorkControl.invisible:
-          break negativeWorldsLoop;
-        case WorldWorkControl.visible:
+    bool workInDirection(double worldShift) {
+      for (double shift = worldShift;; shift += worldShift) {
+        protectInfiniteLoop();
+        switch (work(shift)) {
+          case WorldWorkControl.hit:
+            return true;
+          case WorldWorkControl.invisible:
+            return false;
+          case WorldWorkControl.visible:
+        }
       }
     }
 
-    for (double shift = worldWidth;; shift += worldWidth) {
-      protectInfiniteLoop();
-      switch (work(shift)) {
-        case WorldWorkControl.hit:
-          return true;
-        case WorldWorkControl.invisible:
-          return false;
-        case WorldWorkControl.visible:
-      }
-    }
+    return workInDirection(-worldWidth) || workInDirection(worldWidth);
   }
 
   /// Returns the world size in pixels.
