@@ -65,6 +65,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   bool _dragMode = false;
   int _gestureWinner = MultiFingerGesture.none;
   int _pointerCounter = 0;
+  PointerDeviceKind? _lastPointerKind;
   bool _isListeningForInterruptions = false;
 
   var _rotationStarted = false;
@@ -182,6 +183,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _keyboardListenerFocusNode.dispose();
     }
     _disposeKeyboardAnimations();
+    _isPanLeaping.dispose();
+    _isZoomLeaping.dispose();
+    _isRotateLeaping.dispose();
 
     super.dispose();
   }
@@ -381,6 +385,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _onPointerDown(PointerDownEvent event) {
     ++_pointerCounter;
+    _lastPointerKind = event.kind;
 
     if (_ckrTriggered.value) {
       _ckrInitialDegrees = _camera.rotation;
@@ -555,7 +560,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       return;
     }
 
-    final currentRotation = details.rotation * radians2Degrees;
+    // `details.rotation` is a raw difference of two `atan2` angles: two fingers
+    // side by side rotated by 4° may report -356°. Normalise to [-180, 180).
+    final currentRotation =
+        (details.rotation * radians2Degrees + 180) % 360 - 180;
     if (_dragMode) {
       _handleScaleDragUpdate(details);
     } else if (InteractiveFlag.hasMultiFinger(_interactionOptions.flags)) {
@@ -597,7 +605,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     if (hasGestureRace && _gestureWinner == MultiFingerGesture.none) {
       final gestureWinner = _determineMultiFingerGestureWinner(
-        _interactionOptions.rotationThreshold,
         currentRotation,
         details.scale,
         details.localFocalPoint,
@@ -704,7 +711,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     ScaleUpdateDetails details,
     double currentRotation,
   ) {
-    if (!_rotationStarted && currentRotation != 0.0) {
+    if (!_rotationStarted &&
+        currentRotation != 0.0 &&
+        currentRotation.abs() >= _interactionOptions.rotationThreshold) {
       _rotationStarted = true;
       widget.controller.rotateStarted(MapEventSource.onMultiFinger);
     }
@@ -729,8 +738,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
   }
 
-  int? _determineMultiFingerGestureWinner(double rotationThreshold,
-      double currentRotation, double scale, Offset focalOffset) {
+  int? _determineMultiFingerGestureWinner(
+    double currentRotation,
+    double scale,
+    Offset focalOffset,
+  ) {
     final int winner;
     if (InteractiveFlag.hasPinchZoom(_interactionOptions.flags) &&
         (_getZoomForScale(_mapZoomStart, scale) - _mapZoomStart).abs() >=
@@ -740,7 +752,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       }
       winner = MultiFingerGesture.pinchZoom;
     } else if (InteractiveFlag.hasRotate(_interactionOptions.flags) &&
-        currentRotation.abs() >= rotationThreshold) {
+        currentRotation.abs() >= _interactionOptions.rotationThreshold) {
       if (_interactionOptions.debugMultiFingerGestureWinner) {
         debugPrint('Multi Finger Gesture winner: Rotate');
       }
@@ -799,7 +811,16 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       flingOffset: flingOffset,
       // `magnitude` is checked to be non-zero above, so this is always a
       // finite, non-zero-length direction and is a safe final fallback.
-      velocityDirection: details.velocity.pixelsPerSecond / magnitude,
+      // Negated so that it shares the convention of the tracked offsets,
+      // which run opposite to the pointer motion.
+      velocityDirection: -details.velocity.pixelsPerSecond / magnitude,
+      // On touch devices the pointer cannot leave the window mid-drag (the
+      // case the tracked offsets handle better than the velocity, see
+      // #2158), and the velocity - fitted over multiple recent samples - is
+      // far more stable than the final tracked segment: deriving the
+      // direction from the single last, noisy pointer segment sends fast
+      // swipes off-axis, so repeated flicks visibly zigzag.
+      preferVelocityDirection: _lastPointerKind == PointerDeviceKind.touch,
     );
     final distance = (Offset.zero & _camera.nonRotatedSize).shortestSide;
 
@@ -821,8 +842,19 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   /// Calculates the direction a fling gesture should continue in.
   ///
-  /// Prefers the direction of the final tracked pointer segment, falling
-  /// back to the overall drag direction. If both [finalSegment] and
+  /// All three candidate vectors must share the same convention: the
+  /// direction the tracked pointer offsets travel in, i.e. opposite to the
+  /// pointer motion.
+  ///
+  /// With [preferVelocityDirection] the (already normalized)
+  /// [velocityDirection] is used directly: the velocity is fitted over
+  /// multiple recent samples and is therefore much more stable than the
+  /// final tracked segment. This is the right choice for touch input, where
+  /// the pointer cannot leave the window mid-drag.
+  ///
+  /// Otherwise prefers the direction of the final tracked pointer segment,
+  /// falling back to the overall drag direction - which handles the pointer
+  /// leaving the window on web/desktop (#2158). If both [finalSegment] and
   /// [flingOffset] have zero length - which can happen even when the
   /// gesture recognizer reports a velocity above the fling threshold, since
   /// the velocity is fitted over multiple recent samples and is not
@@ -834,7 +866,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     required Offset finalSegment,
     required Offset flingOffset,
     required Offset velocityDirection,
+    required bool preferVelocityDirection,
   }) {
+    if (preferVelocityDirection) return velocityDirection;
+
     final finalSegmentDistance = finalSegment.distance;
     if (finalSegmentDistance > 0) return finalSegment / finalSegmentDistance;
 
