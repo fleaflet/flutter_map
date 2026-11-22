@@ -72,7 +72,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ["3.27.0", ""]
+        sdk: ["3.27.0", "3.47.0"]
     defaults:
       run:
         working-directory: ./example
@@ -95,7 +95,7 @@ jobs:
       - name: Rename output APK
         run: mv build/app/outputs/apk/release/app-release.apk build/app/outputs/apk/release/android-demo.apk
       - name: Upload as artifact
-        if: ${{ matrix.sdk == '' }}
+        if: ${{ matrix.sdk == '3.47.0' }}
         uses: actions/upload-artifact@v7
         with:
           path: example/build/app/outputs/apk/release/android-demo.apk
