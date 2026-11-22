@@ -4,22 +4,37 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
-## [8.4.0-dev.1] - 2026/09/02
+## [8.4.0] - 2026/11/xx
+
+(including prerelease on 2026/09/02)
 
 Contains the following user-affecting changes:
 
 - Added smooth scrolling when using mouse wheel - [#2198](https://github.com/fleaflet/flutter_map/pull/2198)
 - Added ability to use meters to size `Marker`s - [#2106](https://github.com/fleaflet/flutter_map/pull/2106)
+- Added new `SimpleAttributionLayer` (deprecating `SimpleAttributionWidget`) - [#2264](https://github.com/fleaflet/flutter_map/pull/2264) for [#2261](https://github.com/fleaflet/flutter_map/issues/2261)
+- Added new `PlaceholderGridLayer`, shown by default* as the map background - [#2259](https://github.com/fleaflet/flutter_map/pull/2259)
 
 Contains the following user-affecting bug fixes:
 
 - Prevent `RangeError` in `Proj4Crs.scale`/`zoom` for out-of-range values - [#2209](https://github.com/fleaflet/flutter_map/pull/2209) for [#1358](https://github.com/fleaflet/flutter_map/issues/1358) & [#1223](https://github.com/fleaflet/flutter_map/issues/1223)
+- Prefer imports from 'pkg:flutter/widgets.dart' instead of 'material' - [#2254](https://github.com/fleaflet/flutter_map/pull/2254) for [#2256](https://github.com/fleaflet/flutter_map/issues/2256)
+- Keep tiles from other zoom levels shown in place of failed tiles - [#2274](https://github.com/fleaflet/flutter_map/pull/2274) for [#2273](https://github.com/fleaflet/flutter_map/issues/2273)
+- Prevent two-finger rotation gesture cheating in multi-finger gesture race - [#2276](https://github.com/fleaflet/flutter_map/pull/2276) for [#2275](https://github.com/fleaflet/flutter_map/issues/2275)
+- Plug memory leak by disposing internal notifiers - [#2296](https://github.com/fleaflet/flutter_map/pull/2296)
+- Workaround Dart compliation bug on Web platform when debugging to prevent crashes of feature layers - [#2299](https://github.com/fleaflet/flutter_map/pull/2299) for [#2234](https://github.com/fleaflet/flutter_map/issues/2234)
+- Correct touch gesture fling direction - [#2226](https://github.com/fleaflet/flutter_map/pull/2226) for [#2225](https://github.com/fleaflet/flutter_map/issues/2225)
+- Respect `InteractionOptions.rotationThreshold` even when not multi-finger gesture racing - [#2249](https://github.com/fleaflet/flutter_map/pull/2249) for [#2232](https://github.com/fleaflet/flutter_map/issues/2232)
 
 Many thanks to these contributors (in no particular order):
 
 - @vinlet
 - @LeonTenorio
 - @AlexLaroche
+- @ben-milanko
+- @WudgeJalk
+- @ZaraclaJ
+- @JonasGrunau
 - ... and all the maintainers
 
 ## [8.3.2] - 2026/08/27
