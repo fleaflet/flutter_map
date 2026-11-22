@@ -83,10 +83,6 @@ mixin FeatureLayerUtils on CustomPainter {
 
     if (worldWidth == 0) return false;
 
-    // Each direction leaves its loop with a `return`, never with a labeled
-    // `break` from inside the `switch`: DDC (Dart 3.14) compiles the latter to
-    // a `break` of the `switch` only, so the loop never ends.
-    // See https://github.com/dart-lang/sdk/issues/64941.
     bool workInDirection(double worldShift) {
       for (double shift = worldShift;; shift += worldShift) {
         protectInfiniteLoop();
