@@ -605,7 +605,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     if (hasGestureRace && _gestureWinner == MultiFingerGesture.none) {
       final gestureWinner = _determineMultiFingerGestureWinner(
-        _interactionOptions.rotationThreshold,
         currentRotation,
         details.scale,
         details.localFocalPoint,
@@ -712,7 +711,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     ScaleUpdateDetails details,
     double currentRotation,
   ) {
-    if (!_rotationStarted && currentRotation != 0.0) {
+    if (!_rotationStarted &&
+        currentRotation != 0.0 &&
+        currentRotation.abs() >= _interactionOptions.rotationThreshold) {
       _rotationStarted = true;
       widget.controller.rotateStarted(MapEventSource.onMultiFinger);
     }
@@ -737,8 +738,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
   }
 
-  int? _determineMultiFingerGestureWinner(double rotationThreshold,
-      double currentRotation, double scale, Offset focalOffset) {
+  int? _determineMultiFingerGestureWinner(
+    double currentRotation,
+    double scale,
+    Offset focalOffset,
+  ) {
     final int winner;
     if (InteractiveFlag.hasPinchZoom(_interactionOptions.flags) &&
         (_getZoomForScale(_mapZoomStart, scale) - _mapZoomStart).abs() >=
@@ -748,7 +752,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       }
       winner = MultiFingerGesture.pinchZoom;
     } else if (InteractiveFlag.hasRotate(_interactionOptions.flags) &&
-        currentRotation.abs() >= rotationThreshold) {
+        currentRotation.abs() >= _interactionOptions.rotationThreshold) {
       if (_interactionOptions.debugMultiFingerGestureWinner) {
         debugPrint('Multi Finger Gesture winner: Rotate');
       }
