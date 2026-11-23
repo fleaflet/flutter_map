@@ -3,9 +3,8 @@ import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_cover.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_view.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_renderer.dart';
 
 /// Callback definition to create a [TileImage] for [TileCoordinates].
@@ -48,7 +47,7 @@ class TileImageManager {
   ///   2. Tiles at non-target zoom level that would cover up holes that would
   ///      be left by tiles in #1, which are not ready yet.
   Iterable<TileRenderer> getTilesToRender({
-    required DiscreteTileRange visibleRange,
+    required TileCover visibleRange,
   }) {
     final Iterable<TileCoordinates> positionCoordinates = _getTileImageView(
       visibleRange: visibleRange,
@@ -67,8 +66,8 @@ class TileImageManager {
   }
 
   TileImageView _getTileImageView({
-    required DiscreteTileRange visibleRange,
-    required DiscreteTileRange keepRange,
+    required TileCover visibleRange,
+    required TileCover keepRange,
   }) =>
       TileImageView(
         tileImages: _tiles,
@@ -83,16 +82,17 @@ class TileImageManager {
       .map((e) => e.coordinates)
       .every((coord) => coord.z > maxZoom || coord.z < minZoom);
 
-  /// Creates missing [TileImage]s within the provided tile range. Returns a
-  /// list of [TileImage]s which haven't started loading yet.
+  /// Creates missing [TileImage]s for the tiles of [tileCover] that are valid
+  /// within [tileBounds]. Returns a list of [TileImage]s which haven't started
+  /// loading yet.
   List<TileImage> createMissingTiles(
-    DiscreteTileRange tileRange,
-    TileBoundsAtZoom tileBoundsAtZoom, {
+    TileCover tileCover,
+    TileBounds tileBounds, {
     required TileCreator createTile,
   }) {
     final notLoaded = <TileImage>[];
 
-    for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
+    for (final coordinates in tileCover.validCoordinatesIn(tileBounds)) {
       final cleanCoordinates = _resolver.get(coordinates);
       TileImage? tile = _tiles[cleanCoordinates];
       if (tile == null) {
@@ -188,7 +188,7 @@ class TileImageManager {
 
   /// evict tiles that have an error and prune tiles that are no longer needed.
   void evictAndPrune({
-    required DiscreteTileRange visibleRange,
+    required TileCover visibleRange,
     required int pruneBuffer,
     required EvictErrorTileStrategy evictStrategy,
   }) {
@@ -223,7 +223,7 @@ class TileImageManager {
 
   /// Prune tiles from the [TileImageManager].
   void prune({
-    required DiscreteTileRange visibleRange,
+    required TileCover visibleRange,
     required int pruneBuffer,
     required EvictErrorTileStrategy evictStrategy,
   }) {
