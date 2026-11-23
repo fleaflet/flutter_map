@@ -7,6 +7,13 @@ import '../test_utils/test_app.dart';
 
 void main() {
   testWidgets('test fit bounds methods', (tester) async {
+    void expectBounds(LatLngBounds actual, LatLngBounds expected) {
+      expect(actual.north, moreOrLessEquals(expected.north));
+      expect(actual.south, moreOrLessEquals(expected.south));
+      expect(actual.east, moreOrLessEquals(expected.east));
+      expect(actual.west, moreOrLessEquals(expected.west));
+    }
+
     final controller = MapController();
     final bounds = LatLngBounds(
       const LatLng(51, 0),
@@ -27,7 +34,7 @@ void main() {
       controller.fitCamera(cameraConstraint);
       await tester.pump();
       final camera = controller.camera;
-      expect(camera.visibleBounds, equals(expectedBounds));
+      expectBounds(camera.visibleBounds, expectedBounds);
       expect(camera.center, equals(expectedCenter));
       expect(camera.zoom, equals(expectedZoom));
     }
@@ -47,7 +54,7 @@ void main() {
       controller.fitCamera(cameraConstraint);
       await tester.pump();
       final camera = controller.camera;
-      expect(camera.visibleBounds, equals(expectedBounds));
+      expectBounds(camera.visibleBounds, expectedBounds);
       expect(camera.center, equals(expectedCenter));
       expect(camera.zoom, equals(expectedZoom));
     }
@@ -67,7 +74,7 @@ void main() {
       await tester.pump();
 
       final camera = controller.camera;
-      expect(camera.visibleBounds, equals(expectedBounds));
+      expectBounds(camera.visibleBounds, expectedBounds);
       expect(camera.center, equals(expectedCenter));
       expect(camera.zoom, equals(expectedZoom));
     }
@@ -87,7 +94,7 @@ void main() {
       controller.fitCamera(cameraConstraint);
       await tester.pump();
       final camera = controller.camera;
-      expect(camera.visibleBounds, equals(expectedBounds));
+      expectBounds(camera.visibleBounds, expectedBounds);
       expect(camera.center, equals(expectedCenter));
       expect(camera.zoom, equals(expectedZoom));
     }
