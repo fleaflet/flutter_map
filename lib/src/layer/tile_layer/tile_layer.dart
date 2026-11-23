@@ -26,6 +26,9 @@ part 'wms_tile_layer_options.dart';
 ///
 /// Read the [online documentation](https://docs.fleaflet.dev/layers/tile-layer)
 /// to get started by following the recommended setup.
+///
+/// When the map is pitched, the layer loads more tiles: up to 7.5 times as many
+/// at a pitch of 60° as when the map is not pitched.
 @immutable
 class TileLayer extends StatefulWidget {
   /// The URL template is a string that contains placeholders, which, when filled

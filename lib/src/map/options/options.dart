@@ -75,22 +75,6 @@ class MapOptions {
 
   /// The largest pitch, in degrees, that the map allows. Defaults to 0, which
   /// keeps the map unpitched. Must be in the range from 0 to [pitchLimit].
-  ///
-  /// When the map is pitched:
-  ///
-  ///  * layers in a [MobileLayerTransformer] lie on the ground, drawn in
-  ///    perspective; [MapCamera.size], [MapCamera.pixelOrigin] and
-  ///    [MapCamera.pixelBounds] describe the rectangle that contains the
-  ///    visible ground, which is not centered on [MapCamera.center]
-  ///  * markers and polygon labels face the viewer, in a
-  ///    [BillboardLayerTransformer]
-  ///  * a layer that computes screen positions itself, instead of drawing at
-  ///    `projectAtZoom(coordinate) - pixelOrigin`, must use
-  ///    [MapCamera.latLngToScreenOffset] and [MapCamera.screenOffsetToLatLng]
-  ///  * [CameraFit] and [CameraConstraint] compute as if the map were not
-  ///    pitched
-  ///  * the tile layer loads up to 7.5 times as many tiles at 60° as when
-  ///    unpitched
   final double maxPitch;
 
   /// The largest [maxPitch] that takes effect. Above it, the visible ground

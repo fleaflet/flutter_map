@@ -10,6 +10,8 @@ import 'package:meta/meta.dart';
 /// This separate from constraints that may be imposed by the chosen CRS.
 ///
 /// Positioning is handled by [CameraFit].
+///
+/// Constraints are computed as if the map were not pitched.
 @immutable
 abstract class CameraConstraint {
   /// Describes a boundary for a [MapCamera], that cannot be exceeded by movement

@@ -1,8 +1,16 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/layer/shared/billboard_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 
-/// Transforms a [child] widget tree into a layer that can move and rotate based
-/// on the [MapCamera]
+/// Places a [child] widget tree on the ground, so that it moves, rotates and
+/// pitches with the [MapCamera]
+///
+/// The child is laid out in [MapCamera.size], with its top-left corner at
+/// [MapCamera.pixelOrigin], so draw a coordinate at
+/// `projectAtZoom(coordinate) - pixelOrigin`. Use it for content that lies on
+/// the ground, such as tiles and polygons. Content that should face the
+/// viewer, such as markers and labels, belongs in a
+/// [BillboardLayerTransformer].
 class MobileLayerTransformer extends StatelessWidget {
   /// Transforms a [child] widget tree into a layer that can move and rotate based
   /// on the [MapCamera].

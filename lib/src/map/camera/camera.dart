@@ -391,7 +391,10 @@ class MapCamera {
   Offset getNewPixelOrigin(LatLng center, [double? zoom]) =>
       (projectAtZoom(center, zoom) + _visibleGroundFromCenter.topLeft).round();
 
-  /// Calculates the pixel bounds of this [MapCamera]. This value is cached.
+  /// Calculates the pixel bounds of this [MapCamera]: the rectangle described
+  /// by [pixelOrigin] and [size]. This value is cached.
+  ///
+  /// When the map is pitched, the rectangle is not centered on [center].
   Rect get pixelBounds =>
       _pixelBounds ?? (_pixelBounds = pixelBoundsAtZoom(zoom));
 
@@ -405,7 +408,8 @@ class MapCamera {
   }
 
   /// This will convert a latLng to a position that we could use with a widget
-  /// outside of FlutterMap layer space. Eg using a Positioned Widget.
+  /// outside of FlutterMap layer space. Eg using a Positioned Widget. The
+  /// position includes the map's rotation and pitch.
   Offset latLngToScreenOffset(LatLng latLng) =>
       MatrixUtils.transformPoint(_pixelToScreen, projectAtZoom(latLng));
 
