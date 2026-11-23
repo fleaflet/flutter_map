@@ -176,16 +176,21 @@ class _ExpandableAttributionLayerState
       widget.initialExpansionDuration != Duration.zero;
 
   StreamSubscription<MapEvent>? _mapEventSubscription;
-  late final _minimizeTimer = _useInitialExpansion &&
-          widget.initialExpansionDuration != null
-      ? Timer(widget.initialExpansionDuration!, () => _isExpanded.value = false)
-      : null;
+  late final Timer? _minimizeTimer;
 
   late final _isExpanded = ValueNotifier(_useInitialExpansion);
 
   @override
   void initState() {
     super.initState();
+
+    _minimizeTimer =
+        _useInitialExpansion && widget.initialExpansionDuration != null
+            ? Timer(
+                widget.initialExpansionDuration!,
+                () => _isExpanded.value = false,
+              )
+            : null;
 
     void minimizeOnMapEvent() {
       _mapEventSubscription = MapController.of(context).mapEventStream.listen(
