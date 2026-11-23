@@ -16,6 +16,11 @@ import 'package:flutter_map/src/map/widget.dart';
 class SimpleAttributionLayer extends StatelessWidget {
   /// Color of the box containing the [child].
   ///
+  /// The child will be wrapped in a [DefaultTextStyle] (which inherits) which
+  /// will set the default text color to, where possible, a contrasting color.
+  /// This can be overriden by providing a new text style, either manually or
+  /// with an overriding [DefaultTextStyle].
+  ///
   /// Defaults to [MapOptions.backgroundColor] if this layer is within a
   /// [FlutterMap], or the default light gray background colour otherwise.
   final Color? backgroundColor;
@@ -37,7 +42,7 @@ class SimpleAttributionLayer extends StatelessWidget {
   });
 
   /// A simple attribution box which displays one line of text, optionally as
-  /// in a hyperlink style when [onTap] is set.
+  /// in a hyperlink style (with underline) when [onTap] is set.
   SimpleAttributionLayer.singleLink({
     super.key,
     required String text,
@@ -46,39 +51,51 @@ class SimpleAttributionLayer extends StatelessWidget {
     bool showFlutterMapPrefix = false,
     this.backgroundColor,
     this.alignment = Alignment.bottomRight,
-  }) : child = Text.rich(
-          TextSpan(
-            children: [
-              if (showFlutterMapPrefix) const TextSpan(text: 'flutter_map | '),
-              TextSpan(
-                text: text,
-                style: textStyle ??
-                    (onTap == null
-                        ? null
-                        : const TextStyle(
-                            color: Color(0xFF3366CC),
-                            decorationColor: Color(0xFF3366CC),
-                            decoration: TextDecoration.underline,
-                          )),
-                recognizer: onTap == null
-                    ? null
-                    : (TapGestureRecognizer()..onTap = onTap),
-              ),
-            ],
+  }) : child = Builder(
+          builder: (context) => Text.rich(
+            TextSpan(
+              children: [
+                if (showFlutterMapPrefix)
+                  const TextSpan(text: 'flutter_map | '),
+                TextSpan(
+                  text: text,
+                  style: textStyle ??
+                      (onTap == null
+                          ? null
+                          : TextStyle(
+                              decoration: TextDecoration.underline,
+                              decorationColor:
+                                  DefaultTextStyle.of(context).style.color,
+                            )),
+                  recognizer: onTap == null
+                      ? null
+                      : (TapGestureRecognizer()..onTap = onTap),
+                ),
+              ],
+            ),
           ),
         );
 
   @override
   Widget build(BuildContext context) {
+    final backgroundColor = this.backgroundColor ??
+        MapOptions.maybeOf(context)?.backgroundColor ??
+        const Color(0xFFE0E0E0);
+
     return Align(
       alignment: alignment,
       child: ColoredBox(
-        color: backgroundColor ??
-            MapOptions.maybeOf(context)?.backgroundColor ??
-            const Color(0xFFE0E0E0),
+        color: backgroundColor,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-          child: child,
+          child: DefaultTextStyle.merge(
+            style: TextStyle(
+              color: HSLColor.fromColor(backgroundColor).lightness > 0.5
+                  ? const Color(0xFF000000)
+                  : const Color(0xFFFFFFFF),
+            ),
+            child: child,
+          ),
         ),
       ),
     );
