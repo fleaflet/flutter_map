@@ -27,7 +27,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   late Offset _flingMapCenterStartPoint;
 
   /// The ground offsets, in projected pixels, of a one-pixel screen step along
-  /// x and along y at the viewport center, when the fling started.
+  /// x and along y at the viewport center, when the fling started. They include
+  /// the map's rotation and pitch.
   late (Offset, Offset) _flingGroundAxes;
 
   /// Constructor of the [MapController] implementation for internal usage.
