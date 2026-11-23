@@ -13,6 +13,9 @@ import 'package:flutter_map/src/map/widget.dart';
 /// design intended for a single source with optional hyperlink styling and tap
 /// detector can be built using the [SimpleAttributionLayer.singleLink]
 /// constructor.
+///
+/// Consider wrapping this layer in a [SafeArea] to ensure it's not obscured
+/// by the system.
 class SimpleAttributionLayer extends StatelessWidget {
   /// Color of the box containing the [child].
   ///

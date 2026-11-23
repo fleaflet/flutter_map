@@ -42,80 +42,78 @@ class _ExpandInfoButton extends StatelessWidget {
         ),
         child: child,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(2),
-        child: RawTooltip(
-          hoverDelay: const Duration(milliseconds: 500),
-          semanticsTooltip: tooltipText,
-          positionDelegate: (context) => Offset(
-            context.target.dx +
-                direction *
-                    ((direction == 1 ? 0 : context.tooltipSize.width) +
-                        context.targetSize.width / 2 +
-                        8),
-            context.target.dy - context.tooltipSize.height / 2,
-          ),
-          tooltipBuilder: (context, animation) => FadeTransition(
-            opacity: animation,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: isExpanded ? foregroundColor : backgroundColor,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                child: Text(
-                  tooltipText,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isExpanded ? backgroundColor : foregroundColor,
-                  ),
+      child: RawTooltip(
+        hoverDelay: const Duration(milliseconds: 500),
+        semanticsTooltip: tooltipText,
+        positionDelegate: (context) => Offset(
+          context.target.dx +
+              direction *
+                  ((direction == 1 ? 0 : context.tooltipSize.width) +
+                      context.targetSize.width / 2 +
+                      6),
+          context.target.dy - context.tooltipSize.height / 2,
+        ),
+        tooltipBuilder: (context, animation) => FadeTransition(
+          opacity: animation,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: isExpanded ? foregroundColor : backgroundColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              child: Text(
+                tooltipText,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isExpanded ? backgroundColor : foregroundColor,
                 ),
               ),
             ),
           ),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: toggleExpanded,
-              child: Padding(
-                padding: const EdgeInsets.all(2),
-                child: customButtonIconBuilder?.call(context, isExpanded) ??
-                    SizedBox.square(
-                      dimension: 18,
-                      child: AnimatedCrossFade(
-                        crossFadeState: isExpanded
-                            ? CrossFadeState.showSecond
-                            : CrossFadeState.showFirst,
-                        duration: animationDuration,
-                        firstCurve: Curves.easeIn,
-                        secondCurve: Curves.easeOut,
-                        sizeCurve: Curves.easeInOut,
-                        firstChild: SvgPicture(
-                          key: const ValueKey('filled'),
-                          const AssetBytesLoader(
-                            'lib/assets/info_icon_filled.svg.vec',
-                            packageName: 'flutter_map',
-                          ),
-                          colorFilter: ColorFilter.mode(
-                            foregroundColor,
-                            BlendMode.srcIn,
-                          ),
+        ),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: toggleExpanded,
+            behavior: HitTestBehavior.translucent,
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: customButtonIconBuilder?.call(context, isExpanded) ??
+                  SizedBox.square(
+                    dimension: 20,
+                    child: AnimatedCrossFade(
+                      crossFadeState: isExpanded
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      duration: animationDuration,
+                      firstCurve: Curves.easeIn,
+                      secondCurve: Curves.easeOut,
+                      sizeCurve: Curves.easeInOut,
+                      firstChild: SvgPicture(
+                        key: const ValueKey('filled'),
+                        const AssetBytesLoader(
+                          'lib/assets/info_icon_filled.svg.vec',
+                          packageName: 'flutter_map',
                         ),
-                        secondChild: SvgPicture(
-                          key: const ValueKey('outline'),
-                          const AssetBytesLoader(
-                            'lib/assets/info_icon_outline.svg.vec',
-                            packageName: 'flutter_map',
-                          ),
-                          colorFilter: ColorFilter.mode(
-                            backgroundColor,
-                            BlendMode.srcIn,
-                          ),
+                        colorFilter: ColorFilter.mode(
+                          foregroundColor,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      secondChild: SvgPicture(
+                        key: const ValueKey('outline'),
+                        const AssetBytesLoader(
+                          'lib/assets/info_icon_outline.svg.vec',
+                          packageName: 'flutter_map',
+                        ),
+                        colorFilter: ColorFilter.mode(
+                          backgroundColor,
+                          BlendMode.srcIn,
                         ),
                       ),
                     ),
-              ),
+                  ),
             ),
           ),
         ),

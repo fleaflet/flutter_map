@@ -115,7 +115,9 @@ class RichAttributionLayer extends StatefulWidget {
   /// );
   /// ```
   ///
-  /// Usually, the text should be displayed on a single line.
+  /// Usually, the text should be displayed on a single line. If it's long, it
+  /// can either wrap over multiple lines, or it could be forced onto a single
+  /// line within some scrolling viewport.
   final Widget expandedChild;
 
   /// Default handler for [minimizeOnMapEvent].
@@ -206,7 +208,7 @@ class _RichAttributionLayerState extends State<RichAttributionLayer> {
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(15),
           ),
           child: IntrinsicHeight(
             child: ValueListenableBuilder(
@@ -224,10 +226,7 @@ class _RichAttributionLayerState extends State<RichAttributionLayer> {
                   ),
                   child: isExpanded
                       ? Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 3,
-                          ),
+                          padding: const EdgeInsets.fromLTRB(8, 3, 6, 3),
                           child: widget.expandedChild,
                         )
                       : const SizedBox.shrink(),
