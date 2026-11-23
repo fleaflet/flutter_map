@@ -474,6 +474,26 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Call this when a pitch gesture starts.
+  void pitchStarted(MapEventSource source) {
+    _emitMapEvent(
+      MapEventPitchStart(
+        camera: camera,
+        source: source,
+      ),
+    );
+  }
+
+  /// Call this when a pitch gesture ends.
+  void pitchEnded(MapEventSource source) {
+    _emitMapEvent(
+      MapEventPitchEnd(
+        camera: camera,
+        source: source,
+      ),
+    );
+  }
+
   /// To be called when a fling gesture starts.
   void flingStarted(MapEventSource source) {
     _emitMapEvent(
