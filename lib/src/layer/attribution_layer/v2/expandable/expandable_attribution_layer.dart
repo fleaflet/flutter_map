@@ -38,6 +38,8 @@ class ExpandableAttributionLayer extends StatefulWidget {
 
   /// Alignment of the box relative to the map widget.
   ///
+  /// Usually a corner is used, often the bottom right corner.
+  ///
   /// Defaults to displaying at the bottom right of the map.
   final Alignment alignment;
 
@@ -79,6 +81,18 @@ class ExpandableAttributionLayer extends StatefulWidget {
   /// Defaults to English: "Show attribution" when minimised, "Hide attribution"
   /// when expanded.
   final String Function(bool expanded)? customButtonTooltipTextBuilder;
+
+  /// Optional widget shown adjacent to icon button that moves out of the way
+  /// of the [expandedChild] as necessary.
+  ///
+  /// This is useful to display required attribution logo images which must
+  /// always be visible, and easily adjacent to the rest of the attributions.
+  ///
+  /// [expandedChild] will not overlap with this. If this is wanted in a
+  /// different position (such as the opposite corner as is common), or wants to
+  /// allow overlapping, then manually place the widget into the map layer
+  /// stack.
+  final Widget? adjacentPersistentChild;
 
   /// Widget to show when the attribution layer is expanded.
   ///
@@ -129,6 +143,7 @@ class ExpandableAttributionLayer extends StatefulWidget {
         ExpandableAttributionLayer.defaultMinimizeOnMapEvent,
     this.customButtonIconBuilder,
     this.customButtonTooltipTextBuilder,
+    this.adjacentPersistentChild,
     required this.expandedChild,
   });
 
@@ -211,60 +226,75 @@ class _ExpandableAttributionLayerState
         (HSLColor.fromColor(backgroundColor).lightness > 0.5
             ? const Color(0xFF000000)
             : const Color(0xFFFFFFFF));
-
     final direction = widget.alignment.x > 0 ? -1 : 1;
+
+    final attributionMainPanel = DecoratedBox(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: IntrinsicHeight(
+        child: ValueListenableBuilder(
+          valueListenable: _isExpanded,
+          builder: (context, isExpanded, _) {
+            final expandedAttribution = AnimatedSwitcher(
+              duration: widget.animationDuration,
+              switchInCurve: Curves.easeInOut,
+              switchOutCurve: Curves.easeInOut,
+              transitionBuilder: (child, animation) => SizeTransition(
+                sizeFactor: animation,
+                axis: Axis.horizontal,
+                alignment: Alignment(-widget.alignment.x, 0),
+                child: child,
+              ),
+              child: isExpanded
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 3, 6, 3),
+                      child: widget.expandedChild,
+                    )
+                  : const SizedBox.shrink(),
+            );
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (direction == -1) Flexible(child: expandedAttribution),
+                _ExpandInfoButton(
+                  isExpanded: isExpanded,
+                  toggleExpanded: () => _isExpanded.value = !isExpanded,
+                  backgroundColor: backgroundColor,
+                  animationDuration: widget.animationDuration,
+                  direction: direction,
+                  customButtonIconBuilder: widget.customButtonIconBuilder,
+                  customButtonTooltipTextBuilder:
+                      widget.customButtonTooltipTextBuilder,
+                ),
+                if (direction == 1) Flexible(child: expandedAttribution),
+              ],
+            );
+          },
+        ),
+      ),
+    );
 
     return DefaultTextStyle.merge(
       style: TextStyle(color: foregroundColor),
       child: Align(
         alignment: widget.alignment,
-        child: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: IntrinsicHeight(
-            child: ValueListenableBuilder(
-              valueListenable: _isExpanded,
-              builder: (context, isExpanded, _) {
-                final expandedAttribution = AnimatedSwitcher(
-                  duration: widget.animationDuration,
-                  switchInCurve: Curves.easeInOut,
-                  switchOutCurve: Curves.easeInOut,
-                  transitionBuilder: (child, animation) => SizeTransition(
-                    sizeFactor: animation,
-                    axis: Axis.horizontal,
-                    alignment: Alignment(-widget.alignment.x, 0),
-                    child: child,
-                  ),
-                  child: isExpanded
-                      ? Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 3, 6, 3),
-                          child: widget.expandedChild,
-                        )
-                      : const SizedBox.shrink(),
-                );
-
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (direction == -1) Flexible(child: expandedAttribution),
-                    _ExpandInfoButton(
-                      isExpanded: isExpanded,
-                      toggleExpanded: () => _isExpanded.value = !isExpanded,
-                      backgroundColor: backgroundColor,
-                      animationDuration: widget.animationDuration,
-                      direction: direction,
-                      customButtonIconBuilder: widget.customButtonIconBuilder,
-                      customButtonTooltipTextBuilder:
-                          widget.customButtonTooltipTextBuilder,
-                    ),
-                    if (direction == 1) Flexible(child: expandedAttribution),
-                  ],
-                );
-              },
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 8,
+            children: [
+              if (direction == -1)
+                if (widget.adjacentPersistentChild != null)
+                  widget.adjacentPersistentChild!,
+              Flexible(child: attributionMainPanel),
+              if (direction == 1)
+                if (widget.adjacentPersistentChild != null)
+                  widget.adjacentPersistentChild!,
+            ],
           ),
         ),
       ),
