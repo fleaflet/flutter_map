@@ -27,6 +27,7 @@ export 'package:flutter_map/src/layer/attribution_layer/v1/rich/animation.dart';
 export 'package:flutter_map/src/layer/attribution_layer/v1/rich/source.dart';
 export 'package:flutter_map/src/layer/attribution_layer/v1/rich/widget.dart';
 export 'package:flutter_map/src/layer/attribution_layer/v1/simple.dart';
+export 'package:flutter_map/src/layer/attribution_layer/v2/rich/rich_attribution_layer.dart';
 export 'package:flutter_map/src/layer/attribution_layer/v2/simple/simple_attribution_layer.dart';
 export 'package:flutter_map/src/layer/circle_layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/marker_layer/marker_layer.dart';

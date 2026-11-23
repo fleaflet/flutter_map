@@ -110,6 +110,7 @@ abstract class MapEventWithMove extends MapEvent {
   static MapEventWithMove? fromSource({
     required MapCamera oldCamera,
     required MapCamera camera,
+    // TODO: Why aren't we using this?
     required bool hasGesture,
     required MapEventSource source,
     String? id,
