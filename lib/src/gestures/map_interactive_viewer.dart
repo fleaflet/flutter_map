@@ -81,7 +81,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   late double _lastScale;
   late Offset _lastFocalLocal;
   late Offset _prevFocalLocal;
-  late LatLng _mapCenterStart;
   late double _mapZoomStart;
   late Offset _focalStartLocal;
   late LatLng _focalStartLatLng;
@@ -89,7 +88,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   late final _flingController = AnimationController(vsync: this);
   late Animation<Offset> _flingAnimation;
 
-  // A fling on a pitched map moves the center from [_flingCenterStart] by
+  // A fling moves the center from [_flingCenterStart] by
   // [_flingGroundStep] for each pixel that the animation advances along
   // [_flingDirection] from [_flingOffset].
   late LatLng _flingCenterStart;
@@ -547,7 +546,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     _gestureWinner = MultiFingerGesture.none;
 
     _mapZoomStart = _camera.zoom;
-    _mapCenterStart = _camera.center;
     _focalStartLocal =
         _lastFocalLocal = _prevFocalLocal = details.localFocalPoint;
     _focalStartLatLng = _camera.offsetToCrs(_focalStartLocal);
@@ -835,14 +833,12 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     );
     final distance = (Offset.zero & _camera.nonRotatedSize).shortestSide;
 
-    if (_camera.pitch != 0) {
-      _flingCenterStart = _camera.center;
-      _flingGroundStep =
-          _groundShift(_lastFocalLocal + direction, _lastFocalLocal) ??
-              _rotateOffset(direction);
-      _flingDirection = direction;
-      _flingOffset = flingOffset;
-    }
+    _flingCenterStart = _camera.center;
+    _flingGroundStep =
+        _groundShift(_lastFocalLocal + direction, _lastFocalLocal) ??
+            _rotateOffset(direction);
+    _flingDirection = direction;
+    _flingOffset = flingOffset;
 
     _flingAnimation = Tween<Offset>(
       begin: flingOffset,
@@ -1035,17 +1031,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _startListeningForAnimationInterruptions();
     }
 
-    final Offset newCenterPoint;
-    if (_camera.pitch == 0) {
-      newCenterPoint = _camera.projectAtZoom(_mapCenterStart) +
-          _flingAnimation.value.rotate(_camera.rotationRad);
-    } else {
-      final advance = _flingAnimation.value - _flingOffset;
-      final pixels =
-          advance.dx * _flingDirection.dx + advance.dy * _flingDirection.dy;
-      newCenterPoint =
-          _camera.projectAtZoom(_flingCenterStart) + _flingGroundStep * pixels;
-    }
+    final advance = _flingAnimation.value - _flingOffset;
+    final pixels =
+        advance.dx * _flingDirection.dx + advance.dy * _flingDirection.dy;
+    final newCenterPoint =
+        _camera.projectAtZoom(_flingCenterStart) + _flingGroundStep * pixels;
     final LatLng newCenter;
     if (!_camera.crs.replicatesWorldLongitude) {
       newCenter = _camera.unprojectAtZoom(newCenterPoint);

@@ -27,9 +27,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   late Offset _flingMapCenterStartPoint;
 
   /// The ground offsets, in projected pixels, of a one-pixel screen step along
-  /// x and along y at the viewport center, when the fling started on a pitched
-  /// map.
-  (Offset, Offset)? _flingGroundAxes;
+  /// x and along y at the viewport center, when the fling started.
+  late (Offset, Offset) _flingGroundAxes;
 
   /// Constructor of the [MapController] implementation for internal usage.
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
@@ -705,16 +704,12 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
     _flingMapCenterStartPoint = camera.projectAtZoom(camera.center);
-    if (camera.pitch == 0) {
-      _flingGroundAxes = null;
-    } else {
-      final center = camera.nonRotatedSize.center(Offset.zero);
-      final ground = camera.groundOffsetFromCenter(center)!;
-      _flingGroundAxes = (
-        camera.groundOffsetFromCenter(center + const Offset(1, 0))! - ground,
-        camera.groundOffsetFromCenter(center + const Offset(0, 1))! - ground,
-      );
-    }
+    final center = camera.nonRotatedSize.center(Offset.zero);
+    final ground = camera.groundOffsetFromCenter(center)!;
+    _flingGroundAxes = (
+      camera.groundOffsetFromCenter(center + const Offset(1, 0))! - ground,
+      camera.groundOffsetFromCenter(center + const Offset(0, 1))! - ground,
+    );
 
     final distance = (Offset.zero & camera.nonRotatedSize).shortestSide;
 
@@ -781,11 +776,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     // fling animation
     if (_flingAnimation != null) {
       final value = _flingAnimation!.value;
-      final newCenterPoint = _flingMapCenterStartPoint +
-          switch (_flingGroundAxes) {
-            null => value.rotate(camera.rotationRad),
-            (final x, final y) => x * value.dx + y * value.dy,
-          };
+      final (x, y) = _flingGroundAxes;
+      final newCenterPoint =
+          _flingMapCenterStartPoint + x * value.dx + y * value.dy;
       moveRaw(
         camera.unprojectAtZoom(newCenterPoint),
         camera.zoom,

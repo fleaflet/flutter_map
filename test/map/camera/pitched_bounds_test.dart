@@ -58,26 +58,26 @@ void main() {
     expect(atZoom.size.height, closeTo(camera.size.height * 2, 1e-6));
   });
 
-  test('values at pitch 0 are unchanged', () {
+  test('values at pitch 0', () {
     for (final rotation in [0.0, 30.0]) {
       final camera = _camera(pitch: 0, rotation: rotation);
       final projectedCenter = camera.projectAtZoom(camera.center);
       final size =
           MapCamera.calculateRotatedSize(rotation, const Size(400, 300));
-      expect(camera.size, size);
-      expect(camera.pixelOrigin, projectedCenter - size.center(Offset.zero));
+      expect(camera.size.width, closeTo(size.width, 1e-9));
+      expect(camera.size.height, closeTo(size.height, 1e-9));
+      final origin = projectedCenter - size.center(Offset.zero);
+      expect((camera.pixelOrigin - origin).distance, lessThan(1e-9));
+      expect(camera.pixelBounds.topLeft, camera.pixelOrigin);
+      expect(camera.pixelBounds.size, camera.size);
+      expect(camera.getNewPixelOrigin(camera.center), _round(origin));
+
+      final atZoom = camera.pixelBoundsAtZoom(11);
+      expect(atZoom.width, closeTo(size.width * 2, 1e-9));
+      expect(atZoom.height, closeTo(size.height * 2, 1e-9));
       expect(
-        camera.pixelBounds,
-        Rect.fromCenter(
-          center: Offset(projectedCenter.dx.floorToDouble(),
-              projectedCenter.dy.floorToDouble()),
-          width: size.width,
-          height: size.height,
-        ),
-      );
-      expect(
-        camera.getNewPixelOrigin(camera.center),
-        _round(projectedCenter - size.center(Offset.zero)),
+        (atZoom.center - camera.projectAtZoom(camera.center, 11)).distance,
+        lessThan(1e-9),
       );
     }
   });

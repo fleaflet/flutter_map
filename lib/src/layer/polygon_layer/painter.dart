@@ -19,22 +19,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   /// Reference to the bounding box of the [Polygon].
   final LatLngBounds bounds;
 
-  /// Whether to draw per-polygon labels ([Polygon.label])
-  ///
-  /// Note that drawing labels will reduce performance, as the internal
-  /// canvas must be drawn to and 'saved' more frequently to ensure the proper
-  /// stacking order is maintained. This can be avoided, potentially at the
-  /// expense of appearance, by setting [PolygonLayer.drawLabelsLast].
-  ///
-  /// It is safe to ignore this property, and the performance pitfalls described
-  /// above, if no [Polygon]s have labels specified.
-  final bool polygonLabels;
-
-  /// Whether to draw labels last and thus over all the polygons
-  ///
-  /// This may improve performance: see [polygonLabels] for more information.
-  final bool drawLabelsLast;
-
   /// See [PolygonLayer.debugAltRenderer]
   final bool debugAltRenderer;
 
@@ -54,8 +38,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   _PolygonPainter({
     required this.polygons,
     required this.triangles,
-    required this.polygonLabels,
-    required this.drawLabelsLast,
     required this.debugAltRenderer,
     required this.camera,
     required this.painterFillMethod,
@@ -238,33 +220,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       lastColor = null;
 
       drawBorders();
-    }
-
-    /// Draws labels on a "single-world"
-    WorldWorkControl drawLabelIfVisible(
-      double shift,
-      _ProjectedPolygon<R> projectedPolygon,
-    ) {
-      final polygon = projectedPolygon.polygon;
-      final painter = _buildLabelTextPainter(
-        mapSize: camera.size,
-        placementPoint: _helper.getOffset(
-          polygon.labelPosition,
-          shift: shift,
-        ),
-        bounds: _getBounds(camera.pixelOrigin, polygon),
-        textPainter: polygon.textPainter!,
-        rotationRad: camera.rotationRad,
-        rotate: polygon.rotateLabel,
-        padding: 20,
-      );
-      if (painter == null) return WorldWorkControl.invisible;
-
-      // Flush the batch before painting to preserve stacking.
-      drawPaths();
-
-      painter(canvas);
-      return WorldWorkControl.visible;
     }
 
     void invertFillPolygonHole(List<Offset> offsets) {
@@ -464,35 +419,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
       workAcrossWorlds(drawIfVisible);
 
-      if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
-        // Labels are expensive because:
-        //  * they themselves cannot easily be pulled into our batched path
-        //    painting with the given text APIs
-        //  * therefore, they require us to flush the batch of polygon draws to
-        //    ensure polygons and labels are stacked correctly, i.e.:
-        //    p1, p1_label, p2, p2_label, ... .
-
-        // The painter will be null if the layOuting algorithm determined that
-        // there isn't enough space.
-        workAcrossWorlds(
-          (double shift) => drawLabelIfVisible(shift, projectedPolygon),
-        );
-      }
       drawPaths();
-    }
-
-    if (polygonLabels && drawLabelsLast) {
-      for (final projectedPolygon in polygons) {
-        if (projectedPolygon.points.isEmpty) {
-          continue;
-        }
-        if (projectedPolygon.polygon.textPainter == null) {
-          continue;
-        }
-        workAcrossWorlds(
-          (double shift) => drawLabelIfVisible(shift, projectedPolygon),
-        );
-      }
     }
   }
 
@@ -559,14 +486,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     }
   }
 
-  ({Offset min, Offset max}) _getBounds(Offset origin, Polygon polygon) {
-    final bBox = polygon.boundingBox;
-    return (
-      min: _helper.getOffset(bBox.southWest),
-      max: _helper.getOffset(bBox.northEast),
-    );
-  }
-
   @override
   bool shouldRepaint(_PolygonPainter<R> oldDelegate) =>
       polygons != oldDelegate.polygons ||
@@ -576,7 +495,5 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       painterFillMethod != oldDelegate.painterFillMethod ||
       invertedFill != oldDelegate.invertedFill ||
       debugAltRenderer != oldDelegate.debugAltRenderer ||
-      drawLabelsLast != oldDelegate.drawLabelsLast ||
-      polygonLabels != oldDelegate.polygonLabels ||
       hitNotifier != oldDelegate.hitNotifier;
 }

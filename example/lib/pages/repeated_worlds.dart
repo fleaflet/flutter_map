@@ -141,7 +141,6 @@ class _RepeatedWorldsPageState extends State<RepeatedWorldsPage> {
                   hitNotifier: _hitNotifier,
                   simplificationTolerance: 0,
                   useAltRendering: true,
-                  drawLabelsLast: false,
                   polygons: [
                     Polygon<String>(
                       label: 'Aloha!',
