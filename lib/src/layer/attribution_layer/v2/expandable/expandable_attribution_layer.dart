@@ -9,14 +9,14 @@ import 'package:vector_graphics/vector_graphics_compat.dart';
 part 'widgets/expand_info_button.dart';
 
 /// An attribution box which can be either minimized - showing just a button -
-/// or expanded - showing a custom [expandedChild] (usually attribution text).
+/// or expanded - showing a custom widget (usually attribution text).
 ///
 /// The design is similar to that of MapLibre's attribution element.
 ///
 /// Consider wrapping this layer in a [SafeArea] to ensure it's not obscured
 /// by the system.
 class ExpandableAttributionLayer extends StatefulWidget {
-  /// Color of the box containing the icon button and [expandedChild].
+  /// Color of the box containing the icon button and expanded attribution.
   ///
   /// Defaults to [MapOptions.backgroundColor] if this layer is within a
   /// [FlutterMap], or the default light gray background colour otherwise.
@@ -25,7 +25,7 @@ class ExpandableAttributionLayer extends StatefulWidget {
   /// Color of foreground elements.
   ///
   /// This color is also applied through a [DefaultTextStyle] around
-  /// [expandedChild].
+  /// [expandedBuilder].
   ///
   /// Defaults to a white or black contrasting with [backgroundColor]
   /// automatically.
@@ -83,18 +83,19 @@ class ExpandableAttributionLayer extends StatefulWidget {
   final String Function(bool expanded)? customButtonTooltipTextBuilder;
 
   /// Optional widget shown adjacent to icon button that moves out of the way
-  /// of the [expandedChild] as necessary.
+  /// of the [expandedBuilder] as necessary.
   ///
   /// This is useful to display required attribution logo images which must
   /// always be visible, and easily adjacent to the rest of the attributions.
   ///
-  /// [expandedChild] will not overlap with this. If this is wanted in a
+  /// [expandedBuilder] will not overlap with this. If this is wanted in a
   /// different position (such as the opposite corner as is common), or wants to
   /// allow overlapping, then manually place the widget into the map layer
   /// stack.
   final Widget? adjacentPersistentChild;
 
-  /// Widget to show when the attribution layer is expanded.
+  /// Builder which returns widget to show when the attribution layer is
+  /// expanded.
   ///
   /// This is usually a some kind of text, often [Text.rich] for interactivity.
   /// For example, the following widget creates two strings, one of which is
@@ -126,7 +127,7 @@ class ExpandableAttributionLayer extends StatefulWidget {
   /// Usually, the text should be displayed on a single line. If it's long, it
   /// can either wrap over multiple lines, or it could be forced onto a single
   /// line within some scrolling viewport.
-  final Widget expandedChild;
+  final WidgetBuilder expandedBuilder;
 
   /// A customisable expandable attribution layer with custom attribution.
   ///
@@ -144,7 +145,7 @@ class ExpandableAttributionLayer extends StatefulWidget {
     this.customButtonIconBuilder,
     this.customButtonTooltipTextBuilder,
     this.adjacentPersistentChild,
-    required this.expandedChild,
+    required this.expandedBuilder,
   });
 
   /// Default handler for [minimizeOnMapEvent].
@@ -250,7 +251,7 @@ class _ExpandableAttributionLayerState
               child: isExpanded
                   ? Padding(
                       padding: const EdgeInsets.fromLTRB(8, 3, 6, 3),
-                      child: widget.expandedChild,
+                      child: Builder(builder: widget.expandedBuilder),
                     )
                   : const SizedBox.shrink(),
             );
