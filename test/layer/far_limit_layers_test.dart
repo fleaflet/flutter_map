@@ -38,6 +38,7 @@ Future<MapController> _pump(
               initialPitch: 85,
               maxPitch: 85,
               backgroundColor: _background,
+              backgroundGridOptions: null,
             ),
             children: children,
           ),
