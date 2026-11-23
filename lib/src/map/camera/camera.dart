@@ -51,9 +51,14 @@ class MapCamera {
   /// [zoom] is the scale at [center], so a change of pitch doesn't change it.
   final double pitch;
 
-  /// The vertical field of view of a pitched camera, in radians. This is
-  /// MapLibre Native's default, so that a pitched map rendered by MapLibre and
-  /// this camera's projection agree.
+  /// The vertical field of view of a pitched camera, in radians (about 36.87
+  /// degrees), which places the camera 1.5 view heights from [center].
+  ///
+  /// MapLibre Native chose this value arbitrarily (see
+  /// https://maplibre.org/maplibre-native/docs/book/design/coordinate-system.html).
+  /// We use it because it works well in MapLibre, so we don't need to tune our
+  /// own value, and because it makes a pitched map rendered by MapLibre agree
+  /// with this camera's projection.
   static const fieldOfView = 0.6435011087932844;
 
   /// Lazily calculated field
