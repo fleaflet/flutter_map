@@ -45,25 +45,31 @@ class ExpandableAttributionLayer extends StatefulWidget {
 
   /// The duration for which to show the attribution expanded on initialisation.
   ///
-  /// Set to [Duration.zero] to show it minimized on initialisation.
+  /// Set to [Duration.zero] to show it minimized on initialisation. Set to
+  /// `null` to set an infinite duration.
   ///
-  /// [minimizeOnMapEvent] may cause minimisation quicker than the elapse of
-  /// this duration.
+  /// See also [minimizeOnMapEvent] and [forceInitialExpansionDurationElapse].
   ///
   /// Defaults to 3 seconds.
-  final Duration initialExpansionDuration;
+  final Duration? initialExpansionDuration;
+
+  /// Whether to prevent [minimizeOnMapEvent] minimizing the attribution if it
+  /// is expanded since initialisation due to [initialExpansionDuration].
+  ///
+  /// Recommended to set `false` if [initialExpansionDuration] is `null`.
+  ///
+  /// Defaults to `true`.
+  final bool forceInitialExpansionDurationElapse;
 
   /// Callback called whenever the attribution is expanded and the map has an
   /// event, which that determines whether to minimise the attribution.
   ///
-  /// `isInInitialExpansion` is `true` when the attribution is expanded since
-  /// initialisation; see [initialExpansionDuration].
+  /// May be inhibited by [forceInitialExpansionDurationElapse].
   ///
   /// Should return `true` to minimise the attribution.
   ///
   /// Defaults to [defaultMinimizeOnMapEvent].
-  final bool Function(MapEvent evt, bool isInInitialExpansion)
-      minimizeOnMapEvent;
+  final bool Function(MapEvent evt) minimizeOnMapEvent;
 
   /// Widget builder that determines icon shown in button that expands/minimises
   /// attribution.
@@ -140,6 +146,7 @@ class ExpandableAttributionLayer extends StatefulWidget {
     this.animationDuration = const Duration(milliseconds: 200),
     this.alignment = Alignment.bottomRight,
     this.initialExpansionDuration = const Duration(seconds: 3),
+    this.forceInitialExpansionDurationElapse = true,
     this.minimizeOnMapEvent =
         ExpandableAttributionLayer.defaultMinimizeOnMapEvent,
     this.customButtonIconBuilder,
@@ -150,19 +157,13 @@ class ExpandableAttributionLayer extends StatefulWidget {
 
   /// Default handler for [minimizeOnMapEvent].
   ///
-  /// Returns `true` when the [evt] was likely* a gesture, and not
-  /// [isInInitialExpansion].
-  static bool defaultMinimizeOnMapEvent(
-    MapEvent evt,
-    bool isInInitialExpansion,
-  ) =>
-      !{
+  /// Returns `true` when the [evt] was likely* a gesture.
+  static bool defaultMinimizeOnMapEvent(MapEvent evt) => !{
         MapEventSource.mapController,
         MapEventSource.nonRotatedSizeChange,
         MapEventSource.fitCamera,
         MapEventSource.custom
-      }.contains(evt.source) &&
-      !isInInitialExpansion;
+      }.contains(evt.source);
 
   @override
   State<ExpandableAttributionLayer> createState() =>
@@ -175,8 +176,9 @@ class _ExpandableAttributionLayerState
       widget.initialExpansionDuration != Duration.zero;
 
   StreamSubscription<MapEvent>? _mapEventSubscription;
-  late final _minimizeTimer = _useInitialExpansion
-      ? Timer(widget.initialExpansionDuration, () => _isExpanded.value = false)
+  late final _minimizeTimer = _useInitialExpansion &&
+          widget.initialExpansionDuration != null
+      ? Timer(widget.initialExpansionDuration!, () => _isExpanded.value = false)
       : null;
 
   late final _isExpanded = ValueNotifier(_useInitialExpansion);
@@ -186,12 +188,17 @@ class _ExpandableAttributionLayerState
     super.initState();
 
     void minimizeOnMapEvent() {
-      final isInInitialExpansion =
-          _minimizeTimer != null && _minimizeTimer.isActive;
       _mapEventSubscription = MapController.of(context).mapEventStream.listen(
-            (e) => _isExpanded.value =
-                !widget.minimizeOnMapEvent(e, isInInitialExpansion),
-          );
+        (e) {
+          if (widget.forceInitialExpansionDurationElapse &&
+                  _useInitialExpansion &&
+                  (_minimizeTimer?.isActive ?? true) // `null` => always active
+              ) {
+            return;
+          }
+          if (widget.minimizeOnMapEvent(e)) _isExpanded.value = false;
+        },
+      );
     }
 
     if (_useInitialExpansion) {
@@ -258,6 +265,7 @@ class _ExpandableAttributionLayerState
 
             return Row(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (direction == -1) Flexible(child: expandedAttribution),
                 _ExpandInfoButton(
@@ -279,7 +287,7 @@ class _ExpandableAttributionLayerState
     );
 
     return DefaultTextStyle.merge(
-      style: TextStyle(color: foregroundColor),
+      style: TextStyle(fontSize: 13, color: foregroundColor),
       child: Align(
         alignment: widget.alignment,
         child: Padding(

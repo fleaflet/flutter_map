@@ -102,7 +102,7 @@ class SimpleAttributionLayer extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
           child: DefaultTextStyle.merge(
-            style: TextStyle(color: foregroundColor),
+            style: TextStyle(fontSize: 13, color: foregroundColor),
             child: Builder(builder: builder),
           ),
         ),
