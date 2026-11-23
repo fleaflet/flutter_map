@@ -16,14 +16,17 @@ import 'package:flutter_map/src/map/widget.dart';
 class SimpleAttributionLayer extends StatelessWidget {
   /// Color of the box containing the [child].
   ///
-  /// The child will be wrapped in a [DefaultTextStyle] (which inherits) which
-  /// will set the default text color to, where possible, a contrasting color.
-  /// This can be overriden by providing a new text style, either manually or
-  /// with an overriding [DefaultTextStyle].
-  ///
   /// Defaults to [MapOptions.backgroundColor] if this layer is within a
   /// [FlutterMap], or the default light gray background colour otherwise.
   final Color? backgroundColor;
+
+  /// Color of foreground elements.
+  ///
+  /// This color is also applied through a [DefaultTextStyle] around [child].
+  ///
+  /// Defaults to a white or black contrasting with [backgroundColor]
+  /// automatically.
+  final Color? foregroundColor;
 
   /// Alignment of the box relative to the map widget.
   ///
@@ -36,9 +39,10 @@ class SimpleAttributionLayer extends StatelessWidget {
   /// A simple attribution box with [child].
   const SimpleAttributionLayer({
     super.key,
-    required this.child,
+    this.foregroundColor,
     this.backgroundColor,
     this.alignment = Alignment.bottomRight,
+    required this.child,
   });
 
   /// A simple attribution box which displays one line of text, optionally as
@@ -50,6 +54,7 @@ class SimpleAttributionLayer extends StatelessWidget {
     TextStyle? textStyle,
     bool showFlutterMapPrefix = false,
     this.backgroundColor,
+    this.foregroundColor,
     this.alignment = Alignment.bottomRight,
   }) : child = Builder(
           builder: (context) => Text.rich(
@@ -81,6 +86,10 @@ class SimpleAttributionLayer extends StatelessWidget {
     final backgroundColor = this.backgroundColor ??
         MapOptions.maybeOf(context)?.backgroundColor ??
         const Color(0xFFE0E0E0);
+    final foregroundColor = this.foregroundColor ??
+        (HSLColor.fromColor(backgroundColor).lightness > 0.5
+            ? const Color(0xFF000000)
+            : const Color(0xFFFFFFFF));
 
     return Align(
       alignment: alignment,
@@ -89,11 +98,7 @@ class SimpleAttributionLayer extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
           child: DefaultTextStyle.merge(
-            style: TextStyle(
-              color: HSLColor.fromColor(backgroundColor).lightness > 0.5
-                  ? const Color(0xFF000000)
-                  : const Color(0xFFFFFFFF),
-            ),
+            style: TextStyle(color: foregroundColor),
             child: child,
           ),
         ),
