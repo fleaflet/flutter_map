@@ -78,9 +78,9 @@ class MapOptions {
   /// See [InteractiveFlag.pitch] for the gestures that pitch the map.
   final double maxPitch;
 
-  /// The largest [maxPitch] that takes effect. Above it, the visible ground
-  /// grows without bound.
-  static const pitchLimit = 60.0;
+  /// The largest [maxPitch] that takes effect, as in MapLibre GL JS by
+  /// default.
+  static const pitchLimit = 85.0;
 
   /// Defines the visible bounds when the map is first loaded. Takes precedence
   /// over [initialCenter]/[initialZoom].

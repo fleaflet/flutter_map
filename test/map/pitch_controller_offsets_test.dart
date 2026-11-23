@@ -22,7 +22,7 @@ Future<MapController> _pump(
             initialZoom: 12,
             initialRotation: rotation,
             initialPitch: pitch,
-            maxPitch: 60,
+            maxPitch: 85,
           ),
           children: const [],
         ),
@@ -75,5 +75,37 @@ void main() {
     controller.move(target, 13, offset: const Offset(0, -5000));
     expect(controller.camera.center.latitude, closeTo(target.latitude, 1e-9));
     expect(controller.camera.center.longitude, closeTo(target.longitude, 1e-9));
+  });
+
+  testWidgets('move and rotate with an offset below the far limit, pitch 85',
+      (tester) async {
+    final controller = await _pump(tester, pitch: 85, rotation: 30);
+    controller.move(target, 13, offset: const Offset(-50, 150));
+    final screen = controller.camera.latLngToScreenOffset(target);
+    expect((screen - const Offset(150, 450)).distance, lessThan(0.5));
+
+    const point = Offset(250, 550);
+    final coordinate = controller.camera.screenOffsetToLatLng(point);
+    controller.rotateAroundPoint(90, offset: point - const Offset(200, 300));
+    expect(
+      (controller.camera.latLngToScreenOffset(coordinate) - point).distance,
+      lessThan(0.5),
+    );
+  });
+
+  testWidgets('offset above the far limit is ignored, pitch 85',
+      (tester) async {
+    final controller = await _pump(tester, pitch: 85, rotation: 30);
+    // Above the far limit, but below the horizon.
+    final offset = Offset(0, controller.camera.farLimit - 300 - 5);
+    controller.move(target, 13, offset: offset);
+    expect(controller.camera.center.latitude, closeTo(target.latitude, 1e-9));
+    expect(controller.camera.center.longitude, closeTo(target.longitude, 1e-9));
+
+    final center = controller.camera.center;
+    controller.rotateAroundPoint(90, offset: offset);
+    expect(controller.camera.rotation, 90);
+    expect(controller.camera.center.latitude, closeTo(center.latitude, 1e-9));
+    expect(controller.camera.center.longitude, closeTo(center.longitude, 1e-9));
   });
 }

@@ -234,6 +234,13 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
               final screen = MatrixUtils.transformPoint(pixelToScreen, shifted);
 
+              // Beyond the far limit, which also ends the loop over worlds
+              // when the horizon is in view: world copies far away converge
+              // to it, inside the viewport
+              if (screen.dy < camera.farLimit) {
+                return null;
+              }
+
               // Cull if out of the viewport
               if (!viewport.overlaps(rotatesWithMap
                   ? Rect.fromCircle(center: screen, radius: reach)
