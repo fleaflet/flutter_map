@@ -1,14 +1,11 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 
-import 'dart:math' as math;
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:meta/meta.dart';
 
 /// Callback to notify when the map emits a [MapEvent].
 typedef MapEventCallback = void Function(MapEvent);
@@ -72,13 +69,12 @@ class MapOptions {
   final double initialRotation;
 
   /// The pitch, in degrees, when the map is first loaded: the angle between the
-  /// camera's view direction and straight down. Limited to the range from 0 to
-  /// [maxPitch].
+  /// camera's view direction and straight down. Must be in the range from 0
+  /// to [pitchLimit], and is limited to [maxPitch].
   final double initialPitch;
 
   /// The largest pitch, in degrees, that the map allows. Defaults to 0, which
-  /// keeps the map unpitched. A value above [pitchLimit] takes effect as
-  /// [pitchLimit].
+  /// keeps the map unpitched. Must be in the range from 0 to [pitchLimit].
   ///
   /// When the map is pitched:
   ///
@@ -232,7 +228,14 @@ class MapOptions {
     this.onMapEvent,
     this.onMapReady,
     this.keepAlive = false,
-  });
+  })  : assert(
+          initialPitch >= 0 && initialPitch <= pitchLimit,
+          '`initialPitch` must be in the range from 0 to `MapOptions.pitchLimit`',
+        ),
+        assert(
+          maxPitch >= 0 && maxPitch <= pitchLimit,
+          '`maxPitch` must be in the range from 0 to `MapOptions.pitchLimit`',
+        );
 
   /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.
@@ -245,11 +248,6 @@ class MapOptions {
       maybeOf(context) ??
       (throw StateError(
           '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants'));
-
-  /// Limits [pitch] to the range from 0 to [maxPitch], and to [pitchLimit].
-  @internal
-  double clampPitch(double pitch) =>
-      pitch.clamp(0, math.min(maxPitch, pitchLimit));
 
   @override
   bool operator ==(Object other) =>

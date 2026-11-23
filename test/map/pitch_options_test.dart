@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 
 Future<MapController> _pump(WidgetTester tester, MapOptions options) async {
   final controller = MapController();
@@ -30,17 +31,26 @@ void main() {
     expect(controller.camera.pitch, 45);
   });
 
-  testWidgets('maximum pitch above the limit takes effect as the limit',
-      (tester) async {
-    final controller =
-        await _pump(tester, const MapOptions(initialPitch: 75, maxPitch: 75));
-    expect(controller.camera.pitch, MapOptions.pitchLimit);
+  test('pitch options outside the range from 0 to the limit are rejected', () {
+    const aboveLimit = MapOptions.pitchLimit + 1;
+    expect(() => MapOptions(maxPitch: aboveLimit), throwsAssertionError);
+    expect(() => MapOptions(maxPitch: -1), throwsAssertionError);
+    expect(() => MapOptions(initialPitch: aboveLimit), throwsAssertionError);
+    expect(() => MapOptions(initialPitch: -1), throwsAssertionError);
   });
 
-  testWidgets('negative initial pitch is limited to 0', (tester) async {
-    final controller =
-        await _pump(tester, const MapOptions(initialPitch: -10, maxPitch: 45));
-    expect(controller.camera.pitch, 0);
+  test('a camera pitch of 90 degrees or more is rejected', () {
+    MapCamera camera(double pitch) => MapCamera(
+          crs: const Epsg3857(),
+          center: const LatLng(0, 0),
+          zoom: 10,
+          rotation: 0,
+          nonRotatedSize: const Size(400, 300),
+          pitch: pitch,
+        );
+    expect(camera(89).pitch, 89);
+    expect(() => camera(90), throwsAssertionError);
+    expect(() => camera(-1), throwsAssertionError);
   });
 
   testWidgets('lowering the maximum pitch limits the pitch', (tester) async {

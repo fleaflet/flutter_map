@@ -166,6 +166,10 @@ class MapCamera {
           'Camera `zoom` must be finite (and usually positive).\n'
           '(This may occur if the map tried to fit to a zero-area bounds, such '
           'as a bounds defined by only a single point.)',
+        ),
+        assert(
+          pitch >= 0 && pitch < 90,
+          'Camera `pitch` must be at least 0 and less than 90',
         );
 
   /// Initializes [MapCamera] from the given [options] and with the
@@ -178,7 +182,7 @@ class MapCamera {
           center: options.initialCenter,
           zoom: options.initialZoom,
           rotation: options.initialRotation,
-          pitch: options.clampPitch(options.initialPitch),
+          pitch: clampPitch(options.initialPitch, options.maxPitch),
           nonRotatedSize: kImpossibleSize,
         );
 
@@ -232,7 +236,7 @@ class MapCamera {
 
   /// Returns a new instance of [MapCamera] with the given [options].
   MapCamera withOptions(MapOptions options) {
-    final pitch = options.clampPitch(this.pitch);
+    final pitch = clampPitch(this.pitch, options.maxPitch);
     if (options.crs == crs &&
         options.minZoom == minZoom &&
         options.maxZoom == maxZoom &&
@@ -516,6 +520,12 @@ class MapCamera {
 
     return MatrixUtils.transformPoint(m, point);
   }
+
+  /// Limits [pitch] to the range from 0 to [maxPitch]. Also limits it to
+  /// [MapOptions.pitchLimit], which [MapOptions] asserts only in debug builds.
+  @internal
+  static double clampPitch(double pitch, double maxPitch) =>
+      pitch.clamp(0, math.min(maxPitch, MapOptions.pitchLimit));
 
   /// Clamps the provided [zoom] to the range specified by [minZoom] and
   /// [maxZoom], if set.

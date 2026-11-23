@@ -237,7 +237,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required MapEventSource source,
     String? id,
   }) {
-    final pitch = options.clampPitch(newPitch);
+    final pitch = MapCamera.clampPitch(newPitch, options.maxPitch);
     if (pitch == camera.pitch) return false;
 
     final newCamera = options.cameraConstraint.constrain(
