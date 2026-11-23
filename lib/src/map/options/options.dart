@@ -68,6 +68,19 @@ class MapOptions {
   /// The rotation when the map is first loaded.
   final double initialRotation;
 
+  /// The pitch, in degrees, when the map is first loaded: the angle between the
+  /// camera's view direction and straight down. Must be in the range from 0
+  /// to [pitchLimit], and is limited to [maxPitch].
+  final double initialPitch;
+
+  /// The largest pitch, in degrees, that the map allows. Defaults to 0, which
+  /// keeps the map unpitched. Must be in the range from 0 to [pitchLimit].
+  final double maxPitch;
+
+  /// The largest [maxPitch] that takes effect. Above it, the visible ground
+  /// grows without bound.
+  static const pitchLimit = 60.0;
+
   /// Defines the visible bounds when the map is first loaded. Takes precedence
   /// over [initialCenter]/[initialZoom].
   final CameraFit? initialCameraFit;
@@ -178,6 +191,8 @@ class MapOptions {
     this.initialCenter = const LatLng(50.5, 30.51),
     this.initialZoom = 13.0,
     this.initialRotation = 0.0,
+    this.initialPitch = 0.0,
+    this.maxPitch = 0.0,
     this.initialCameraFit,
     this.cameraConstraint = const CameraConstraint.unconstrained(),
     this.interactionOptions = const InteractionOptions(),
@@ -197,7 +212,14 @@ class MapOptions {
     this.onMapEvent,
     this.onMapReady,
     this.keepAlive = false,
-  });
+  })  : assert(
+          initialPitch >= 0 && initialPitch <= pitchLimit,
+          '`initialPitch` must be in the range from 0 to `MapOptions.pitchLimit`',
+        ),
+        assert(
+          maxPitch >= 0 && maxPitch <= pitchLimit,
+          '`maxPitch` must be in the range from 0 to `MapOptions.pitchLimit`',
+        );
 
   /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.
@@ -218,6 +240,8 @@ class MapOptions {
       initialCenter == other.initialCenter &&
       initialZoom == other.initialZoom &&
       initialRotation == other.initialRotation &&
+      initialPitch == other.initialPitch &&
+      maxPitch == other.maxPitch &&
       initialCameraFit == other.initialCameraFit &&
       minZoom == other.minZoom &&
       maxZoom == other.maxZoom &&
@@ -243,6 +267,8 @@ class MapOptions {
         initialCenter,
         initialZoom,
         initialRotation,
+        initialPitch,
+        maxPitch,
         initialCameraFit,
         minZoom,
         maxZoom,

@@ -8,6 +8,8 @@ import 'package:latlong2/latlong.dart';
 /// Describes a position for a [MapCamera]
 ///
 /// Constraints are handled by [CameraConstraint].
+///
+/// Fits are computed as if the map were not pitched.
 @immutable
 abstract class CameraFit {
   /// Describes a position for a [MapCamera]

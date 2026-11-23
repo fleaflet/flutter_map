@@ -15,8 +15,6 @@ void Function(Canvas canvas)? _buildLabelTextPainter({
   final height = textPainter.height;
 
   // Cull labels where the polygon is still on the map but the label would not be.
-  // Currently this is only enabled when the map isn't rotated, since the placementOffset
-  // is relative to the MobileLayerTransformer rather than in actual screen coordinates.
   final double textWidth;
   final double textHeight;
   final double mapWidth;

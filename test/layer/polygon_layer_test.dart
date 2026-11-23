@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
@@ -27,11 +28,57 @@ void main() {
     expect(find.byType(PolygonLayer), findsOneWidget);
 
     // Assert that batching works and all polygons are drawn into the same
-    // CustomPaint/Canvas.
+    // CustomPaint/Canvas, and their labels into a second one.
     expect(
         find.descendant(
             of: find.byType(PolygonLayer), matching: find.byType(CustomPaint)),
-        findsOneWidget);
+        findsNWidgets(2));
+  });
+
+  testWidgets('label is drawn over a later polygon that overlaps it',
+      (tester) async {
+    await tester.pumpWidget(TestApp(polygons: [
+      Polygon(
+        color: Colors.purple,
+        label: 'A',
+        points: const [
+          LatLng(45.53, -122.69),
+          LatLng(45.53, -122.66),
+          LatLng(45.51, -122.66),
+          LatLng(45.51, -122.69),
+        ],
+      ),
+      Polygon(
+        color: Colors.green,
+        points: const [
+          LatLng(45.526, -122.68),
+          LatLng(45.526, -122.673),
+          LatLng(45.52, -122.673),
+          LatLng(45.52, -122.68),
+        ],
+      ),
+    ]));
+
+    final order = StringBuffer();
+    for (final element in find
+        .descendant(
+          of: find.byType(PolygonLayer),
+          matching: find.byType(CustomPaint),
+        )
+        .evaluate()) {
+      final box = element.renderObject! as RenderCustomPaint;
+      final canvas = TestRecordingCanvas();
+      box.painter!.paint(canvas, box.size);
+      for (final recorded in canvas.invocations) {
+        switch (recorded.invocation.memberName) {
+          case #drawPath || #drawVertices:
+            order.write('P');
+          case #drawParagraph:
+            order.write('L');
+        }
+      }
+    }
+    expect(order.toString(), 'PPL');
   });
 
   test('polygon normal/rotation', () {

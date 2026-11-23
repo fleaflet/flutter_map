@@ -58,7 +58,7 @@ class PlaceholderGridLayer extends StatelessWidget {
       ),
     );
     if (static) return painted;
-    return MobileLayerTransformer(child: painted);
+    return GroundLayerTransformer(child: painted);
   }
 }
 

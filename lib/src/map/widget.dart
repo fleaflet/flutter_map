@@ -22,8 +22,8 @@ class FlutterMap extends StatefulWidget {
 
   /// Widgets to be placed onto the map in a [Stack]-like fashion
   ///
-  /// Widgets that use [MobileLayerTransformer] will be 'mobile', will move and
-  /// rotate with the map. Other widgets will be 'static' (and should usually use
+  /// Widgets that use [GroundLayerTransformer] lie on the ground, and will move,
+  /// rotate and pitch with the map. Other widgets will be 'static' (and should usually use
   /// [Align] or another method to position themselves). Widgets/layers may or
   /// may not identify which type they are in their documentation, but it should
   /// be relatively self-explanatory from their purpose.

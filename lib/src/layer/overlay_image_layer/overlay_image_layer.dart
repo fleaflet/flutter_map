@@ -18,7 +18,7 @@ class OverlayImageLayer extends StatelessWidget {
   const OverlayImageLayer({super.key, required this.overlayImages});
 
   @override
-  Widget build(BuildContext context) => MobileLayerTransformer(
+  Widget build(BuildContext context) => GroundLayerTransformer(
         child: ClipRect(child: Stack(children: overlayImages)),
       );
 }

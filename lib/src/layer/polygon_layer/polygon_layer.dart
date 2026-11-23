@@ -16,6 +16,7 @@ import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 part 'label/build_text_painter.dart';
+part 'label/label_painter.dart';
 part 'painter.dart';
 part 'polygon.dart';
 part 'projected_polygon.dart';
@@ -89,9 +90,8 @@ base class PolygonLayer<R extends Object>
   /// Defaults to `true`.
   final bool polygonLabels;
 
-  /// Whether to draw labels last and thus over all the polygons
-  ///
-  /// Defaults to `false`.
+  /// Has no effect: labels are drawn after all polygons of the layer.
+  @Deprecated('Labels are drawn after all polygons. This has no effect.')
   final bool drawLabelsLast;
 
   /// Whether polygons should only be drawn/projected onto a single world
@@ -137,6 +137,7 @@ base class PolygonLayer<R extends Object>
     this.debugAltRenderer = false,
     this.polygonCulling = true,
     this.polygonLabels = true,
+    @Deprecated('Labels are drawn after all polygons. This has no effect.')
     this.drawLabelsLast = false,
     this.drawInSingleWorld = false,
     this.painterFillMethod = kIsWeb
@@ -259,14 +260,12 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
             growable: false,
           );
 
-    return MobileLayerTransformer(
+    final polygons = GroundLayerTransformer(
       child: CustomPaint(
         painter: _PolygonPainter(
           polygons: culled,
           triangles: triangles,
           camera: camera,
-          polygonLabels: widget.polygonLabels,
-          drawLabelsLast: widget.drawLabelsLast,
           painterFillMethod: widget.painterFillMethod,
           invertedFill: widget.invertedFill,
           debugAltRenderer: widget.debugAltRenderer,
@@ -274,6 +273,19 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
         ),
         size: camera.size,
       ),
+    );
+    if (!widget.polygonLabels) return polygons;
+
+    return Stack(
+      children: [
+        polygons,
+        BillboardLayerTransformer(
+          child: CustomPaint(
+            painter: _PolygonLabelPainter(polygons: culled, camera: camera),
+            size: camera.nonRotatedSize,
+          ),
+        ),
+      ],
     );
   }
 

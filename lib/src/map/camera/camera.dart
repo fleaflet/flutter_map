@@ -6,6 +6,7 @@ import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/misc/deg_rad_conversions.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
 /// Describes the view of a map. This includes the size/zoom/position/crs as
 /// well as the minimum/maximum zoom. This class is mostly immutable but has
@@ -44,6 +45,28 @@ class MapCamera {
   /// FlutterMap widget.
   final Size nonRotatedSize;
 
+  /// The pitch, in degrees: the angle between the camera's view direction and
+  /// straight down. See [pitchRad] for the same value in radians.
+  ///
+  /// [zoom] is the scale at [center], so a change of pitch doesn't change it.
+  final double pitch;
+
+  /// The vertical field of view of a pitched camera, in radians (about 36.87
+  /// degrees), which places the camera 1.5 view heights from [center].
+  ///
+  /// MapLibre Native chose this value arbitrarily (see
+  /// https://maplibre.org/maplibre-native/docs/book/design/coordinate-system.html).
+  /// We use it because it works well in MapLibre, so we don't need to tune our
+  /// own value, and because it makes a pitched map rendered by MapLibre agree
+  /// with this camera's projection.
+  static const fieldOfView = 0.6435011087932844;
+
+  /// Lazily calculated field
+  Matrix4? _pixelToScreenTransform;
+
+  /// Lazily calculated field
+  Rect? _footprintFromCenter;
+
   /// Lazily calculated field
   Size? _cameraSize;
 
@@ -76,18 +99,15 @@ class MapCamera {
     );
   }
 
-  /// The size of bounding box of this camera taking in to account its
-  /// rotation. When the rotation is zero this will equal [nonRotatedSize],
-  /// otherwise it will be the size of the rectangle which contains this
-  /// camera.
-  Size get size => _cameraSize ??= calculateRotatedSize(
-        rotation,
-        nonRotatedSize,
-      );
+  /// The size of the rectangle, in projected pixels at [zoom], which contains
+  /// the ground visible in the map view. When the map is not pitched, this is
+  /// the size of the bounding box of the rotated map view, which equals
+  /// [nonRotatedSize] when the rotation is zero.
+  Size get size => _cameraSize ??= _footprint.size;
 
-  /// The offset of the top-left corner of the bounding rectangle of this
-  /// camera. This will not equal the offset of the top-left visible pixel when
-  /// the map is rotated.
+  /// The top-left corner of the rectangle described by [size], in projected
+  /// pixels at [zoom]. This will not equal the offset of the top-left visible
+  /// pixel when the map is rotated or pitched.
   /* (jaffaketchup) This is used for painters & hit testing extensively. We want
      to convert [position], which is in the canvas' coordinate space to a
      [coordinate]. See `screenOffsetToLatLng` - it uses `nonRotatedSize` then
@@ -110,8 +130,9 @@ class MapCamera {
      been removed, because this exists, so I'm not sure why it needed to be
      duplicated. See [HitDetectablePainter.hitTest] for an easy usage example.
   */
-  Offset get pixelOrigin =>
-      _pixelOrigin ??= projectAtZoom(center, zoom) - size.center(Offset.zero);
+  ///
+  /// When the map is pitched, the rectangle is not centered on [center].
+  Offset get pixelOrigin => _pixelOrigin ??= _footprint.topLeft;
 
   /// The camera of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor null, is returned.
@@ -134,6 +155,7 @@ class MapCamera {
     required this.zoom,
     required this.rotation,
     required this.nonRotatedSize,
+    this.pitch = 0,
     this.minZoom,
     this.maxZoom,
     Size? size,
@@ -149,6 +171,10 @@ class MapCamera {
           'Camera `zoom` must be finite (and usually positive).\n'
           '(This may occur if the map tried to fit to a zero-area bounds, such '
           'as a bounds defined by only a single point.)',
+        ),
+        assert(
+          pitch >= 0 && pitch < 90,
+          'Camera `pitch` must be at least 0 and less than 90',
         );
 
   /// Initializes [MapCamera] from the given [options] and with the
@@ -161,6 +187,7 @@ class MapCamera {
           center: options.initialCenter,
           zoom: options.initialZoom,
           rotation: options.initialRotation,
+          pitch: clampPitch(options.initialPitch, options.maxPitch),
           nonRotatedSize: kImpossibleSize,
         );
 
@@ -174,6 +201,7 @@ class MapCamera {
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
+      pitch: pitch,
       minZoom: minZoom,
       maxZoom: maxZoom,
     );
@@ -189,6 +217,23 @@ class MapCamera {
       zoom: zoom,
       nonRotatedSize: nonRotatedSize,
       rotation: rotation,
+      pitch: pitch,
+      minZoom: minZoom,
+      maxZoom: maxZoom,
+    );
+  }
+
+  /// Returns a new instance of [MapCamera] with the given [pitch].
+  MapCamera withPitch(double pitch) {
+    if (pitch == this.pitch) return this;
+
+    return MapCamera(
+      crs: crs,
+      center: center,
+      zoom: zoom,
+      nonRotatedSize: nonRotatedSize,
+      rotation: rotation,
+      pitch: pitch,
       minZoom: minZoom,
       maxZoom: maxZoom,
     );
@@ -196,9 +241,11 @@ class MapCamera {
 
   /// Returns a new instance of [MapCamera] with the given [options].
   MapCamera withOptions(MapOptions options) {
+    final pitch = clampPitch(this.pitch, options.maxPitch);
     if (options.crs == crs &&
         options.minZoom == minZoom &&
-        options.maxZoom == maxZoom) {
+        options.maxZoom == maxZoom &&
+        pitch == this.pitch) {
       return this;
     }
 
@@ -210,7 +257,8 @@ class MapCamera {
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
-      size: _cameraSize,
+      pitch: pitch,
+      size: pitch == this.pitch ? _cameraSize : null,
     );
   }
 
@@ -227,6 +275,7 @@ class MapCamera {
         zoom: zoom ?? this.zoom,
         rotation: rotation,
         nonRotatedSize: nonRotatedSize,
+        pitch: pitch,
         size: _cameraSize,
       );
 
@@ -272,6 +321,41 @@ class MapCamera {
   /// The current rotation value in radians
   double get rotationRad => rotation * degrees2Radians;
 
+  /// The current pitch value in radians
+  double get pitchRad => pitch * degrees2Radians;
+
+  /// The distance, in pixels, from the camera to [center].
+  double get _cameraDistance =>
+      0.5 * nonRotatedSize.height / math.tan(fieldOfView / 2);
+
+  /// The transform from projected pixels at [zoom] (see [projectAtZoom]) to
+  /// positions in the map view, including rotation and pitch.
+  ///
+  /// The translation of a point projected at high zoom is large, so combine
+  /// this with other transforms in 64-bit arithmetic before passing it to a
+  /// widget, which may use 32-bit floats.
+  Matrix4 get pixelToScreenTransform => _pixelToScreen.clone();
+
+  Matrix4 get _pixelToScreen =>
+      _pixelToScreenTransform ??= _computePixelToScreenTransform();
+
+  Matrix4 _computePixelToScreenTransform() {
+    final projectedCenter = projectAtZoom(center);
+    final transform = Matrix4.translationValues(
+        nonRotatedSize.width / 2, nonRotatedSize.height / 2, 0);
+    // Without pitch the entry has no effect on ground points, and leaving it
+    // out keeps the transform affine for the renderer.
+    if (pitch != 0) {
+      transform
+          .multiply(Matrix4.identity()..setEntry(3, 2, -1 / _cameraDistance));
+    }
+    return transform
+      ..rotateX(pitchRad)
+      ..rotateZ(rotationRad)
+      ..multiply(Matrix4.translationValues(
+          -projectedCenter.dx, -projectedCenter.dy, 0));
+  }
+
   /// Calculates point value for the given [latlng] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
   Offset projectAtZoom(LatLng latlng, [double? zoom]) =>
@@ -309,65 +393,125 @@ class MapCamera {
 
   /// Calculates the pixel origin of this [MapCamera] at the given
   /// [center]/[zoom].
-  Offset getNewPixelOrigin(LatLng center, [double? zoom]) {
-    return (projectAtZoom(center, zoom) - size.center(Offset.zero)).round();
-  }
+  Offset getNewPixelOrigin(LatLng center, [double? zoom]) =>
+      (projectAtZoom(center, zoom) + _visibleGroundFromCenter.topLeft).round();
 
-  /// Calculates the pixel bounds of this [MapCamera]. This value is cached.
+  /// Calculates the pixel bounds of this [MapCamera]: the rectangle described
+  /// by [pixelOrigin] and [size]. This value is cached.
+  ///
+  /// When the map is pitched, the rectangle is not centered on [center].
   Rect get pixelBounds =>
       _pixelBounds ?? (_pixelBounds = pixelBoundsAtZoom(zoom));
 
   /// Calculates the pixel bounds of this [MapCamera] at the given [zoom].
   Rect pixelBoundsAtZoom(double zoom) {
-    Size cameraSize = size;
-    if (zoom != this.zoom) {
-      final scale = getZoomScale(this.zoom, zoom);
-      cameraSize = size / (scale * 2);
-    }
-    final pixelCenter = projectAtZoom(center, zoom).floor();
-
-    return Rect.fromCenter(
-        center: pixelCenter,
-        width: cameraSize.width,
-        height: cameraSize.height);
+    final scale = getZoomScale(zoom, this.zoom);
+    final fromCenter = _visibleGroundFromCenter;
+    return Rect.fromPoints(
+            fromCenter.topLeft * scale, fromCenter.bottomRight * scale)
+        .shift(projectAtZoom(center, zoom));
   }
 
   /// This will convert a latLng to a position that we could use with a widget
-  /// outside of FlutterMap layer space. Eg using a Positioned Widget.
-  Offset latLngToScreenOffset(LatLng latLng) {
-    final nonRotatedPixelOrigin =
-        projectAtZoom(center, zoom) - nonRotatedSize.center(Offset.zero);
-
-    var point = crs.latLngToOffset(latLng, zoom);
-
-    final mapCenter = crs.latLngToOffset(center, zoom);
-
-    if (rotation != 0.0) {
-      point = rotatePoint(mapCenter, point, counterRotation: false);
-    }
-
-    return point - nonRotatedPixelOrigin;
-  }
+  /// outside of FlutterMap layer space. Eg using a Positioned Widget. The
+  /// position includes the map's rotation and pitch.
+  Offset latLngToScreenOffset(LatLng latLng) =>
+      MatrixUtils.transformPoint(_pixelToScreen, projectAtZoom(latLng));
 
   /// Calculate the [LatLng] coordinates for a [offset].
-  LatLng screenOffsetToLatLng(Offset offset) {
-    final localPointCenterDistance =
-        nonRotatedSize.center(Offset.zero) - offset;
-    final mapCenter = crs.latLngToOffset(center, zoom);
+  ///
+  /// When the map is pitched and [offset] is above the horizon, there is no
+  /// coordinate at [offset]; this returns a distant coordinate in its
+  /// direction instead. [maybeScreenOffsetToLatLng] returns null there.
+  LatLng screenOffsetToLatLng(Offset offset) =>
+      unprojectAtZoom(_screenToPixel(offset, aboveHorizon: _distantGround)!);
 
-    var point = mapCenter - localPointCenterDistance;
+  /// Calculate the [LatLng] coordinates for a [offset], or null when the map
+  /// is pitched and [offset] is above the horizon.
+  LatLng? maybeScreenOffsetToLatLng(Offset offset) {
+    final pixel = _screenToPixel(offset, aboveHorizon: null);
+    return pixel == null ? null : unprojectAtZoom(pixel);
+  }
 
-    if (rotation != 0.0) {
-      point = rotatePoint(mapCenter, point);
+  /// The rectangle, in projected pixels at [zoom], which contains the ground
+  /// visible in the map view.
+  Rect get _footprint =>
+      _visibleGroundFromCenter.shift(projectAtZoom(center, zoom));
+
+  /// [_footprint] relative to the projected [center]. It depends only on
+  /// [nonRotatedSize], [rotation] and [pitch], because [zoom] is the scale at
+  /// [center].
+  Rect get _visibleGroundFromCenter => _footprintFromCenter ??= () {
+        final projectedCenter = projectAtZoom(center);
+        final corners = [
+          Offset.zero,
+          Offset(nonRotatedSize.width, 0),
+          Offset(nonRotatedSize.width, nonRotatedSize.height),
+          Offset(0, nonRotatedSize.height),
+        ]
+            .map((corner) =>
+                _screenToPixel(corner, aboveHorizon: _distantGround)! -
+                projectedCenter)
+            .toList();
+        return Rect.fromLTRB(
+          corners.map((c) => c.dx).reduce(math.min),
+          corners.map((c) => c.dy).reduce(math.min),
+          corners.map((c) => c.dx).reduce(math.max),
+          corners.map((c) => c.dy).reduce(math.max),
+        );
+      }();
+
+  /// The smallest divisor of [_screenToPixel] that [screenOffsetToLatLng]
+  /// uses above the horizon, where the divisor is not positive.
+  static const _distantGround = 1e-3;
+
+  /// The projected pixel at [zoom] of the ground point under the screen
+  /// position [offset]. See [_groundFromCenter].
+  Offset? _screenToPixel(Offset offset, {required double? aboveHorizon}) {
+    final fromCenter = _groundFromCenter(offset, aboveHorizon: aboveHorizon);
+    return fromCenter == null ? null : projectAtZoom(center) + fromCenter;
+  }
+
+  /// The offset, in projected pixels at [zoom], from [center] to the ground
+  /// point under the screen position [offset], or null above the horizon.
+  @internal
+  Offset? groundOffsetFromCenter(Offset offset) =>
+      _groundFromCenter(offset, aboveHorizon: null);
+
+  /// The offset, in projected pixels at [zoom], from [center] to the ground
+  /// point under the screen position [offset], found by casting the view ray
+  /// to the ground. Above the horizon, uses [aboveHorizon] as the divisor, or
+  /// returns null if it is null.
+  ///
+  /// The result doesn't depend on [center] or [zoom], because [zoom] is the
+  /// scale at [center].
+  Offset? _groundFromCenter(Offset offset, {required double? aboveHorizon}) {
+    final fromCenter = offset - nonRotatedSize.center(Offset.zero);
+    final perspective = _perspective;
+    var divisor = math.cos(pitchRad) + fromCenter.dy * perspective;
+    if (divisor <= 0) {
+      if (aboveHorizon == null) return null;
+      divisor = aboveHorizon;
     }
+    final y = fromCenter.dy / divisor;
+    final x = fromCenter.dx * (1 - y * perspective);
+    return Offset(x, y).rotate(rotationRad);
+  }
 
-    return crs.offsetToLatLng(point, zoom);
+  /// The sine of the pitch divided by the camera distance, or 0 for a map view
+  /// of zero height, whose camera distance is 0.
+  double get _perspective {
+    final distance = _cameraDistance;
+    return distance == 0 ? 0 : math.sin(pitchRad) / distance;
   }
 
   /// Sometimes we need to make allowances that a rotation already exists, so
   /// it needs to be reversed (pointToLatLng), and sometimes we want to use
   /// the same rotation to create a new position (latLngToScreenpoint).
   /// counterRotation just makes allowances this for this.
+  ///
+  /// This ignores [pitch]; [latLngToScreenOffset] and [screenOffsetToLatLng]
+  /// convert positions on a pitched map.
   Offset rotatePoint(
     Offset mapCenter,
     Offset point, {
@@ -386,6 +530,12 @@ class MapCamera {
     return MatrixUtils.transformPoint(m, point);
   }
 
+  /// Limits [pitch] to the range from 0 to [maxPitch]. Also limits it to
+  /// [MapOptions.pitchLimit], which [MapOptions] asserts only in debug builds.
+  @internal
+  static double clampPitch(double pitch, double maxPitch) =>
+      pitch.clamp(0, math.min(maxPitch, MapOptions.pitchLimit));
+
   /// Clamps the provided [zoom] to the range specified by [minZoom] and
   /// [maxZoom], if set.
   double clampZoom(double zoom) => zoom.clamp(
@@ -396,10 +546,12 @@ class MapCamera {
   /// Calculate the [LatLng] coordinates for a given [Offset] and an optional
   /// zoom level. If [zoom] is not provided the current zoom level of the
   /// [MapCamera] gets used.
+  ///
+  /// When the map is pitched and [offset] is above the horizon, this returns a
+  /// distant coordinate in its direction.
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt = projectAtZoom(center, zoom ?? this.zoom);
-    final point =
-        (offset - nonRotatedSize.center(Offset.zero)).rotate(rotationRad);
+    final point = _groundFromCenter(offset, aboveHorizon: _distantGround)!;
 
     final newCenterPt = focalStartPt + point;
     final worldWidth = getWorldWidthAtZoom(zoom ?? this.zoom);
@@ -417,10 +569,12 @@ class MapCamera {
 
   /// Calculate the center point which would keep the same point of the map
   /// visible at the given [cursorPos] with the zoom set to [zoom].
+  ///
+  /// When the map is pitched and [cursorPos] is above the horizon, this
+  /// returns [center].
   LatLng focusedZoomCenter(Offset cursorPos, double zoom) {
-    // Calculate offset of mouse cursor from viewport center
-    final offset =
-        (cursorPos - nonRotatedSize.center(Offset.zero)).rotate(rotationRad);
+    final offset = _groundFromCenter(cursorPos, aboveHorizon: null);
+    if (offset == null) return center;
     // Match new center coordinate to mouse cursor position
     final scale = getZoomScale(zoom, this.zoom);
     final newOffset = offset * (1.0 - 1.0 / scale);
@@ -431,7 +585,7 @@ class MapCamera {
 
   @override
   int get hashCode => Object.hash(
-      crs, minZoom, maxZoom, center, zoom, rotation, nonRotatedSize);
+      crs, minZoom, maxZoom, center, zoom, rotation, nonRotatedSize, pitch);
 
   @override
   bool operator ==(Object other) =>
@@ -443,5 +597,6 @@ class MapCamera {
           other.center == center &&
           other.zoom == zoom &&
           other.rotation == rotation &&
-          other.nonRotatedSize == nonRotatedSize);
+          other.nonRotatedSize == nonRotatedSize &&
+          other.pitch == pitch);
 }
