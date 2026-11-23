@@ -11,13 +11,14 @@ import 'package:flutter_map/src/map/camera/camera.dart';
 /// the ground, such as tiles and polygons. Content that should face the
 /// viewer, such as markers and labels, belongs in a
 /// [BillboardLayerTransformer].
-class MobileLayerTransformer extends StatelessWidget {
-  /// Transforms a [child] widget tree into a layer that can move and rotate based
-  /// on the [MapCamera].
-  const MobileLayerTransformer({super.key, required this.child});
+///
+/// Formerly named [MobileLayerTransformer].
+class GroundLayerTransformer extends StatelessWidget {
+  /// Places a [child] widget tree on the ground.
+  const GroundLayerTransformer({super.key, required this.child});
 
   /// The layer content that should get transformed by
-  /// the [MobileLayerTransformer].
+  /// the [GroundLayerTransformer].
   final Widget child;
 
   @override
@@ -41,3 +42,7 @@ class MobileLayerTransformer extends StatelessWidget {
     );
   }
 }
+
+/// Renamed to [GroundLayerTransformer].
+@Deprecated('Renamed to GroundLayerTransformer')
+typedef MobileLayerTransformer = GroundLayerTransformer;

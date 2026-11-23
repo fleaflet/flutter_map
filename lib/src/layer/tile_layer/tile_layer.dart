@@ -591,7 +591,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       return cmp;
     }
 
-    return MobileLayerTransformer(
+    return GroundLayerTransformer(
       child: Stack(children: tiles..sort(renderOrder)),
     );
   }

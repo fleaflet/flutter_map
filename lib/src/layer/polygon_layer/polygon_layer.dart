@@ -260,7 +260,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
             growable: false,
           );
 
-    final polygons = MobileLayerTransformer(
+    final polygons = GroundLayerTransformer(
       child: CustomPaint(
         painter: _PolygonPainter(
           polygons: culled,

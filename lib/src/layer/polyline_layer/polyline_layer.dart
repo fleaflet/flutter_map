@@ -121,7 +121,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
             cullingMargin: widget.cullingMargin!,
           ).toList();
 
-    return MobileLayerTransformer(
+    return GroundLayerTransformer(
       child: CustomPaint(
         painter: _PolylinePainter(
           polylines: culled,

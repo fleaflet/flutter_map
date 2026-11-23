@@ -394,7 +394,7 @@ void main() {
     final paints = find.descendant(
         of: find.byType(PolygonLayer), matching: find.byType(CustomPaint));
     final ground = find.descendant(
-        of: find.byType(MobileLayerTransformer), matching: paints);
+        of: find.byType(GroundLayerTransformer), matching: paints);
     final billboard = find.descendant(
         of: find.byType(BillboardLayerTransformer), matching: paints);
     expect(_paragraphs(tester, ground), isEmpty);

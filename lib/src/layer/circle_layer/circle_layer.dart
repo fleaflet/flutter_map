@@ -53,7 +53,7 @@ class CircleLayer<R extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
-    return MobileLayerTransformer(
+    return GroundLayerTransformer(
       child: CustomPaint(
         painter: CirclePainter(
           circles: circles,

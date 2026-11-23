@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/shared/mobile_layer_transformer.dart';
+import 'package:flutter_map/src/layer/shared/ground_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 
 /// Places a [child] widget tree in screen space, unaffected by the map's
@@ -8,7 +8,7 @@ import 'package:flutter_map/src/map/camera/camera.dart';
 ///
 /// Use it for content that should face the viewer, such as markers and
 /// labels. Content that lies on the ground, such as tiles and polygons,
-/// belongs in a [MobileLayerTransformer].
+/// belongs in a [GroundLayerTransformer].
 class BillboardLayerTransformer extends StatelessWidget {
   /// Places a [child] widget tree in screen space.
   const BillboardLayerTransformer({super.key, required this.child});
