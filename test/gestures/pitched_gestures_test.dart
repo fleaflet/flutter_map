@@ -10,6 +10,7 @@ Future<MapController> _pump(
   WidgetTester tester, {
   required double pitch,
   double rotation = 30,
+  InteractionOptions interactionOptions = const InteractionOptions(),
 }) async {
   final controller = MapController();
   await tester.pumpWidget(MaterialApp(
@@ -26,6 +27,7 @@ Future<MapController> _pump(
             initialRotation: rotation,
             initialPitch: pitch,
             maxPitch: 60,
+            interactionOptions: interactionOptions,
           ),
           children: const [],
         ),
@@ -43,7 +45,12 @@ Future<double> _rotationDrift(
   double pitch,
   double degreesPerFrame,
 ) async {
-  final controller = await _pump(tester, pitch: pitch, rotation: 0);
+  final controller = await _pump(
+    tester,
+    pitch: pitch,
+    rotation: 0,
+    interactionOptions: const InteractionOptions(rotationThreshold: 0),
+  );
   const focal = Offset(200, 520);
   final coordinate = controller.camera.screenOffsetToLatLng(focal);
   final a = await tester.startGesture(focal + const Offset(-60, 0), pointer: 1);
