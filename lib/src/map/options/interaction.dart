@@ -13,18 +13,27 @@ class InteractionOptions {
   /// Note: only takes effect if [enableMultiFingerGestureRace] is true
   final bool debugMultiFingerGestureWinner;
 
-  /// If true then [rotationThreshold] and [pinchZoomThreshold] and
-  /// [pinchMoveThreshold] will race If multiple gestures win at the same time
-  /// then precedence: [pinchZoomWinGestures] > [rotationWinGestures] >
-  /// [pinchMoveWinGestures]
+  /// Whether to race multi-finger gestures instead of allowing multiple
+  /// gestures to be recognised at the same time.
+  ///
+  /// Which gestures win is decided by [rotationThreshold],
+  /// [pinchZoomThreshold], and [pinchMoveThreshold].
+  ///
+  /// If multiple gestures win at the same time, then precedence is:
+  /// [pinchZoomWinGestures] > [rotationWinGestures] > [pinchMoveWinGestures].
+  ///
+  /// Defaults to `false`.
   final bool enableMultiFingerGestureRace;
 
-  /// Rotation threshold in degree default is 20.0 Map starts to rotate when
-  /// [rotationThreshold] has been achieved or another multi finger gesture wins
-  /// which allows [MultiFingerGesture.rotate].
+  /// Required angle of rotation (in degrees) of multi-finger gesture for map
+  /// to rotate.
   ///
-  /// Note: if [flags] doesn't contain [InteractiveFlag.rotate] or
-  /// [enableMultiFingerGestureRace] is false then rotate cannot win.
+  /// Prevents unintentional rotation of the map when zooming and panning.
+  ///
+  /// If [enableMultiFingerGestureRace] is enabled, then this will win over
+  /// other gestures once past this threshold.
+  ///
+  /// Defaults to 20 degrees.
   final double rotationThreshold;
 
   /// When [rotationThreshold] wins over [pinchZoomThreshold] and

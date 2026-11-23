@@ -81,12 +81,15 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   Widget build(BuildContext context) {
     super.build(context);
 
+    final backgroundColor = widget.options.backgroundColor;
+
     final widgets = ClipRect(
       child: Stack(
-        children: <Widget>[
-          Positioned.fill(
-            child: ColoredBox(color: widget.options.backgroundColor),
-          ),
+        children: [
+          Positioned.fill(child: ColoredBox(color: backgroundColor)),
+          if (widget.options.backgroundGridOptions case final options?
+              when backgroundColor.a != 0)
+            Positioned.fill(child: PlaceholderGridLayer(gridOptions: options)),
           ...widget.children,
         ],
       ),
