@@ -39,6 +39,7 @@ class _TileSet implements TileCover {
   Set<TileCoordinates>? _wrappedTiles;
 
   final bool Function(TileCoordinates tile)? _isCovered;
+  final _expansions = <int, TileCover>{};
 
   _TileSet(
     Iterable<TileCoordinates> tiles, {
@@ -60,8 +61,10 @@ class _TileSet implements TileCover {
       TileCoordinates(tile.x % (1 << tile.z), tile.y, tile.z);
 
   @override
-  TileCover expand(int count) {
-    if (count == 0) return this;
+  TileCover expand(int count) =>
+      count == 0 ? this : _expansions.putIfAbsent(count, () => _expand(count));
+
+  TileCover _expand(int count) {
     final expanded = LinkedHashSet<TileCoordinates>.of(_tiles);
     for (final tile in _tiles) {
       for (var y = tile.y - count; y <= tile.y + count; y++) {

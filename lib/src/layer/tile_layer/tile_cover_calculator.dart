@@ -60,7 +60,7 @@ class _Cover {
   final List<Offset> _corners;
   final Offset _pixelCenter;
   final int _tileZoom;
-  final _polygons = <int, List<Offset>>{};
+  final _grounds = <int, _Ground>{};
 
   _Cover({
     required this.camera,
@@ -95,11 +95,14 @@ class _Cover {
           camera.getZoomScale(zoom.toDouble(), _tileZoom.toDouble());
 
   /// The visible ground in pixels at [zoom].
-  List<Offset> _polygon(int zoom) => _polygons.putIfAbsent(zoom, () {
+  _Ground _ground(int zoom) => _grounds.putIfAbsent(zoom, () {
         final center = _centerAt(zoom);
         final scale = camera.getZoomScale(viewingZoom, zoom.toDouble());
-        return [for (final corner in _corners) center + corner / scale];
+        return _Ground(
+            [for (final corner in _corners) center + corner / scale]);
       });
+
+  List<Offset> _polygon(int zoom) => _ground(zoom).points;
 
   TileCover tiles() {
     final startZoom =
@@ -158,35 +161,12 @@ class _Cover {
       );
 
   /// Whether [tile] and the visible ground overlap in more than an edge, as
-  /// in [DiscreteTileRange.fromPixelBounds]: a separating axis test.
-  bool _intersects(TileCoordinates tile) {
-    final polygon = _polygon(tile.z);
-    final square = _square(tile);
-    final squareCorners = [
-      square.topLeft,
-      square.topRight,
-      square.bottomRight,
-      square.bottomLeft,
-    ];
-    bool separated(Offset axis) {
-      double dot(Offset p) => p.dx * axis.dx + p.dy * axis.dy;
-      final a = polygon.map(dot);
-      final b = squareCorners.map(dot);
-      return a.reduce(math.max) <= b.reduce(math.min) ||
-          b.reduce(math.max) <= a.reduce(math.min);
-    }
-
-    if (separated(const Offset(1, 0)) || separated(const Offset(0, 1))) {
-      return false;
-    }
-    for (var i = 0; i < polygon.length; i++) {
-      final edge = polygon[(i + 1) % polygon.length] - polygon[i];
-      // Edges along the x and y axes were tested above.
-      if (edge.dx == 0 || edge.dy == 0) continue;
-      if (separated(Offset(-edge.dy, edge.dx))) return false;
-    }
-    return true;
-  }
+  /// in [DiscreteTileRange.fromPixelBounds].
+  bool _intersects(TileCoordinates tile) => _ground(tile.z).overlaps(
+        (tile.x * tileDimension).toDouble(),
+        (tile.y * tileDimension).toDouble(),
+        tileDimension.toDouble(),
+      );
 
   /// The part of the convex [polygon] inside [rect].
   static List<Offset> _clip(List<Offset> polygon, Rect rect) {
@@ -220,4 +200,58 @@ class _Cover {
 
   static Offset _atY(Offset a, Offset b, double y) =>
       Offset(a.dx + (b.dx - a.dx) * (y - a.dy) / (b.dy - a.dy), y);
+}
+
+/// A convex polygon, prepared for a separating axis test against squares.
+class _Ground {
+  final List<Offset> points;
+
+  /// The x and y axes, and the normals of the edges that aren't along them.
+  final List<Offset> _axes;
+
+  /// The smallest and largest projection of [points] onto each of [_axes].
+  final List<double> _mins;
+  final List<double> _maxs;
+
+  factory _Ground(List<Offset> points) {
+    final axes = [const Offset(1, 0), const Offset(0, 1)];
+    for (var i = 0; i < points.length; i++) {
+      final edge = points[(i + 1) % points.length] - points[i];
+      if (edge.dx != 0 && edge.dy != 0) axes.add(Offset(-edge.dy, edge.dx));
+    }
+    final mins = <double>[];
+    final maxs = <double>[];
+    for (final axis in axes) {
+      var min = double.infinity;
+      var max = double.negativeInfinity;
+      for (final p in points) {
+        final d = p.dx * axis.dx + p.dy * axis.dy;
+        if (d < min) min = d;
+        if (d > max) max = d;
+      }
+      mins.add(min);
+      maxs.add(max);
+    }
+    return _Ground._(points, axes, mins, maxs);
+  }
+
+  const _Ground._(this.points, this._axes, this._mins, this._maxs);
+
+  /// Whether the square at [left], [top] with sides of [size] and this polygon
+  /// overlap in more than an edge.
+  bool overlaps(double left, double top, double size) {
+    final right = left + size;
+    final bottom = top + size;
+    for (var i = 0; i < _axes.length; i++) {
+      final axis = _axes[i];
+      final x0 = axis.dx * left;
+      final x1 = axis.dx * right;
+      final y0 = axis.dy * top;
+      final y1 = axis.dy * bottom;
+      final min = math.min(x0, x1) + math.min(y0, y1);
+      final max = math.max(x0, x1) + math.max(y0, y1);
+      if (_maxs[i] <= min || max <= _mins[i]) return false;
+    }
+    return true;
+  }
 }
