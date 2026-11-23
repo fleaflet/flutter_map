@@ -47,16 +47,15 @@ abstract class TileProvider {
 
   /// Construct the base tile provider and initialise the [headers] property
   ///
-  /// This is not a constant constructor, and does not use an initialising
-  /// formal, intentionally. To enable [TileLayer] to efficiently (without
-  /// [headers] being non-final or unstable `late`) inject the appropriate
-  /// 'User-Agent' (based on what is specified by the user), the [headers] [Map]
-  /// must not be constant.
+  /// The provided [headers] are copied into a new mutable [Map]. This enables
+  /// [TileLayer] to efficiently inject the appropriate 'User-Agent' (based on
+  /// what is specified by the user) into [headers], without it needing to be
+  /// non-final or an unstable `late`, and regardless of whether the caller
+  /// passes a constant [Map].
   ///
   /// Extenders should add `super.headers` to their constructors if they support
-  /// custom HTTP headers. However, they should not provide a constant default
-  /// value.
-  TileProvider({Map<String, String>? headers}) : headers = headers ?? {};
+  /// custom HTTP headers.
+  TileProvider({Map<String, String>? headers}) : headers = {...?headers};
 
   /// Retrieve a tile as an image, based on its coordinates and the [TileLayer]
   ///
