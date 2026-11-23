@@ -97,10 +97,23 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
   ) {
     final chunkEvents = StreamController<ImageChunkEvent>();
 
+    var loaded = false;
+    // We evict this as quickly as possible on abort if not loaded, rather than
+    // waiting for the handler in the load image, which might trigger with a
+    // delay. This would mean that a new tile for the same URL hooks into the
+    // empty cache before it's evicted, showing the aborted tile.
+    // See issue #2290.
+    abortTrigger?.then((_) {
+      if (!loaded) PaintingBinding.instance.imageCache.evict(key);
+    });
+
     return MultiFrameImageStreamCompleter(
       codec: _loadImage(key, chunkEvents.sink, decode)
         ..then(
-          (_) => unawaited(chunkEvents.close()),
+          (_) {
+            loaded = true;
+            unawaited(chunkEvents.close());
+          },
           onError: (_) => unawaited(chunkEvents.close()),
         ),
       chunkEvents: chunkEvents.stream,
