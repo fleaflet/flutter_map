@@ -9,6 +9,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/gestures.dart' show PointerDownEvent, kPrimaryButton;
 import 'package:flutter/widgets.dart';
 
 typedef TapPositionCallback = void Function(TapPosition position);
@@ -20,7 +21,6 @@ class PositionedTapDetector2 extends StatefulWidget {
     this.child,
     this.onTap,
     this.onDoubleTap,
-    this.onDoubleTapDown,
     this.onSecondaryTap,
     this.onLongPress,
     Duration? doubleTapDelay,
@@ -34,7 +34,6 @@ class PositionedTapDetector2 extends StatefulWidget {
   final Widget? child;
   final HitTestBehavior? behavior;
   final TapPositionCallback? onTap;
-  final TapPositionCallback? onDoubleTapDown;
   final TapPositionCallback? onSecondaryTap;
   final TapPositionCallback? onDoubleTap;
   final TapPositionCallback? onLongPress;
@@ -129,12 +128,21 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
 
   void _onTapDownEvent(TapDownDetails details) {
     _pendingTap = details;
+  }
+
+  bool _isDoubleTapDown(PointerDownEvent event) {
     final firstTap = _firstTap ?? _firstTapCandidate;
-    if (firstTap != null && _isDoubleTap(firstTap, details)) {
-      widget.onDoubleTapDown?.call(
-        TapPosition(details.globalPosition, details.localPosition),
-      );
-    }
+    return event.buttons == kPrimaryButton &&
+        firstTap != null &&
+        firstTap.kind == event.kind &&
+        _isDoubleTap(firstTap, TapDownDetails(globalPosition: event.position));
+  }
+
+  void _onTapCancelEvent() {
+    // Long press cancels the tap recognizer before delivering its callback,
+    // which still needs the current down position. Only the tap pair expires.
+    _firstTap = null;
+    _firstTapCandidate = null;
   }
 
   void _onTapEvent() {
@@ -224,6 +232,11 @@ class PositionedTapController {
   void onLongPress() => _state?._onLongPressEvent();
 
   void onTapDown(TapDownDetails details) => _state?._onTapDownEvent(details);
+
+  bool isDoubleTapDown(PointerDownEvent event) =>
+      _state?._isDoubleTapDown(event) ?? false;
+
+  void onTapCancel() => _state?._onTapCancelEvent();
 }
 
 @immutable
