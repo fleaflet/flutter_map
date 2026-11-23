@@ -4,10 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/map/widget.dart';
 
-/// A simple attribution box, which mimics the classic style of attribution.
-///
-/// This box is best for short attributions, such as to a single source, where
-/// the attribution does not require images.
+/// A simple attribution box, which mimics a classic design style.
 ///
 /// A custom child can be passed to the default constructor, or a prebuilt
 /// design intended for a single source with optional hyperlink styling and tap
@@ -40,6 +37,9 @@ class SimpleAttributionLayer extends StatelessWidget {
   final Widget child;
 
   /// A simple attribution box with [child].
+  ///
+  /// Consider wrapping this layer in a [SafeArea] to ensure it's not obscured
+  /// by the system.
   const SimpleAttributionLayer({
     super.key,
     this.foregroundColor,
@@ -50,6 +50,9 @@ class SimpleAttributionLayer extends StatelessWidget {
 
   /// A simple attribution box which displays one line of text, optionally as
   /// in a hyperlink style (with underline) when [onTap] is set.
+  ///
+  /// Consider wrapping this layer in a [SafeArea] to ensure it's not obscured
+  /// by the system.
   SimpleAttributionLayer.singleLink({
     super.key,
     required String text,

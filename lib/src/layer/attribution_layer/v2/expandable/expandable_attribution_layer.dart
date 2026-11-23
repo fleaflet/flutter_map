@@ -8,20 +8,14 @@ import 'package:vector_graphics/vector_graphics_compat.dart';
 
 part 'widgets/expand_info_button.dart';
 
-class RichAttributionLayer extends StatefulWidget {
-  const RichAttributionLayer({
-    super.key,
-    this.backgroundColor,
-    this.foregroundColor,
-    this.animationDuration = const Duration(milliseconds: 200),
-    this.alignment = Alignment.bottomRight,
-    this.initialExpansionDuration = const Duration(seconds: 3),
-    this.minimizeOnMapEvent = RichAttributionLayer.defaultMinimizeOnMapEvent,
-    this.customButtonIconBuilder,
-    this.customButtonTooltipTextBuilder,
-    required this.expandedChild,
-  });
-
+/// An attribution box which can be either minimized - showing just a button -
+/// or expanded - showing a custom [expandedChild] (usually attribution text).
+///
+/// The design is similar to that of MapLibre's attribution element.
+///
+/// Consider wrapping this layer in a [SafeArea] to ensure it's not obscured
+/// by the system.
+class ExpandableAttributionLayer extends StatefulWidget {
   /// Color of the box containing the icon button and [expandedChild].
   ///
   /// Defaults to [MapOptions.backgroundColor] if this layer is within a
@@ -120,6 +114,24 @@ class RichAttributionLayer extends StatefulWidget {
   /// line within some scrolling viewport.
   final Widget expandedChild;
 
+  /// A customisable expandable attribution layer with custom attribution.
+  ///
+  /// Consider wrapping this layer in a [SafeArea] to ensure it's not obscured
+  /// by the system.
+  const ExpandableAttributionLayer({
+    super.key,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.alignment = Alignment.bottomRight,
+    this.initialExpansionDuration = const Duration(seconds: 3),
+    this.minimizeOnMapEvent =
+        ExpandableAttributionLayer.defaultMinimizeOnMapEvent,
+    this.customButtonIconBuilder,
+    this.customButtonTooltipTextBuilder,
+    required this.expandedChild,
+  });
+
   /// Default handler for [minimizeOnMapEvent].
   ///
   /// Returns `true` when the [evt] was likely* a gesture, and not
@@ -137,10 +149,12 @@ class RichAttributionLayer extends StatefulWidget {
       !isInInitialExpansion;
 
   @override
-  State<RichAttributionLayer> createState() => _RichAttributionLayerState();
+  State<ExpandableAttributionLayer> createState() =>
+      _ExpandableAttributionLayerState();
 }
 
-class _RichAttributionLayerState extends State<RichAttributionLayer> {
+class _ExpandableAttributionLayerState
+    extends State<ExpandableAttributionLayer> {
   late final _useInitialExpansion =
       widget.initialExpansionDuration != Duration.zero;
 

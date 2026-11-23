@@ -1,4 +1,4 @@
-part of '../rich_attribution_layer.dart';
+part of '../expandable_attribution_layer.dart';
 
 class _ExpandInfoButton extends StatelessWidget {
   const _ExpandInfoButton({
