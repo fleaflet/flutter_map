@@ -19,8 +19,8 @@ final class TileKey extends LocalKey {
   /// The [tileImage] is compared by identity, while [positionCoordinates] are
   /// compared by value.
   TileKey(TileRenderer renderer)
-      : tileImage = renderer.tileImage,
-        positionCoordinates = renderer.positionCoordinates;
+    : tileImage = renderer.tileImage,
+      positionCoordinates = renderer.positionCoordinates;
 
   @override
   bool operator ==(Object other) {
@@ -30,8 +30,6 @@ final class TileKey extends LocalKey {
   }
 
   @override
-  int get hashCode => Object.hash(
-        identityHashCode(tileImage),
-        positionCoordinates,
-      );
+  int get hashCode =>
+      Object.hash(identityHashCode(tileImage), positionCoordinates);
 }

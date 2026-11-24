@@ -138,13 +138,16 @@ void main() {
 
       final camera = controller.camera;
       // ignore: avoid_print
-      print('camera.zoom=${camera.zoom} camera.center=${camera.center} '
-          'nonRotatedSize=${camera.nonRotatedSize}');
+      print(
+        'camera.zoom=${camera.zoom} camera.center=${camera.center} '
+        'nonRotatedSize=${camera.nonRotatedSize}',
+      );
 
       expect(
         camera.nonRotatedSize,
         realSize,
-        reason: 'sanity check: the widget should have settled at the '
+        reason:
+            'sanity check: the widget should have settled at the '
             'requested real size, not have it clipped by the test window',
       );
 
@@ -159,7 +162,8 @@ void main() {
       expect(
         camera.zoom,
         closeTo(expectedCamera.zoom, 0.001),
-        reason: 'initialCameraFit should fit against the real widget size, '
+        reason:
+            'initialCameraFit should fit against the real widget size, '
             'not the transient zero size seen on the first frame',
       );
     },

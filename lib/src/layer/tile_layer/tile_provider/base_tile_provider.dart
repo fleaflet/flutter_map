@@ -155,19 +155,17 @@ abstract class TileProvider {
     TileCoordinates coordinates,
     TileLayer options,
   ) {
-    final replacementMap =
-        generateReplacementMap(urlTemplate, coordinates, options);
-
-    return urlTemplate.replaceAllMapped(
-      templatePlaceholderElement,
-      (match) {
-        final value = replacementMap[match.group(1)!];
-        if (value != null) return value;
-        throw ArgumentError(
-          'Missing value for placeholder: {${match.group(1)}}',
-        );
-      },
+    final replacementMap = generateReplacementMap(
+      urlTemplate,
+      coordinates,
+      options,
     );
+
+    return urlTemplate.replaceAllMapped(templatePlaceholderElement, (match) {
+      final value = replacementMap[match.group(1)!];
+      if (value != null) return value;
+      throw ArgumentError('Missing value for placeholder: {${match.group(1)}}');
+    });
   }
 
   /// Generate the [Map] of placeholders to replacements, to be used in
@@ -183,11 +181,12 @@ abstract class TileProvider {
     TileCoordinates coordinates,
     TileLayer options,
   ) {
-    final zoom = (options.zoomOffset +
-            (options.zoomReverse
-                ? options.maxZoom - coordinates.z.toDouble()
-                : coordinates.z.toDouble()))
-        .round();
+    final zoom =
+        (options.zoomOffset +
+                (options.zoomReverse
+                    ? options.maxZoom - coordinates.z.toDouble()
+                    : coordinates.z.toDouble()))
+            .round();
 
     return {
       'x': coordinates.x.toString(),
@@ -196,11 +195,12 @@ abstract class TileProvider {
       'z': zoom.toString(),
       's': options.subdomains.isEmpty
           ? ''
-          : options.subdomains[
-              (coordinates.x + coordinates.y) % options.subdomains.length],
+          : options.subdomains[(coordinates.x + coordinates.y) %
+                options.subdomains.length],
       'r': options.resolvedRetinaMode == RetinaMode.server ? '@2x' : '',
       // ignore: deprecated_member_use_from_same_package
-      'd': options.tileSize?.toInt().toString() ??
+      'd':
+          options.tileSize?.toInt().toString() ??
           options.tileDimension.toString(),
       ...options.additionalOptions,
     };

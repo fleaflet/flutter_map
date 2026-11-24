@@ -27,9 +27,7 @@ class _HomePageState extends State<HomePage> {
               initialZoom: 5,
               maxZoom: 21,
             ),
-            children: [
-              PrimaryTileLayer(showAttributionImmediately: true),
-            ],
+            children: [PrimaryTileLayer(showAttributionImmediately: true)],
           ),
           FloatingMenuButton(),
         ],

@@ -31,52 +31,49 @@ void main() {
   });
 
   testWidgets(
-      'FlutterMap - Bottom ViewInsets (e.g. keyboard) do not trigger rebuilds.',
-      (tester) async {
-    var builds = 0;
+    'FlutterMap - Bottom ViewInsets (e.g. keyboard) do not trigger rebuilds.',
+    (tester) async {
+      var builds = 0;
 
-    final map = FlutterMap(
-      options: const MapOptions(
-        initialCenter: LatLng(45.5231, -122.6765),
-      ),
-      children: [
-        Builder(
-          builder: (context) {
-            final _ = MapCamera.of(context);
-            builds++;
-            return const SizedBox.shrink();
-          },
-        ),
-      ],
-    );
-
-    Widget wrapMapInApp({required double bottomInset}) {
-      return Directionality(
-        textDirection: TextDirection.ltr,
-        child: MediaQuery(
-          data: MediaQueryData(
-            viewInsets: EdgeInsets.only(bottom: bottomInset),
+      final map = FlutterMap(
+        options: const MapOptions(initialCenter: LatLng(45.5231, -122.6765)),
+        children: [
+          Builder(
+            builder: (context) {
+              final _ = MapCamera.of(context);
+              builds++;
+              return const SizedBox.shrink();
+            },
           ),
-          child: Scaffold(
-            resizeToAvoidBottomInset: false,
-            body: map,
-          ),
-        ),
+        ],
       );
-    }
 
-    await tester.pumpWidget(wrapMapInApp(bottomInset: 0));
-    expect(find.byType(FlutterMap), findsOneWidget);
+      Widget wrapMapInApp({required double bottomInset}) {
+        return Directionality(
+          textDirection: TextDirection.ltr,
+          child: MediaQuery(
+            data: MediaQueryData(
+              viewInsets: EdgeInsets.only(bottom: bottomInset),
+            ),
+            child: Scaffold(resizeToAvoidBottomInset: false, body: map),
+          ),
+        );
+      }
 
-    // Emulate a keyboard popping up by putting a non-zero bottom ViewInset.
-    await tester.pumpWidget(wrapMapInApp(bottomInset: 100));
+      await tester.pumpWidget(wrapMapInApp(bottomInset: 0));
+      expect(find.byType(FlutterMap), findsOneWidget);
 
-    // The map should not have rebuild after the first build.
-    expect(builds, equals(1));
-  });
+      // Emulate a keyboard popping up by putting a non-zero bottom ViewInset.
+      await tester.pumpWidget(wrapMapInApp(bottomInset: 100));
 
-  testWidgets('gestures work with no tile layer and transparent background.',
-      (tester) async {
+      // The map should not have rebuild after the first build.
+      expect(builds, equals(1));
+    },
+  );
+
+  testWidgets('gestures work with no tile layer and transparent background.', (
+    tester,
+  ) async {
     var taps = 0;
     late MapCamera camera;
 
@@ -88,7 +85,7 @@ void main() {
             backgroundColor: Colors.transparent,
             maxZoom: 9,
             initialZoom: 10, // Higher than maxZoom.
-            onTap: (_, __) {
+            onTap: (_, _) {
               taps++;
             },
           ),
@@ -98,7 +95,7 @@ void main() {
                 camera = MapCamera.of(context);
                 return const SizedBox.shrink();
               },
-            )
+            ),
           ],
         ),
       ),
@@ -123,14 +120,17 @@ void main() {
     expect(camera.zoom, isNot(cameraBeforePinchZoom.center));
   });
 
-  testWidgets('MapCamera.of only notifies dependencies when camera changes',
-      (tester) async {
+  testWidgets('MapCamera.of only notifies dependencies when camera changes', (
+    tester,
+  ) async {
     var buildCount = 0;
-    final Widget builder = Builder(builder: (context) {
-      MapCamera.of(context);
-      buildCount++;
-      return const SizedBox.shrink();
-    });
+    final Widget builder = Builder(
+      builder: (context) {
+        MapCamera.of(context);
+        buildCount++;
+        return const SizedBox.shrink();
+      },
+    );
 
     await tester.pumpWidget(TestRebuildsApp(child: builder));
     expect(buildCount, equals(1));
@@ -148,14 +148,17 @@ void main() {
     expect(buildCount, equals(2));
   });
 
-  testWidgets('MapOptions.of only notifies dependencies when options change',
-      (tester) async {
+  testWidgets('MapOptions.of only notifies dependencies when options change', (
+    tester,
+  ) async {
     var buildCount = 0;
-    final Widget builder = Builder(builder: (context) {
-      MapOptions.of(context);
-      buildCount++;
-      return const SizedBox.shrink();
-    });
+    final Widget builder = Builder(
+      builder: (context) {
+        MapOptions.of(context);
+        buildCount++;
+        return const SizedBox.shrink();
+      },
+    );
 
     await tester.pumpWidget(TestRebuildsApp(child: builder));
     expect(buildCount, equals(1));
@@ -174,39 +177,39 @@ void main() {
   });
 
   testWidgets(
-      'MapController.of only notifies dependencies when controller changes',
-      (tester) async {
-    var buildCount = 0;
-    final Widget builder = Builder(builder: (context) {
-      MapController.of(context);
-      buildCount++;
-      return const SizedBox.shrink();
-    });
+    'MapController.of only notifies dependencies when controller changes',
+    (tester) async {
+      var buildCount = 0;
+      final Widget builder = Builder(
+        builder: (context) {
+          MapController.of(context);
+          buildCount++;
+          return const SizedBox.shrink();
+        },
+      );
 
-    await tester.pumpWidget(TestRebuildsApp(child: builder));
-    expect(buildCount, equals(1));
+      await tester.pumpWidget(TestRebuildsApp(child: builder));
+      expect(buildCount, equals(1));
 
-    await tester.tap(find.widgetWithText(TextButton, 'Change flags'));
-    await tester.pumpAndSettle();
-    expect(buildCount, equals(1));
+      await tester.tap(find.widgetWithText(TextButton, 'Change flags'));
+      await tester.pumpAndSettle();
+      expect(buildCount, equals(1));
 
-    await tester.tap(find.widgetWithText(TextButton, 'Change MapController'));
-    await tester.pumpAndSettle();
-    expect(buildCount, equals(2));
+      await tester.tap(find.widgetWithText(TextButton, 'Change MapController'));
+      await tester.pumpAndSettle();
+      expect(buildCount, equals(2));
 
-    await tester.tap(find.widgetWithText(TextButton, 'Change Crs'));
-    await tester.pumpAndSettle();
-    expect(buildCount, equals(2));
-  });
+      await tester.tap(find.widgetWithText(TextButton, 'Change Crs'));
+      await tester.pumpAndSettle();
+      expect(buildCount, equals(2));
+    },
+  );
 }
 
 class TestRebuildsApp extends StatefulWidget {
   final Widget child;
 
-  const TestRebuildsApp({
-    super.key,
-    required this.child,
-  });
+  const TestRebuildsApp({super.key, required this.child});
 
   @override
   State<TestRebuildsApp> createState() => _TestRebuildsAppState();
@@ -231,9 +234,7 @@ class _TestRebuildsAppState extends State<TestRebuildsApp> {
           mapController: _mapController,
           options: MapOptions(
             crs: _crs,
-            interactionOptions: InteractionOptions(
-              flags: _interactiveFlags,
-            ),
+            interactionOptions: InteractionOptions(flags: _interactiveFlags),
           ),
           children: [
             widget.child,
@@ -244,8 +245,8 @@ class _TestRebuildsAppState extends State<TestRebuildsApp> {
                     setState(() {
                       _interactiveFlags =
                           InteractiveFlag.hasDrag(_interactiveFlags)
-                              ? _interactiveFlags & ~InteractiveFlag.drag
-                              : InteractiveFlag.all;
+                          ? _interactiveFlags & ~InteractiveFlag.drag
+                          : InteractiveFlag.all;
                     });
                   },
                   child: const Text('Change flags'),

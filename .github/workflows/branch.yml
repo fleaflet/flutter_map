@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ["3.27.0", ""]
+        sdk: ["3.41.0", ""]
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -106,15 +106,11 @@ jobs:
 
   build-windows:
     name: "Build Demo (Windows)"
-    runs-on: ${{ matrix.target.os }}
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - sdk: "3.27.0"
-            os: "windows-2022"
-          - sdk: ""
-            os: "windows-latest"
+        sdk: ["3.41.0", ""]
     defaults:
       run:
         working-directory: ./example
@@ -124,15 +120,15 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ matrix.target.sdk }}
+          flutter-version: ${{ matrix.sdk }}
           cache: true
       - name: Build Windows app
         run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }}
       - name: Generate app installer
-        if: ${{ matrix.target.sdk == '' }}
+        if: ${{ matrix.sdk == '' }}
         run: iscc "windows/installer-config.iss"
       - name: Upload as artifact
-        if: ${{ matrix.target.sdk == '' }}
+        if: ${{ matrix.sdk == '' }}
         uses: actions/upload-artifact@v7
         with:
           path: example/build/windows/output/windows-demo.exe
@@ -145,7 +141,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ["3.27.0", ""]
+        sdk: ["3.41.0", ""]
     defaults:
       run:
         working-directory: ./example

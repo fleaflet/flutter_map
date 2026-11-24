@@ -19,9 +19,9 @@ class SimpleCentroidCalculator implements PolygonLabelPlacementCalculator {
 
   @override
   LatLng call(Polygon polygon) => LatLng(
-        polygon.points.map((e) => e.latitude).average,
-        polygon.points.map((e) => e.longitude).average,
-      );
+    polygon.points.map((e) => e.latitude).average,
+    polygon.points.map((e) => e.longitude).average,
+  );
 }
 
 /// Similar to [SimpleCentroidCalculator], but supports correct placement of the

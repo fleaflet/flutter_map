@@ -55,29 +55,29 @@ class SimpleAttributionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SafeArea(
-        child: Align(
-          alignment: alignment,
-          child: ColoredBox(
-            color: backgroundColor ?? Theme.of(context).colorScheme.surface,
-            child: GestureDetector(
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.all(3),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('flutter_map | © '),
-                    MouseRegion(
-                      cursor: onTap == null
-                          ? MouseCursor.defer
-                          : SystemMouseCursors.click,
-                      child: source,
-                    ),
-                  ],
+    child: Align(
+      alignment: alignment,
+      child: ColoredBox(
+        color: backgroundColor ?? Theme.of(context).colorScheme.surface,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(3),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('flutter_map | © '),
+                MouseRegion(
+                  cursor: onTap == null
+                      ? MouseCursor.defer
+                      : SystemMouseCursors.click,
+                  child: source,
                 ),
-              ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 }

@@ -82,13 +82,17 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                 polygons: [
                   Polygon(
                     points: _polygonPoints
-                        .map((latLng) =>
-                            LatLng(latLng.latitude - 20, latLng.longitude))
+                        .map(
+                          (latLng) =>
+                              LatLng(latLng.latitude - 20, latLng.longitude),
+                        )
                         .toList(),
                     holePointsList: [
                       _polygonHolePoints
-                          .map((latLng) =>
-                              LatLng(latLng.latitude - 20, latLng.longitude))
+                          .map(
+                            (latLng) =>
+                                LatLng(latLng.latitude - 20, latLng.longitude),
+                          )
                           .toList(),
                     ],
                     color: const Color(0xFF0000FF),
@@ -98,8 +102,10 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                   ),
                   Polygon(
                     points: _polygonPoints
-                        .map((latLng) =>
-                            LatLng(latLng.latitude - 80, latLng.longitude))
+                        .map(
+                          (latLng) =>
+                              LatLng(latLng.latitude - 80, latLng.longitude),
+                        )
                         .toList(),
                     color: const Color(0xFF000000),
                   ),
@@ -111,13 +117,17 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                 polygons: [
                   Polygon(
                     points: _polygonPoints
-                        .map((latLng) =>
-                            LatLng(latLng.latitude - 55, latLng.longitude))
+                        .map(
+                          (latLng) =>
+                              LatLng(latLng.latitude - 55, latLng.longitude),
+                        )
                         .toList(),
                     holePointsList: [
                       _polygonHolePoints
-                          .map((latLng) =>
-                              LatLng(latLng.latitude - 55, latLng.longitude))
+                          .map(
+                            (latLng) =>
+                                LatLng(latLng.latitude - 55, latLng.longitude),
+                          )
                           .toList(),
                     ],
                     color: const Color(0xFF0000FF),
@@ -127,8 +137,10 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                   ),
                   Polygon(
                     points: _polygonPoints
-                        .map((latLng) =>
-                            LatLng(latLng.latitude - 110, latLng.longitude))
+                        .map(
+                          (latLng) =>
+                              LatLng(latLng.latitude - 110, latLng.longitude),
+                        )
                         .toList(),
                     color: const Color(0xFF000000),
                   ),
@@ -140,8 +152,10 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                 polylines: [
                   Polyline(
                     points: _polylinePoints
-                        .map((latLng) =>
-                            LatLng(latLng.latitude + 25, latLng.longitude))
+                        .map(
+                          (latLng) =>
+                              LatLng(latLng.latitude + 25, latLng.longitude),
+                        )
                         .toList(),
                     strokeWidth: 8,
                     color: const Color(0xFFFF0000),
@@ -166,8 +180,10 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                 polylines: [
                   Polyline(
                     points: _polylinePoints
-                        .map((latLng) =>
-                            LatLng(latLng.latitude + 0, latLng.longitude))
+                        .map(
+                          (latLng) =>
+                              LatLng(latLng.latitude + 0, latLng.longitude),
+                        )
                         .toList(),
                     strokeWidth: 8,
                     color: Colors.red,
@@ -185,7 +201,7 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                     color: Colors.yellow,
                   ),
                 ],
-              ), /*PolygonLayer(
+              ) /*PolygonLayer(
                 drawInSingleWorld: true,
                 polygons: [
                   Polygon(
@@ -209,7 +225,7 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                     ],
                   ),
                 ],
-              ),*/
+              ),*/,
             ],
           ),
           Align(
@@ -219,10 +235,7 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(32),
               ),
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
-                horizontal: 16,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               margin: const EdgeInsets.all(16),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -230,10 +243,7 @@ class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
                 children: [
                   const Tooltip(
                     message: 'Prevent unbounded horizontal scrolling',
-                    child: Icon(
-                      Icons.screen_lock_landscape,
-                      size: 32,
-                    ),
+                    child: Icon(Icons.screen_lock_landscape, size: 32),
                   ),
                   Switch.adaptive(
                     value: !_repeatLongitudes,

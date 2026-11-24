@@ -18,13 +18,14 @@ final class TileImageView {
     required Set<TileCoordinates> positionCoordinates,
     required DiscreteTileRange visibleRange,
     required DiscreteTileRange keepRange,
-    final TileCoordinatesResolver resolver =
-        const TileCoordinatesResolver(false),
-  })  : _tileImages = tileImages,
-        _positionCoordinates = positionCoordinates,
-        _visibleRange = visibleRange,
-        _keepRange = keepRange,
-        _resolver = resolver;
+    final TileCoordinatesResolver resolver = const TileCoordinatesResolver(
+      false,
+    ),
+  }) : _tileImages = tileImages,
+       _positionCoordinates = positionCoordinates,
+       _visibleRange = visibleRange,
+       _keepRange = keepRange,
+       _resolver = resolver;
 
   /// Get a list with all tiles that have an error and are outside of the
   /// margin that should get kept.

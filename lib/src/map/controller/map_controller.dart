@@ -31,7 +31,8 @@ abstract class MapController {
   static MapController of(BuildContext context) =>
       maybeOf(context) ??
       (throw StateError(
-          '`MapController.of()` should not be called outside a `FlutterMap` and its children'));
+        '`MapController.of()` should not be called outside a `FlutterMap` and its children',
+      ));
 
   /// [Stream] of all emitted [MapEvent]s
   Stream<MapEvent> get mapEventStream;

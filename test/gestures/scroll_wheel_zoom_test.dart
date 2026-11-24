@@ -26,12 +26,14 @@ void main() {
   group('Scroll zoom - snap mode', () {
     testWidgets('zooms in immediately on scroll up', (tester) async {
       final controller = MapController();
-      await tester.pumpWidget(TestApp(
-        controller: controller,
-        interactionOptions: const InteractionOptions(
-          scrollZoomOptions: ScrollZoomOptions.snap(),
+      await tester.pumpWidget(
+        TestApp(
+          controller: controller,
+          interactionOptions: const InteractionOptions(
+            scrollZoomOptions: ScrollZoomOptions.snap(),
+          ),
         ),
-      ));
+      );
 
       final initialZoom = controller.camera.zoom;
 
@@ -47,12 +49,14 @@ void main() {
 
     testWidgets('zooms out immediately on scroll down', (tester) async {
       final controller = MapController();
-      await tester.pumpWidget(TestApp(
-        controller: controller,
-        interactionOptions: const InteractionOptions(
-          scrollZoomOptions: ScrollZoomOptions.snap(),
+      await tester.pumpWidget(
+        TestApp(
+          controller: controller,
+          interactionOptions: const InteractionOptions(
+            scrollZoomOptions: ScrollZoomOptions.snap(),
+          ),
         ),
-      ));
+      );
 
       final initialZoom = controller.camera.zoom;
 
@@ -68,8 +72,9 @@ void main() {
   });
 
   group('Scroll zoom - smooth mode', () {
-    testWidgets('zooms in with animation on single mouse wheel scroll up',
-        (tester) async {
+    testWidgets('zooms in with animation on single mouse wheel scroll up', (
+      tester,
+    ) async {
       ScrollZoomHandler.currentTimestamp =
           TestWidgetsFlutterBinding.instance.clock.now;
       final controller = MapController();
@@ -92,8 +97,9 @@ void main() {
       expect(controller.camera.zoom, greaterThan(midZoom));
     });
 
-    testWidgets('zooms out with animation on single mouse wheel scroll down',
-        (tester) async {
+    testWidgets('zooms out with animation on single mouse wheel scroll down', (
+      tester,
+    ) async {
       ScrollZoomHandler.currentTimestamp =
           TestWidgetsFlutterBinding.instance.clock.now;
       final controller = MapController();
@@ -116,8 +122,9 @@ void main() {
       expect(controller.camera.zoom, lessThan(midZoom));
     });
 
-    testWidgets('zooms in without animation on single trackpad scroll up',
-        (tester) async {
+    testWidgets('zooms in without animation on single trackpad scroll up', (
+      tester,
+    ) async {
       ScrollZoomHandler.currentTimestamp =
           TestWidgetsFlutterBinding.instance.clock.now;
       final controller = MapController();
@@ -136,8 +143,9 @@ void main() {
       expect(controller.camera.zoom, equals(newZoom));
     });
 
-    testWidgets('zooms out without animation on multiple trackpad scroll up',
-        (tester) async {
+    testWidgets('zooms out without animation on multiple trackpad scroll up', (
+      tester,
+    ) async {
       ScrollZoomHandler.currentTimestamp =
           TestWidgetsFlutterBinding.instance.clock.now;
       final controller = MapController();
@@ -168,26 +176,28 @@ void main() {
           TestWidgetsFlutterBinding.instance.clock.now;
       final controller = MapController();
       // TODO: consider modifying TestApp to accept a child (FlutterMap) as parameter
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: SizedBox(
-              width: 200,
-              height: 200,
-              child: FlutterMap(
-                mapController: controller,
-                options: const MapOptions(
-                  initialCenter: LatLng(45.5231, -122.6765),
-                  initialZoom: 4,
-                  minZoom: 2,
-                  maxZoom: 10.5,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 200,
+                height: 200,
+                child: FlutterMap(
+                  mapController: controller,
+                  options: const MapOptions(
+                    initialCenter: LatLng(45.5231, -122.6765),
+                    initialZoom: 4,
+                    minZoom: 2,
+                    maxZoom: 10.5,
+                  ),
+                  children: [TileLayer(tileProvider: TestTileProvider())],
                 ),
-                children: [TileLayer(tileProvider: TestTileProvider())],
               ),
             ),
           ),
         ),
-      ));
+      );
 
       // Scroll up a lot
       for (var i = 0; i < 100; i++) {
@@ -214,14 +224,16 @@ void main() {
       ScrollZoomHandler.currentTimestamp =
           TestWidgetsFlutterBinding.instance.clock.now;
       final controller = MapController();
-      await tester.pumpWidget(TestApp(
-        controller: controller,
-        interactionOptions: const InteractionOptions(
-          scrollZoomOptions: ScrollZoomOptions.smooth(
-            animationDuration: Duration(milliseconds: 1000),
+      await tester.pumpWidget(
+        TestApp(
+          controller: controller,
+          interactionOptions: const InteractionOptions(
+            scrollZoomOptions: ScrollZoomOptions.smooth(
+              animationDuration: Duration(milliseconds: 1000),
+            ),
           ),
         ),
-      ));
+      );
 
       final initialZoom = controller.camera.zoom;
       await _scroll(tester, dy: -100);
@@ -256,8 +268,9 @@ void main() {
       // Put cursor at 1/4 the size of the map
       final screenPoint = (mapRect.topLeft * 3 + mapRect.bottomRight) / 4;
       final mapScreenPoint = screenPoint - mapRect.topLeft;
-      final focusLatLng =
-          controller.camera.screenOffsetToLatLng(mapScreenPoint);
+      final focusLatLng = controller.camera.screenOffsetToLatLng(
+        mapScreenPoint,
+      );
 
       await tester.sendEventToBinding(
         PointerScrollEvent(
@@ -269,8 +282,9 @@ void main() {
 
       expect(controller.camera.zoom, greaterThan(initialZoom));
 
-      final newFocusLatLng =
-          controller.camera.screenOffsetToLatLng(mapScreenPoint);
+      final newFocusLatLng = controller.camera.screenOffsetToLatLng(
+        mapScreenPoint,
+      );
 
       expect(focusLatLng.latitude, moreOrLessEquals(newFocusLatLng.latitude));
       expect(focusLatLng.longitude, moreOrLessEquals(newFocusLatLng.longitude));
@@ -282,28 +296,30 @@ void main() {
       final controller = MapController();
       final events = <MapEvent>[];
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: SizedBox(
-              width: 200,
-              height: 200,
-              child: FlutterMap(
-                mapController: controller,
-                options: MapOptions(
-                  initialCenter: const LatLng(45.5231, -122.6765),
-                  initialZoom: 10,
-                  onMapEvent: events.add,
-                  interactionOptions: const InteractionOptions(
-                    scrollZoomOptions: ScrollZoomOptions.snap(),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 200,
+                height: 200,
+                child: FlutterMap(
+                  mapController: controller,
+                  options: MapOptions(
+                    initialCenter: const LatLng(45.5231, -122.6765),
+                    initialZoom: 10,
+                    onMapEvent: events.add,
+                    interactionOptions: const InteractionOptions(
+                      scrollZoomOptions: ScrollZoomOptions.snap(),
+                    ),
                   ),
+                  children: [TileLayer(tileProvider: TestTileProvider())],
                 ),
-                children: [TileLayer(tileProvider: TestTileProvider())],
               ),
             ),
           ),
         ),
-      ));
+      );
 
       await _scroll(tester, dy: -100);
       await tester.pump();

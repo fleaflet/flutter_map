@@ -35,42 +35,46 @@ class TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
             ),
           ),
           Flexible(
-            child: Builder(builder: (context) {
-              return FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    evictErrorTileStrategy: EvictErrorTileStrategy.none,
-                    errorTileCallback: (tile, error, stackTrace) {
-                      if (_showErrorSnackBar) {
-                        _lastShowedTileLoadError = DateTime.now();
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            duration: _showSnackBarDuration,
-                            content: Text(
-                              error.toString(),
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                            backgroundColor: Colors.deepOrange,
-                          ));
-                        });
-                      }
-                    },
-                    // use a mocked tile provider to simulate tile load errors
-                    // or use the recommended tile provider
-                    tileProvider: _simulateTileLoadErrors
-                        ? _SimulateErrorsTileProvider()
-                        : NetworkTileProvider(),
+            child: Builder(
+              builder: (context) {
+                return FlutterMap(
+                  options: const MapOptions(
+                    initialCenter: LatLng(51.5, -0.09),
+                    initialZoom: 5,
                   ),
-                ],
-              );
-            }),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                      evictErrorTileStrategy: EvictErrorTileStrategy.none,
+                      errorTileCallback: (tile, error, stackTrace) {
+                        if (_showErrorSnackBar) {
+                          _lastShowedTileLoadError = DateTime.now();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                duration: _showSnackBarDuration,
+                                content: Text(
+                                  error.toString(),
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                backgroundColor: Colors.deepOrange,
+                              ),
+                            );
+                          });
+                        }
+                      },
+                      // use a mocked tile provider to simulate tile load errors
+                      // or use the recommended tile provider
+                      tileProvider: _simulateTileLoadErrors
+                          ? _SimulateErrorsTileProvider()
+                          : NetworkTileProvider(),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -91,8 +95,7 @@ class _SimulateErrorsTileProvider extends TileProvider {
   ImageProvider<Object> getImage(
     TileCoordinates coordinates,
     TileLayer options,
-  ) =>
-      _SimulateErrorImageProvider();
+  ) => _SimulateErrorImageProvider();
 }
 
 class _SimulateErrorImageProvider
@@ -103,8 +106,7 @@ class _SimulateErrorImageProvider
   ImageStreamCompleter loadImage(
     _SimulateErrorImageProvider key,
     ImageDecoderCallback decode,
-  ) =>
-      _SimulateErrorImageStreamCompleter();
+  ) => _SimulateErrorImageStreamCompleter();
 
   @override
   Future<_SimulateErrorImageProvider> obtainKey(ImageConfiguration _) =>

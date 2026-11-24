@@ -114,7 +114,7 @@ class InteractionOptions {
   ///
   /// The default calculator is [defaultDoubleTapDragZoomChangeCalculator].
   final double Function(double verticalOffset, MapCamera camera)
-      doubleTapDragZoomChangeCalculator;
+  doubleTapDragZoomChangeCalculator;
 
   /// The duration of the animation played when double-tap zooming
   ///
@@ -185,22 +185,19 @@ class InteractionOptions {
     this.flingAnimationDampingRatio = 5.0,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
     this.keyboardOptions = const KeyboardOptions(),
-  })  : assert(
-          rotationThreshold >= 0.0,
-          '`rotationThreshold` must be positive',
-        ),
-        assert(
-          pinchZoomThreshold >= 0.0,
-          '`pinchZoomThreshold` must be positive',
-        ),
-        assert(
-          pinchMoveThreshold >= 0.0,
-          '`pinchMoveThreshold` must be positive',
-        ),
-        assert(
-          flingAnimationDampingRatio > 0.0,
-          '`flingAnimationDampingRatio` must be positive',
-        );
+  }) : assert(rotationThreshold >= 0.0, '`rotationThreshold` must be positive'),
+       assert(
+         pinchZoomThreshold >= 0.0,
+         '`pinchZoomThreshold` must be positive',
+       ),
+       assert(
+         pinchMoveThreshold >= 0.0,
+         '`pinchMoveThreshold` must be positive',
+       ),
+       assert(
+         flingAnimationDampingRatio > 0.0,
+         '`flingAnimationDampingRatio` must be positive',
+       );
 
   /// Default calculator function for [doubleTapDragZoomChangeCalculator]
   ///
@@ -209,8 +206,7 @@ class InteractionOptions {
   static double defaultDoubleTapDragZoomChangeCalculator(
     double verticalOffset,
     MapCamera camera,
-  ) =>
-      (1 / 360) * camera.zoom * verticalOffset;
+  ) => (1 / 360) * camera.zoom * verticalOffset;
 
   @override
   bool operator ==(Object other) =>
@@ -235,21 +231,21 @@ class InteractionOptions {
 
   @override
   int get hashCode => Object.hash(
-        flags,
-        debugMultiFingerGestureWinner,
-        enableMultiFingerGestureRace,
-        rotationThreshold,
-        rotationWinGestures,
-        pinchZoomThreshold,
-        pinchZoomWinGestures,
-        pinchMoveThreshold,
-        pinchMoveWinGestures,
-        scrollWheelVelocity,
-        scrollZoomOptions,
-        doubleTapDragZoomChangeCalculator,
-        doubleTapZoomDuration,
-        doubleTapZoomCurve,
-        flingAnimationDampingRatio,
-        keyboardOptions,
-      );
+    flags,
+    debugMultiFingerGestureWinner,
+    enableMultiFingerGestureRace,
+    rotationThreshold,
+    rotationWinGestures,
+    pinchZoomThreshold,
+    pinchZoomWinGestures,
+    pinchMoveThreshold,
+    pinchMoveWinGestures,
+    scrollWheelVelocity,
+    scrollZoomOptions,
+    doubleTapDragZoomChangeCalculator,
+    doubleTapZoomDuration,
+    doubleTapZoomCurve,
+    flingAnimationDampingRatio,
+    keyboardOptions,
+  );
 }

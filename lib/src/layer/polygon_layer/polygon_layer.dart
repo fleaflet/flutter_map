@@ -153,8 +153,11 @@ base class PolygonLayer<R extends Object>
 
 class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
     with
-        ProjectionSimplificationManagement<_ProjectedPolygon<R>, Polygon<R>,
-            PolygonLayer<R>> {
+        ProjectionSimplificationManagement<
+          _ProjectedPolygon<R>,
+          Polygon<R>,
+          PolygonLayer<R>
+        > {
   @override
   void didUpdateWidget(covariant PolygonLayer<R> oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -174,35 +177,33 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
   _ProjectedPolygon<R> projectElement({
     required Projection projection,
     required Polygon<R> element,
-  }) =>
-      _ProjectedPolygon._fromPolygon(
-        projection,
-        element,
-        widget.drawInSingleWorld,
-      );
+  }) => _ProjectedPolygon._fromPolygon(
+    projection,
+    element,
+    widget.drawInSingleWorld,
+  );
 
   @override
   _ProjectedPolygon<R> simplifyProjectedElement({
     required _ProjectedPolygon<R> projectedElement,
     required double tolerance,
-  }) =>
-      _ProjectedPolygon._(
-        polygon: projectedElement.polygon,
-        points: simplifyPoints(
-          points: projectedElement.points,
-          tolerance: tolerance,
-          highQuality: true,
-        ),
-        holePoints: List.generate(
-          projectedElement.holePoints.length,
-          (j) => simplifyPoints(
-            points: projectedElement.holePoints[j],
-            tolerance: tolerance,
-            highQuality: true,
-          ),
-          growable: false,
-        ),
-      );
+  }) => _ProjectedPolygon._(
+    polygon: projectedElement.polygon,
+    points: simplifyPoints(
+      points: projectedElement.points,
+      tolerance: tolerance,
+      highQuality: true,
+    ),
+    holePoints: List.generate(
+      projectedElement.holePoints.length,
+      (j) => simplifyPoints(
+        points: projectedElement.holePoints[j],
+        tolerance: tolerance,
+        highQuality: true,
+      ),
+      growable: false,
+    ),
+  );
 
   @override
   List<Polygon<R>> get elements => widget.polygons;
@@ -216,48 +217,46 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
     final culled = !widget.polygonCulling
         ? simplifiedElements.toList()
         : simplifiedElements
-            .where(
-              (p) => p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
-            )
-            .toList();
+              .where(
+                (p) =>
+                    p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
+              )
+              .toList();
 
     final triangles = !widget.useAltRendering
         ? null
-        : List.generate(
-            culled.length,
-            (i) {
-              final culledPolygon = culled[i];
+        : List.generate(culled.length, (i) {
+            final culledPolygon = culled[i];
 
-              // Flatten the points and hole points into the coordinate list
-              // directly, avoiding quadratic `elementAt` calls on a lazy
-              // concatenated iterable.
-              var totalLength = culledPolygon.points.length;
-              for (final hole in culledPolygon.holePoints) {
-                totalLength += hole.length;
-              }
-              final coords = Float64List(totalLength * 2);
-              var ii = 0;
-              for (final point in culledPolygon.points) {
+            // Flatten the points and hole points into the coordinate list
+            // directly, avoiding quadratic `elementAt` calls on a lazy
+            // concatenated iterable.
+            var totalLength = culledPolygon.points.length;
+            for (final hole in culledPolygon.holePoints) {
+              totalLength += hole.length;
+            }
+            final coords = Float64List(totalLength * 2);
+            var ii = 0;
+            for (final point in culledPolygon.points) {
+              coords[ii++] = point.dx;
+              coords[ii++] = point.dy;
+            }
+            for (final hole in culledPolygon.holePoints) {
+              for (final point in hole) {
                 coords[ii++] = point.dx;
                 coords[ii++] = point.dy;
               }
-              for (final hole in culledPolygon.holePoints) {
-                for (final point in hole) {
-                  coords[ii++] = point.dx;
-                  coords[ii++] = point.dy;
-                }
-              }
+            }
 
-              return Earcut.triangulateRaw(
-                coords,
-                holeIndices: culledPolygon.holePoints.isEmpty
-                    ? null
-                    : _generateHolesIndices(culledPolygon)
-                        .toList(growable: false),
-              );
-            },
-            growable: false,
-          );
+            return Earcut.triangulateRaw(
+              coords,
+              holeIndices: culledPolygon.holePoints.isEmpty
+                  ? null
+                  : _generateHolesIndices(
+                      culledPolygon,
+                    ).toList(growable: false),
+            );
+          }, growable: false);
 
     return MobileLayerTransformer(
       child: CustomPaint(

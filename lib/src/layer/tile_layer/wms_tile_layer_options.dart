@@ -61,9 +61,11 @@ class WMSTileLayerOptions {
       ..write('&$projectionKey=${Uri.encodeComponent(crs.code)}')
       ..write('&version=${Uri.encodeComponent(version)}')
       ..write(
-          '&transparent=${uppercaseBoolValue ? transparent.toString().toUpperCase() : transparent}');
-    otherParameters
-        .forEach((k, v) => buffer.write('&$k=${Uri.encodeComponent(v)}'));
+        '&transparent=${uppercaseBoolValue ? transparent.toString().toUpperCase() : transparent}',
+      );
+    otherParameters.forEach(
+      (k, v) => buffer.write('&$k=${Uri.encodeComponent(v)}'),
+    );
     return buffer.toString();
   }
 
@@ -71,10 +73,14 @@ class WMSTileLayerOptions {
   String getUrl(TileCoordinates coords, int tileDimension, bool retinaMode) {
     final nwPoint = coords * tileDimension;
     final sePoint = nwPoint + Point<int>(tileDimension, tileDimension);
-    final nwCoords =
-        crs.offsetToLatLng(nwPoint.toOffset(), coords.z.toDouble());
-    final seCoords =
-        crs.offsetToLatLng(sePoint.toOffset(), coords.z.toDouble());
+    final nwCoords = crs.offsetToLatLng(
+      nwPoint.toOffset(),
+      coords.z.toDouble(),
+    );
+    final seCoords = crs.offsetToLatLng(
+      sePoint.toOffset(),
+      coords.z.toDouble(),
+    );
     final nw = crs.projection.project(nwCoords);
     final se = crs.projection.project(seCoords);
     final bounds = Rect.fromPoints(nw, se);

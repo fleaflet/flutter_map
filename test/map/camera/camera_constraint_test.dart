@@ -9,10 +9,7 @@ void main() {
     group('contain', () {
       test('rotated', () {
         final mapConstraint = CameraConstraint.contain(
-          bounds: LatLngBounds(
-            const LatLng(-90, -180),
-            const LatLng(90, 180),
-          ),
+          bounds: LatLngBounds(const LatLng(-90, -180), const LatLng(90, 180)),
         );
 
         final camera = MapCamera(
