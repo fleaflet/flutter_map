@@ -41,11 +41,13 @@ class MapInsideListViewPage extends StatelessWidget {
             ),
             const Card(
               child: ListTile(
-                  title: Text(
-                      'Scrolling inside the map does not scroll the ListView')),
+                title: Text(
+                  'Scrolling inside the map does not scroll the ListView',
+                ),
+              ),
             ),
             const SizedBox(height: 500),
-            const Card(child: ListTile(title: Text('look at that scrolling')))
+            const Card(child: ListTile(title: Text('look at that scrolling'))),
           ],
         ),
       ),

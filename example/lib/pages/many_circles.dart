@@ -175,8 +175,9 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
                             Switch.adaptive(
                               value: optimizeRadiusInMeters,
                               onChanged: useRadiusInMeters
-                                  ? (v) =>
-                                      setState(() => optimizeRadiusInMeters = v)
+                                  ? (v) => setState(
+                                      () => optimizeRadiusInMeters = v,
+                                    )
                                   : null,
                             ),
                           ],

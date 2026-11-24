@@ -22,11 +22,7 @@ void main() {
       });
 
       test('with dublin, paris, london', () {
-        final bounds = LatLngBounds.fromPoints([
-          dublin,
-          paris,
-          london,
-        ]);
+        final bounds = LatLngBounds.fromPoints([dublin, paris, london]);
 
         final sw = bounds.southWest;
         final ne = bounds.northEast;

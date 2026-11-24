@@ -25,9 +25,10 @@ void main() {
       final tileBounds = TileBounds(
         crs: const FakeInfiniteCrs(),
         tileDimension: 256,
-        latLngBounds: LatLngBounds.fromPoints(
-          [const LatLng(-44, -55), const LatLng(44, 55)],
-        ),
+        latLngBounds: LatLngBounds.fromPoints([
+          const LatLng(-44, -55),
+          const LatLng(44, 55),
+        ]),
       );
 
       expect(tileBounds, isA<DiscreteTileBounds>());
@@ -44,10 +45,7 @@ void main() {
     });
 
     test('crs is finite non-wrapping', () {
-      final tileBounds = TileBounds(
-        crs: const CrsSimple(),
-        tileDimension: 256,
-      );
+      final tileBounds = TileBounds(crs: const CrsSimple(), tileDimension: 256);
 
       expect(tileBounds, isA<DiscreteTileBounds>());
       expect(
@@ -63,10 +61,7 @@ void main() {
     });
 
     test('crs is finite wrapping', () {
-      final tileBounds = TileBounds(
-        crs: const Epsg3857(),
-        tileDimension: 256,
-      );
+      final tileBounds = TileBounds(crs: const Epsg3857(), tileDimension: 256);
 
       expect(tileBounds, isA<WrappedTileBounds>());
       expect(
@@ -79,10 +74,13 @@ void main() {
                   .having((e) => e.min, 'min', const Point<int>(0, 0))
                   .having((e) => e.max, 'max', const Point<int>(31, 31)),
             )
-            .having((e) => e.wrappedAxisIsAlwaysInBounds,
-                'wrappedAxisIsAlwaysInBounds', isTrue)
-            .having((e) => e.wrapX, 'wrapX', const (0, 31)).having(
-                (e) => e.wrapY, 'wrapY', isNull),
+            .having(
+              (e) => e.wrappedAxisIsAlwaysInBounds,
+              'wrappedAxisIsAlwaysInBounds',
+              isTrue,
+            )
+            .having((e) => e.wrapX, 'wrapX', const (0, 31))
+            .having((e) => e.wrapY, 'wrapY', isNull),
       );
     });
 
@@ -108,10 +106,13 @@ void main() {
                   .having((e) => e.min, 'min', const Point<int>(16, 16))
                   .having((e) => e.max, 'max', const Point<int>(31, 31)),
             )
-            .having((e) => e.wrappedAxisIsAlwaysInBounds,
-                'wrappedAxisIsAlwaysInBounds', isFalse)
-            .having((e) => e.wrapX, 'wrapX', const (0, 31)).having(
-                (e) => e.wrapY, 'wrapY', isNull),
+            .having(
+              (e) => e.wrappedAxisIsAlwaysInBounds,
+              'wrappedAxisIsAlwaysInBounds',
+              isFalse,
+            )
+            .having((e) => e.wrapX, 'wrapX', const (0, 31))
+            .having((e) => e.wrapY, 'wrapY', isNull),
       );
     });
 
@@ -139,13 +140,10 @@ void main() {
         17: 17179869184,
         18: 68719476736,
         19: 274877906944,
-        20: 1099511627776
+        20: 1099511627776,
       };
 
-      final tileBounds = TileBounds(
-        crs: const Epsg3857(),
-        tileDimension: 256,
-      );
+      final tileBounds = TileBounds(crs: const Epsg3857(), tileDimension: 256);
 
       for (final entry in expectedTileCounts.entries) {
         final zoom = entry.key;
@@ -174,10 +172,7 @@ void main() {
         6: const (0, 0, 63, 63),
       };
 
-      final tileBounds = TileBounds(
-        crs: const Epsg3857(),
-        tileDimension: 256,
-      );
+      final tileBounds = TileBounds(crs: const Epsg3857(), tileDimension: 256);
 
       for (final entry in expectedTileRanges.entries) {
         final zoom = entry.key;
@@ -188,10 +183,12 @@ void main() {
         final firstCoord = coords.first;
         final lastCoord = coords.last;
 
-        expect(
-          (firstCoord.x, firstCoord.y, lastCoord.x, lastCoord.y),
-          entry.value,
-        );
+        expect((
+          firstCoord.x,
+          firstCoord.y,
+          lastCoord.x,
+          lastCoord.y,
+        ), entry.value);
       }
     });
 
@@ -208,20 +205,14 @@ void main() {
         6: const (0, 63),
       };
 
-      final tileBounds = TileBounds(
-        crs: const Epsg3857(),
-        tileDimension: 256,
-      );
+      final tileBounds = TileBounds(crs: const Epsg3857(), tileDimension: 256);
 
       for (final entry in expectedTileRanges.entries) {
         final zoom = entry.key;
         final tileBoundsAtZoom =
             tileBounds.atZoom(zoom) as WrappedTileBoundsAtZoom;
 
-        expect(
-          tileBoundsAtZoom.wrapX,
-          entry.value,
-        );
+        expect(tileBoundsAtZoom.wrapX, entry.value);
       }
     });
   });

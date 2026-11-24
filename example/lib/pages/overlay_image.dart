@@ -30,7 +30,8 @@ class OverlayImagePage extends StatelessWidget {
                 ),
                 opacity: 0.8,
                 imageProvider: const NetworkImage(
-                    'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600'),
+                  'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600',
+                ),
               ),
               const RotatedOverlayImage(
                 topLeftCorner: LatLng(53.377, -2.999),
@@ -38,7 +39,8 @@ class OverlayImagePage extends StatelessWidget {
                 bottomRightCorner: LatLng(53.475, 0.275),
                 opacity: 0.8,
                 imageProvider: NetworkImage(
-                    'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600'),
+                  'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600',
+                ),
               ),
             ],
           ),
@@ -77,8 +79,10 @@ class _Circle extends StatelessWidget {
       child: Center(
         child: Text(
           label,
-          style:
-              const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
     );

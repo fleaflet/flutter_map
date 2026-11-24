@@ -97,11 +97,8 @@ class SmoothScrollZoomOptions extends ScrollZoomOptions {
       animationDuration == other.animationDuration;
 
   @override
-  int get hashCode => Object.hash(
-        wheelZoomRate,
-        trackpadZoomRate,
-        animationDuration,
-      );
+  int get hashCode =>
+      Object.hash(wheelZoomRate, trackpadZoomRate, animationDuration);
 }
 
 /// When snap scroll zooming, each mouse wheel tick jumps immediately to the new
@@ -116,9 +113,7 @@ class SnapScrollZoomOptions extends ScrollZoomOptions {
   final double zoomRate;
 
   /// Use and configure snap scroll zooming.
-  const SnapScrollZoomOptions({
-    this.zoomRate = 1 / 200,
-  });
+  const SnapScrollZoomOptions({this.zoomRate = 1 / 200});
 
   @override
   bool operator ==(Object other) =>

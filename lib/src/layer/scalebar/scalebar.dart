@@ -96,10 +96,7 @@ class Scalebar extends StatelessWidget {
     final ScalebarPainter scalebarPainter = _SimpleScalebarPainter(
       // use .abs() to avoid wrong placements on the right map border
       scalebarLength: (offsetDistance.dx - offsetCenter.dx).abs(),
-      text: TextSpan(
-        style: textStyle,
-        text: label,
-      ),
+      text: TextSpan(style: textStyle, text: label),
       alignment: alignment,
       lineColor: lineColor,
       strokeWidth: strokeWidth,

@@ -28,8 +28,8 @@ import 'package:meta/meta.dart';
 /// if the incoming event should cause an update. Most implementations should
 /// check [TileUpdateEvent.wasTriggeredByTap] before emitting an event, and
 /// avoid emitting an event if this is `true`.
-typedef TileUpdateTransformer
-    = StreamTransformer<TileUpdateEvent, TileUpdateEvent>;
+typedef TileUpdateTransformer =
+    StreamTransformer<TileUpdateEvent, TileUpdateEvent>;
 
 /// Contains a set of built-in [TileUpdateTransformer]s
 ///
@@ -49,10 +49,11 @@ abstract class TileUpdateTransformers {
   /// {@endtemplate}
   ///
   /// Default transformer for [TileLayer].
-  static final ignoreTapEvents =
-      TileUpdateTransformer.fromHandlers(handleData: (event, sink) {
-    if (!event.wasTriggeredByTap()) sink.add(event);
-  });
+  static final ignoreTapEvents = TileUpdateTransformer.fromHandlers(
+    handleData: (event, sink) {
+      if (!event.wasTriggeredByTap()) sink.add(event);
+    },
+  );
 
   /// Throttle loading/updating/pruning tiles such that it only occurs once per
   /// [duration]

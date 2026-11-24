@@ -1,5 +1,6 @@
 // Frequently used character codes.
 import 'package:flutter_map/src/dart_io/http_exception.dart';
+
 // ignore_for_file: constant_identifier_names
 
 class _CharCode {
@@ -256,8 +257,9 @@ class HttpDate {
       year = expectNum(4);
     } else {
       final dateSeparator = format;
-      final alternateDateSeparator =
-          isCookieDate ? _CharCode.MINUS : _CharCode.NONE;
+      final alternateDateSeparator = isCookieDate
+          ? _CharCode.MINUS
+          : _CharCode.NONE;
       expectChar(_CharCode.SP);
       day = expectNum(2);
       if (!maybeExpectChar(dateSeparator)) expectChar(alternateDateSeparator);

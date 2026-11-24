@@ -18,7 +18,9 @@ class MockHttpClient extends Mock implements Client {}
 Future<ImageInfo> getImageInfo(ImageProvider provider) {
   final completer = Completer<ImageInfo>();
 
-  provider.resolve(ImageConfiguration.empty).addListener(
+  provider
+      .resolve(ImageConfiguration.empty)
+      .addListener(
         ImageStreamListener(
           (imageInfo, _) => completer.complete(imageInfo),
           onError: completer.completeError,
@@ -45,10 +47,7 @@ Uri randomUrl({bool fallback = false}) {
 // TODO: Write tests to test built-in caching
 
 void main() {
-  const headers = {
-    'user-agent': 'flutter_map',
-    'x-whatever': '123',
-  };
+  const headers = {'user-agent': 'flutter_map', 'x-whatever': '123'};
 
   const defaultTimeout = Timeout(Duration(seconds: 1));
 
@@ -58,17 +57,16 @@ void main() {
     Uri url, {
     Uri? fallbackUrl,
     bool silenceExceptions = false,
-  }) =>
-      NetworkTileImageProvider(
-        url: url.toString(),
-        fallbackUrl: fallbackUrl?.toString(),
-        headers: headers,
-        httpClient: mockClient,
-        abortTrigger: null,
-        silenceExceptions: silenceExceptions,
-        attemptDecodeOfHttpErrorResponses: true,
-        cachingProvider: const DisabledMapCachingProvider(),
-      );
+  }) => NetworkTileImageProvider(
+    url: url.toString(),
+    fallbackUrl: fallbackUrl?.toString(),
+    headers: headers,
+    httpClient: mockClient,
+    abortTrigger: null,
+    silenceExceptions: silenceExceptions,
+    attemptDecodeOfHttpErrorResponses: true,
+    cachingProvider: const DisabledMapCachingProvider(),
+  );
 
   setUpAll(() {
     // Ensure the Mock library has example values for Uri.
@@ -77,723 +75,684 @@ void main() {
   });
 
   // We expect a request to be made to the correct URL with the appropriate headers.
-  testWidgets(
-    'Valid/expected response',
-    (tester) async {
-      when(() => mockClient.send(any())).thenAnswer(
-        (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 200),
-      );
+  testWidgets('Valid/expected response', (tester) async {
+    when(() => mockClient.send(any())).thenAnswer(
+      (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 200),
+    );
 
-      final url = randomUrl();
-      final provider = createDefaultImageProvider(url);
+    final url = randomUrl();
+    final provider = createDefaultImageProvider(url);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNotNull);
-      expect(img!.image.width, equals(256));
-      expect(img.image.height, equals(256));
-      expect(tester.takeException(), isInstanceOf<void>());
+    expect(img, isNotNull);
+    expect(img!.image.width, equals(256));
+    expect(img.image.height, equals(256));
+    expect(tester.takeException(), isInstanceOf<void>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
   // We expect the request to be made, and a HTTP ClientException to be bubbled
   // up to the caller.
-  testWidgets(
-    'ClientException - no fallback, exceptions enabled',
-    (tester) async {
-      when(() => mockClient.send(any()))
-          .thenAnswer((_) async => throw ClientException('Server error'));
+  testWidgets('ClientException - no fallback, exceptions enabled', (
+    tester,
+  ) async {
+    when(
+      () => mockClient.send(any()),
+    ).thenAnswer((_) async => throw ClientException('Server error'));
 
-      final url = randomUrl();
-      final provider = createDefaultImageProvider(url);
+    final url = randomUrl();
+    final provider = createDefaultImageProvider(url);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNull);
-      expect(tester.takeException(), isInstanceOf<ClientException>());
+    expect(img, isNull);
+    expect(tester.takeException(), isInstanceOf<ClientException>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'ClientException - no fallback, exceptions silenced',
-    (tester) async {
-      when(() => mockClient.send(any()))
-          .thenAnswer((_) async => throw ClientException('Server error'));
+  testWidgets('ClientException - no fallback, exceptions silenced', (
+    tester,
+  ) async {
+    when(
+      () => mockClient.send(any()),
+    ).thenAnswer((_) async => throw ClientException('Server error'));
 
-      final url = randomUrl();
-      final provider = createDefaultImageProvider(url, silenceExceptions: true);
+    final url = randomUrl();
+    final provider = createDefaultImageProvider(url, silenceExceptions: true);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<void>());
+    expect(img, isNotNull);
+    expect(tester.takeException(), isInstanceOf<void>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
   // We expect the regular URL to be called once, then the fallback URL.
-  testWidgets(
-    'ClientException - successful fallback',
-    (tester) async {
-      final url = randomUrl();
-      when(
-        () => mockClient.send(
-            any(that: isA<BaseRequest>().having((r) => r.url, 'URL', url))),
-      ).thenAnswer((_) async => throw ClientException('Server error'));
+  testWidgets('ClientException - successful fallback', (tester) async {
+    final url = randomUrl();
+    when(
+      () => mockClient.send(
+        any(that: isA<BaseRequest>().having((r) => r.url, 'URL', url)),
+      ),
+    ).thenAnswer((_) async => throw ClientException('Server error'));
 
-      final fallbackUrl = randomUrl(fallback: true);
-      when(
-        () => mockClient.send(any(
-            that: isA<BaseRequest>().having((r) => r.url, 'URL', fallbackUrl))),
-      ).thenAnswer(
-        (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 200),
-      );
+    final fallbackUrl = randomUrl(fallback: true);
+    when(
+      () => mockClient.send(
+        any(that: isA<BaseRequest>().having((r) => r.url, 'URL', fallbackUrl)),
+      ),
+    ).thenAnswer(
+      (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 200),
+    );
 
-      final provider =
-          createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
+    final provider = createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNotNull);
-      expect(img!.image.width, equals(256));
-      expect(img.image.height, equals(256));
-      expect(tester.takeException(), isInstanceOf<void>());
+    expect(img, isNotNull);
+    expect(img!.image.width, equals(256));
+    expect(img.image.height, equals(256));
+    expect(tester.takeException(), isInstanceOf<void>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
+      ),
+    ).called(1);
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', fallbackUrl)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', fallbackUrl)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'ClientException - failed fallback, exceptions enabled',
-    (tester) async {
-      when(() => mockClient.send(any()))
-          .thenAnswer((_) async => throw ClientException('Server error'));
+  testWidgets('ClientException - failed fallback, exceptions enabled', (
+    tester,
+  ) async {
+    when(
+      () => mockClient.send(any()),
+    ).thenAnswer((_) async => throw ClientException('Server error'));
 
-      final url = randomUrl();
-      final fallbackUrl = randomUrl(fallback: true);
-      final provider =
-          createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
+    final url = randomUrl();
+    final fallbackUrl = randomUrl(fallback: true);
+    final provider = createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNull);
-      expect(tester.takeException(), isInstanceOf<ClientException>());
+    expect(img, isNull);
+    expect(tester.takeException(), isInstanceOf<ClientException>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
+      ),
+    ).called(1);
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', fallbackUrl)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', fallbackUrl)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'ClientException - failed fallback, exceptions silenced',
-    (tester) async {
-      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
-          .thenAnswer((_) async => throw ClientException('Server error'));
+  testWidgets('ClientException - failed fallback, exceptions silenced', (
+    tester,
+  ) async {
+    when(
+      () => mockClient.readBytes(any(), headers: any(named: 'headers')),
+    ).thenAnswer((_) async => throw ClientException('Server error'));
 
-      final url = randomUrl();
-      final fallbackUrl = randomUrl(fallback: true);
-      final provider = createDefaultImageProvider(
-        url,
-        fallbackUrl: fallbackUrl,
-        silenceExceptions: true,
-      );
+    final url = randomUrl();
+    final fallbackUrl = randomUrl(fallback: true);
+    final provider = createDefaultImageProvider(
+      url,
+      fallbackUrl: fallbackUrl,
+      silenceExceptions: true,
+    );
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<void>());
+    expect(img, isNotNull);
+    expect(tester.takeException(), isInstanceOf<void>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
+      ),
+    ).called(1);
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', fallbackUrl)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', fallbackUrl)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'HTTP errstatus - no fallback, exceptions enabled',
-    (tester) async {
-      when(() => mockClient.send(any()))
-          .thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
+  testWidgets('HTTP errstatus - no fallback, exceptions enabled', (
+    tester,
+  ) async {
+    when(
+      () => mockClient.send(any()),
+    ).thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
 
-      final url = randomUrl();
-      final provider = createDefaultImageProvider(url);
+    final url = randomUrl();
+    final provider = createDefaultImageProvider(url);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNull);
-      expect(tester.takeException(), isInstanceOf<NetworkImageLoadException>());
+    expect(img, isNull);
+    expect(tester.takeException(), isInstanceOf<NetworkImageLoadException>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
-  testWidgets(
-    'HTTP errstatus - no fallback, exceptions silenced',
-    (tester) async {
-      when(() => mockClient.send(any()))
-          .thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
+  testWidgets('HTTP errstatus - no fallback, exceptions silenced', (
+    tester,
+  ) async {
+    when(
+      () => mockClient.send(any()),
+    ).thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
 
-      final url = randomUrl();
-      final provider = createDefaultImageProvider(url, silenceExceptions: true);
+    final url = randomUrl();
+    final provider = createDefaultImageProvider(url, silenceExceptions: true);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<void>());
+    expect(img, isNotNull);
+    expect(tester.takeException(), isInstanceOf<void>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'HTTP errstatus - successful fallback',
-    (tester) async {
-      final url = randomUrl();
-      when(
-        () => mockClient.send(
-            any(that: isA<BaseRequest>().having((r) => r.url, 'URL', url))),
-      ).thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
+  testWidgets('HTTP errstatus - successful fallback', (tester) async {
+    final url = randomUrl();
+    when(
+      () => mockClient.send(
+        any(that: isA<BaseRequest>().having((r) => r.url, 'URL', url)),
+      ),
+    ).thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
 
-      final fallbackUrl = randomUrl(fallback: true);
-      when(
-        () => mockClient.send(any(
-            that: isA<BaseRequest>().having((r) => r.url, 'URL', fallbackUrl))),
-      ).thenAnswer(
-        (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 200),
-      );
+    final fallbackUrl = randomUrl(fallback: true);
+    when(
+      () => mockClient.send(
+        any(that: isA<BaseRequest>().having((r) => r.url, 'URL', fallbackUrl)),
+      ),
+    ).thenAnswer(
+      (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 200),
+    );
 
-      final provider =
-          createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
+    final provider = createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNotNull);
-      expect(img!.image.width, equals(256));
-      expect(img.image.height, equals(256));
-      expect(tester.takeException(), isInstanceOf<void>());
+    expect(img, isNotNull);
+    expect(img!.image.width, equals(256));
+    expect(img.image.height, equals(256));
+    expect(tester.takeException(), isInstanceOf<void>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
+      ),
+    ).called(1);
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', fallbackUrl)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', fallbackUrl)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'HTTP errstatus - failed fallback, exceptions enabled',
-    (tester) async {
-      when(() => mockClient.send(any()))
-          .thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
+  testWidgets('HTTP errstatus - failed fallback, exceptions enabled', (
+    tester,
+  ) async {
+    when(
+      () => mockClient.send(any()),
+    ).thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
 
-      final url = randomUrl();
-      final fallbackUrl = randomUrl(fallback: true);
-      final provider =
-          createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
+    final url = randomUrl();
+    final fallbackUrl = randomUrl(fallback: true);
+    final provider = createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNull);
-      expect(tester.takeException(), isInstanceOf<NetworkImageLoadException>());
+    expect(img, isNull);
+    expect(tester.takeException(), isInstanceOf<NetworkImageLoadException>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
+      ),
+    ).called(1);
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', fallbackUrl)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', fallbackUrl)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'HTTP errstatus - failed fallback, exceptions silenced',
-    (tester) async {
-      when(() => mockClient.send(any()))
-          .thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
+  testWidgets('HTTP errstatus - failed fallback, exceptions silenced', (
+    tester,
+  ) async {
+    when(
+      () => mockClient.send(any()),
+    ).thenAnswer((_) async => StreamedResponse(const Stream.empty(), 400));
 
-      final url = randomUrl();
-      final fallbackUrl = randomUrl(fallback: true);
-      final provider = createDefaultImageProvider(
-        url,
-        fallbackUrl: fallbackUrl,
-        silenceExceptions: true,
-      );
+    final url = randomUrl();
+    final fallbackUrl = randomUrl(fallback: true);
+    final provider = createDefaultImageProvider(
+      url,
+      fallbackUrl: fallbackUrl,
+      silenceExceptions: true,
+    );
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<void>());
+    expect(img, isNotNull);
+    expect(tester.takeException(), isInstanceOf<void>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
+      ),
+    ).called(1);
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', fallbackUrl)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', fallbackUrl)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'HTTP errstatus with image - optimistic decode enabled',
-    (tester) async {
-      when(() => mockClient.send(any())).thenAnswer(
-        (_) async => StreamedResponse(
-          Stream.value(testWhiteTileBytes),
-          400,
+  testWidgets('HTTP errstatus with image - optimistic decode enabled', (
+    tester,
+  ) async {
+    when(() => mockClient.send(any())).thenAnswer(
+      (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 400),
+    );
+
+    final url = randomUrl();
+    final provider = createDefaultImageProvider(url);
+
+    final img = await tester.runAsync(() => getImageInfo(provider));
+
+    expect(img, isNotNull);
+    expect(img!.image.width, equals(256));
+    expect(img.image.height, equals(256));
+    expect(tester.takeException(), isInstanceOf<void>());
+
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      );
+      ),
+    ).called(1);
+  });
 
-      final url = randomUrl();
-      final provider = createDefaultImageProvider(url);
+  testWidgets('HTTP errstatus with image - optimistic decode disabled', (
+    tester,
+  ) async {
+    when(() => mockClient.send(any())).thenAnswer(
+      (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 400),
+    );
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final url = randomUrl();
+    final provider = NetworkTileImageProvider(
+      url: url.toString(),
+      fallbackUrl: null,
+      headers: headers,
+      httpClient: mockClient,
+      abortTrigger: null,
+      silenceExceptions: false,
+      attemptDecodeOfHttpErrorResponses: false,
+      cachingProvider: const DisabledMapCachingProvider(),
+    );
 
-      expect(img, isNotNull);
-      expect(img!.image.width, equals(256));
-      expect(img.image.height, equals(256));
-      expect(tester.takeException(), isInstanceOf<void>());
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    expect(img, isNull);
+    expect(tester.takeException(), isInstanceOf<NetworkImageLoadException>());
+
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-  );
+      ),
+    ).called(1);
+  });
 
-  testWidgets(
-    'HTTP errstatus with image - optimistic decode disabled',
-    (tester) async {
-      when(() => mockClient.send(any())).thenAnswer(
-        (_) async => StreamedResponse(
-          Stream.value(testWhiteTileBytes),
-          400,
+  testWidgets('Non-image response - no fallback, exceptions enabled', (
+    tester,
+  ) async {
+    when(() => mockClient.send(any())).thenAnswer(
+      (_) async => StreamedResponse(
+        Stream.value(
+          Uint8List.fromList(utf8.encode('<html>Server Error</html>')),
         ),
-      );
+        200,
+      ),
+    );
 
-      final url = randomUrl();
-      final provider = NetworkTileImageProvider(
-        url: url.toString(),
-        fallbackUrl: null,
-        headers: headers,
-        httpClient: mockClient,
-        abortTrigger: null,
-        silenceExceptions: false,
-        attemptDecodeOfHttpErrorResponses: false,
-        cachingProvider: const DisabledMapCachingProvider(),
-      );
+    final url = randomUrl();
+    final provider = createDefaultImageProvider(url);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNull);
-      expect(tester.takeException(), isInstanceOf<NetworkImageLoadException>());
+    expect(img, isNull);
+    final exception = tester.takeException();
+    expect(exception, isInstanceOf<Exception>());
+    expect(
+      (exception as Exception).toString(),
+      equals('Exception: Invalid image data'),
+    );
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'Non-image response - no fallback, exceptions enabled',
-    (tester) async {
-      when(() => mockClient.send(any())).thenAnswer(
-        (_) async => StreamedResponse(
-          Stream.value(
-              Uint8List.fromList(utf8.encode('<html>Server Error</html>'))),
-          200,
+  testWidgets('Non-image response - no fallback, exceptions silenced', (
+    tester,
+  ) async {
+    when(() => mockClient.send(any())).thenAnswer(
+      (_) async => StreamedResponse(
+        Stream.value(
+          Uint8List.fromList(utf8.encode('<html>Server Error</html>')),
         ),
-      );
+        200,
+      ),
+    );
 
-      final url = randomUrl();
-      final provider = createDefaultImageProvider(url);
+    final url = randomUrl();
+    final provider = createDefaultImageProvider(url, silenceExceptions: true);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNull);
-      final exception = tester.takeException();
-      expect(exception, isInstanceOf<Exception>());
-      expect(
-        (exception as Exception).toString(),
-        equals('Exception: Invalid image data'),
-      );
+    expect(img, isNotNull);
+    expect(tester.takeException(), isInstanceOf<void>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'Non-image response - no fallback, exceptions silenced',
-    (tester) async {
-      when(() => mockClient.send(any())).thenAnswer(
-        (_) async => StreamedResponse(
-          Stream.value(
-              Uint8List.fromList(utf8.encode('<html>Server Error</html>'))),
-          200,
+  testWidgets('Non-image response - successful fallback', (tester) async {
+    final url = randomUrl();
+    when(
+      () => mockClient.send(
+        any(that: isA<BaseRequest>().having((r) => r.url, 'URL', url)),
+      ),
+    ).thenAnswer(
+      (_) async => StreamedResponse(
+        Stream.value(
+          Uint8List.fromList(utf8.encode('<html>Server Error</html>')),
         ),
-      );
+        200,
+      ),
+    );
 
-      final url = randomUrl();
-      final provider = createDefaultImageProvider(
-        url,
-        silenceExceptions: true,
-      );
+    final fallbackUrl = randomUrl(fallback: true);
+    when(
+      () => mockClient.send(
+        any(that: isA<BaseRequest>().having((r) => r.url, 'URL', fallbackUrl)),
+      ),
+    ).thenAnswer(
+      (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 200),
+    );
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final provider = createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
 
-      expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<void>());
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    expect(img, isNotNull);
+    expect(img!.image.width, equals(256));
+    expect(img.image.height, equals(256));
+    expect(tester.takeException(), isInstanceOf<void>());
+
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
-
-  testWidgets(
-    'Non-image response - successful fallback',
-    (tester) async {
-      final url = randomUrl();
-      when(() => mockClient.send(
-              any(that: isA<BaseRequest>().having((r) => r.url, 'URL', url))))
-          .thenAnswer(
-        (_) async => StreamedResponse(
-          Stream.value(
-              Uint8List.fromList(utf8.encode('<html>Server Error</html>'))),
-          200,
+      ),
+    ).called(1);
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', fallbackUrl)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-      final fallbackUrl = randomUrl(fallback: true);
-      when(
-        () => mockClient.send(any(
-            that: isA<BaseRequest>().having((r) => r.url, 'URL', fallbackUrl))),
-      ).thenAnswer(
-        (_) async => StreamedResponse(Stream.value(testWhiteTileBytes), 200),
-      );
+  testWidgets('Non-image response - failed fallback, exceptions enabled', (
+    tester,
+  ) async {
+    final url = randomUrl();
+    final fallbackUrl = randomUrl(fallback: true);
+    when(
+      () => mockClient.readBytes(any(), headers: any(named: 'headers')),
+    ).thenAnswer((_) async {
+      // 200 OK with html
+      return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
+    });
 
-      final provider = createDefaultImageProvider(
-        url,
-        fallbackUrl: fallbackUrl,
-      );
+    final provider = createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNotNull);
-      expect(img!.image.width, equals(256));
-      expect(img.image.height, equals(256));
-      expect(tester.takeException(), isInstanceOf<void>());
+    expect(img, isNull);
+    final exception = tester.takeException();
+    expect(exception, isInstanceOf<Exception>());
+    expect(
+      (exception as Exception).toString(),
+      equals('Exception: Invalid image data'),
+    );
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', fallbackUrl)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+      ),
+    ).called(1);
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', fallbackUrl)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
-  testWidgets(
-    'Non-image response - failed fallback, exceptions enabled',
-    (tester) async {
-      final url = randomUrl();
-      final fallbackUrl = randomUrl(fallback: true);
-      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
-          .thenAnswer((_) async {
-        // 200 OK with html
-        return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
-      });
+  testWidgets('Non-image response - failed fallback, exceptions silenced', (
+    tester,
+  ) async {
+    final url = randomUrl();
+    final fallbackUrl = randomUrl(fallback: true);
+    when(
+      () => mockClient.readBytes(any(), headers: any(named: 'headers')),
+    ).thenAnswer((_) async {
+      // 200 OK with html
+      return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
+    });
 
-      final provider =
-          createDefaultImageProvider(url, fallbackUrl: fallbackUrl);
+    final provider = createDefaultImageProvider(
+      url,
+      fallbackUrl: fallbackUrl,
+      silenceExceptions: true,
+    );
 
-      final img = await tester.runAsync(() => getImageInfo(provider));
+    final img = await tester.runAsync(() => getImageInfo(provider));
 
-      expect(img, isNull);
-      final exception = tester.takeException();
-      expect(exception, isInstanceOf<Exception>());
-      expect(
-        (exception as Exception).toString(),
-        equals('Exception: Invalid image data'),
-      );
+    expect(img, isNotNull);
+    expect(tester.takeException(), isInstanceOf<void>());
 
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', url)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', fallbackUrl)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
+      ),
+    ).called(1);
+    verify(
+      () => mockClient.send(
+        captureAny(
+          that: isA<BaseRequest>()
+              .having((r) => r.url, 'URL', fallbackUrl)
+              .having((r) => r.method, 'method', 'GET')
+              .having((r) => r.headers, 'headers', equals(headers)),
         ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
-
-  testWidgets(
-    'Non-image response - failed fallback, exceptions silenced',
-    (tester) async {
-      final url = randomUrl();
-      final fallbackUrl = randomUrl(fallback: true);
-      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
-          .thenAnswer((_) async {
-        // 200 OK with html
-        return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
-      });
-
-      final provider = createDefaultImageProvider(
-        url,
-        fallbackUrl: fallbackUrl,
-        silenceExceptions: true,
-      );
-
-      final img = await tester.runAsync(() => getImageInfo(provider));
-
-      expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<void>());
-
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', url)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
-        ),
-      ).called(1);
-      verify(
-        () => mockClient.send(
-          captureAny(
-            that: isA<BaseRequest>()
-                .having((r) => r.url, 'URL', fallbackUrl)
-                .having((r) => r.method, 'method', 'GET')
-                .having((r) => r.headers, 'headers', equals(headers)),
-          ),
-        ),
-      ).called(1);
-    },
-    timeout: defaultTimeout,
-  );
+      ),
+    ).called(1);
+  }, timeout: defaultTimeout);
 
   tearDownAll(mockClient.close);
 }

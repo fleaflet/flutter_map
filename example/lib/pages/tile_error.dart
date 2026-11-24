@@ -14,9 +14,7 @@ class ErrorTileBuilder extends StatelessWidget {
       appBar: AppBar(title: const Text('Error Tile Builder')),
       drawer: const MenuDrawer(ErrorTileBuilder.route),
       body: FlutterMap(
-        options: const MapOptions(
-          initialZoom: 3,
-        ),
+        options: const MapOptions(initialZoom: 3),
         children: [
           TileLayer(
             // obviously wrong url template
@@ -24,11 +22,13 @@ class ErrorTileBuilder extends StatelessWidget {
             tileBuilder: (context, tileWidget, tile) {
               if (tile.loadError) {
                 return Center(
-                  child: Text('${tile.coordinates.z}'
-                      '/'
-                      '${tile.coordinates.x}'
-                      '/'
-                      '${tile.coordinates.y}'),
+                  child: Text(
+                    '${tile.coordinates.z}'
+                    '/'
+                    '${tile.coordinates.x}'
+                    '/'
+                    '${tile.coordinates.y}',
+                  ),
                 );
               }
               return tileWidget;

@@ -11,14 +11,14 @@ void main() {
   // resolutions list. `_scales` is `1 / resolution`, so scales are
   // [1/4096, 1/2048, 1/1024, 1/512, 1/256] for zoom levels 0..4.
   Proj4Crs makeCrs() => Proj4Crs.fromFactory(
-        code: 'EPSG:3978',
-        proj4Projection: proj4.Projection.add(
-          'EPSG:3978',
-          '+proj=lcc +lat_0=49 +lon_0=-95 +lat_1=49 +lat_2=77 +x_0=0 +y_0=0 '
-              '+ellps=GRS80 +units=m +no_defs',
-        ),
-        resolutions: const [4096.0, 2048.0, 1024.0, 512.0, 256.0],
-      );
+    code: 'EPSG:3978',
+    proj4Projection: proj4.Projection.add(
+      'EPSG:3978',
+      '+proj=lcc +lat_0=49 +lon_0=-95 +lat_1=49 +lat_2=77 +x_0=0 +y_0=0 '
+          '+ellps=GRS80 +units=m +no_defs',
+    ),
+    resolutions: const [4096.0, 2048.0, 1024.0, 512.0, 256.0],
+  );
 
   group('Proj4Crs.scale', () {
     final crs = makeCrs();
@@ -52,8 +52,11 @@ void main() {
         final s = crs.scale(z);
         expect(s.isFinite, isTrue, reason: 'scale($z) should be finite');
         if (previous != null) {
-          expect(s, greaterThan(previous),
-              reason: 'scale should increase monotonically with zoom');
+          expect(
+            s,
+            greaterThan(previous),
+            reason: 'scale should increase monotonically with zoom',
+          );
         }
         previous = s;
       }
@@ -96,15 +99,21 @@ void main() {
 
     test('zoom(scale(z)) == z within and beyond the defined range', () {
       for (final z in const [-0.5, 0.0, 1.5, 3.0, 4.0, 5.5]) {
-        expect(crs.zoom(crs.scale(z)), closeTo(z, 1e-9),
-            reason: 'round-trip failed at zoom $z');
+        expect(
+          crs.zoom(crs.scale(z)),
+          closeTo(z, 1e-9),
+          reason: 'round-trip failed at zoom $z',
+        );
       }
     });
 
     test('scale(zoom(s)) == s within and beyond the defined range', () {
       for (final s in const [1 / 8192.0, 1 / 4096.0, 1 / 700.0, 1 / 128.0]) {
-        expect(crs.scale(crs.zoom(s)), closeTo(s, 1e-18),
-            reason: 'round-trip failed at scale $s');
+        expect(
+          crs.scale(crs.zoom(s)),
+          closeTo(s, 1e-18),
+          reason: 'round-trip failed at scale $s',
+        );
       }
     });
   });
@@ -116,10 +125,14 @@ void main() {
       // `latLngToXY` -> `_getTransformationByZoom(zoom(scale))`; a non-finite
       // or negative intermediate zoom used to throw on `.round()` or index the
       // transformations list out of range.
-      expect(() => crs.latLngToXY(const LatLng(46.8, -71.2), crs.scale(6.5)),
-          returnsNormally);
-      expect(() => crs.latLngToXY(const LatLng(46.8, -71.2), crs.scale(-0.5)),
-          returnsNormally);
+      expect(
+        () => crs.latLngToXY(const LatLng(46.8, -71.2), crs.scale(6.5)),
+        returnsNormally,
+      );
+      expect(
+        () => crs.latLngToXY(const LatLng(46.8, -71.2), crs.scale(-0.5)),
+        returnsNormally,
+      );
     });
   });
 

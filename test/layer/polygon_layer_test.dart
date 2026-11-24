@@ -29,9 +29,12 @@ void main() {
     // Assert that batching works and all polygons are drawn into the same
     // CustomPaint/Canvas.
     expect(
-        find.descendant(
-            of: find.byType(PolygonLayer), matching: find.byType(CustomPaint)),
-        findsOneWidget);
+      find.descendant(
+        of: find.byType(PolygonLayer),
+        matching: find.byType(CustomPaint),
+      ),
+      findsOneWidget,
+    );
   });
 
   test('polygon normal/rotation', () {

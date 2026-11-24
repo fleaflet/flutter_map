@@ -28,14 +28,15 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   /// Constructor of the [MapController] implementation for internal usage.
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
-      : super(
-          _MapControllerState(
-            options: options,
-            camera: options == null ? null : MapCamera.initialCamera(options),
-            animationController:
-                vsync == null ? null : AnimationController(vsync: vsync),
-          ),
-        ) {
+    : super(
+        _MapControllerState(
+          options: options,
+          camera: options == null ? null : MapCamera.initialCamera(options),
+          animationController: vsync == null
+              ? null
+              : AnimationController(vsync: vsync),
+        ),
+      ) {
     value.animationController?.addListener(_handleAnimation);
   }
 
@@ -43,8 +44,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   /// the FlutterMapInteractiveViewerState is initialized.
   set interactiveViewerState(
     MapInteractiveViewerState interactiveViewerState,
-  ) =>
-      _interactiveViewerState = interactiveViewerState;
+  ) => _interactiveViewerState = interactiveViewerState;
 
   StreamSink<MapEvent> get _mapEventSink => _mapEventStreamController.sink;
 
@@ -54,8 +54,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   /// Used to change [MapOptions] and update the required widgets.
   MapOptions get options {
     return value.options ??
-        (throw Exception('You need to have the FlutterMap widget rendered at '
-            'least once before using the MapController.'));
+        (throw Exception(
+          'You need to have the FlutterMap widget rendered at '
+          'least once before using the MapController.',
+        ));
   }
 
   /// Get the current [MapCamera] instance. Prefer using
@@ -63,14 +65,18 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   @override
   MapCamera get camera {
     return value.camera ??
-        (throw Exception('You need to have the FlutterMap widget rendered at '
-            'least once before using the MapController.'));
+        (throw Exception(
+          'You need to have the FlutterMap widget rendered at '
+          'least once before using the MapController.',
+        ));
   }
 
   AnimationController get _animationController {
     return value.animationController ??
-        (throw Exception('You need to have the FlutterMap widget rendered at '
-            'least once before using the MapController.'));
+        (throw Exception(
+          'You need to have the FlutterMap widget rendered at '
+          'least once before using the MapController.',
+        ));
   }
 
   /// This setter should only be called in this class or within tests. Changes
@@ -86,37 +92,35 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     double zoom, {
     Offset offset = Offset.zero,
     String? id,
-  }) =>
-      moveRaw(
-        center,
-        zoom,
-        offset: offset,
-        hasGesture: false,
-        source: MapEventSource.mapController,
-        id: id,
-      );
+  }) => moveRaw(
+    center,
+    zoom,
+    offset: offset,
+    hasGesture: false,
+    source: MapEventSource.mapController,
+    id: id,
+  );
 
   @override
   bool rotate(double degree, {String? id}) => rotateRaw(
-        degree,
-        hasGesture: false,
-        source: MapEventSource.mapController,
-        id: id,
-      );
+    degree,
+    hasGesture: false,
+    source: MapEventSource.mapController,
+    id: id,
+  );
 
   @override
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
     Offset? offset,
     String? id,
-  }) =>
-      rotateAroundPointRaw(
-        degree,
-        offset: offset,
-        hasGesture: false,
-        source: MapEventSource.mapController,
-        id: id,
-      );
+  }) => rotateAroundPointRaw(
+    degree,
+    offset: offset,
+    hasGesture: false,
+    source: MapEventSource.mapController,
+    id: id,
+  );
 
   @override
   MoveAndRotateResult moveAndRotate(
@@ -124,16 +128,15 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     double zoom,
     double degree, {
     String? id,
-  }) =>
-      moveAndRotateRaw(
-        center,
-        zoom,
-        degree,
-        offset: Offset.zero,
-        hasGesture: false,
-        source: MapEventSource.mapController,
-        id: id,
-      );
+  }) => moveAndRotateRaw(
+    center,
+    zoom,
+    degree,
+    offset: Offset.zero,
+    hasGesture: false,
+    source: MapEventSource.mapController,
+    id: id,
+  );
 
   @override
   bool fitCamera(CameraFit cameraFit) => fitCameraRaw(cameraFit);
@@ -152,10 +155,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (offset != Offset.zero) {
       final newPoint = camera.projectAtZoom(newCenter, newZoom);
       center = camera.unprojectAtZoom(
-        camera.rotatePoint(
-          newPoint,
-          newPoint - offset,
-        ),
+        camera.rotatePoint(newPoint, newPoint - offset),
         newZoom,
       );
     }
@@ -245,15 +245,17 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
 
     final rotationDiff = degree - camera.rotation;
-    final rotationCenter = camera.projectAtZoom(camera.center) +
+    final rotationCenter =
+        camera.projectAtZoom(camera.center) +
         offset!.rotate(camera.rotationRad);
 
     return (
       moveSuccess: moveRaw(
         camera.unprojectAtZoom(
           rotationCenter +
-              (camera.projectAtZoom(camera.center) - rotationCenter)
-                  .rotate(degrees2Radians * rotationDiff),
+              (camera.projectAtZoom(camera.center) - rotationCenter).rotate(
+                degrees2Radians * rotationDiff,
+              ),
         ),
         camera.zoom,
         hasGesture: hasGesture,
@@ -279,29 +281,25 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required bool hasGesture,
     required MapEventSource source,
     String? id,
-  }) =>
-      (
-        moveSuccess: moveRaw(
-          newCenter,
-          newZoom,
-          offset: offset,
-          hasGesture: hasGesture,
-          source: source,
-          id: id,
-        ),
-        rotateSuccess: rotateRaw(
-          newRotation,
-          id: id,
-          source: source,
-          hasGesture: hasGesture,
-        ),
-      );
+  }) => (
+    moveSuccess: moveRaw(
+      newCenter,
+      newZoom,
+      offset: offset,
+      hasGesture: hasGesture,
+      source: source,
+      id: id,
+    ),
+    rotateSuccess: rotateRaw(
+      newRotation,
+      id: id,
+      source: source,
+      hasGesture: hasGesture,
+    ),
+  );
 
   ///
-  bool fitCameraRaw(
-    CameraFit cameraFit, {
-    Offset offset = Offset.zero,
-  }) {
+  bool fitCameraRaw(CameraFit cameraFit, {Offset offset = Offset.zero}) {
     final fitted = cameraFit.fit(camera);
     return moveRaw(
       fitted.center,
@@ -313,9 +311,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   }
 
   /// Set the widget size but don't emit a event to the event system.
-  bool setNonRotatedSizeWithoutEmittingEvent(
-    Size nonRotatedSize,
-  ) {
+  bool setNonRotatedSizeWithoutEmittingEvent(Size nonRotatedSize) {
     if (nonRotatedSize != MapCamera.kImpossibleSize &&
         nonRotatedSize != camera.nonRotatedSize) {
       value = value.withMapCamera(camera.withNonRotatedSize(nonRotatedSize));
@@ -326,7 +322,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   }
 
   set options(MapOptions newOptions) {
-    final newCamera = value.camera?.withOptions(newOptions) ??
+    final newCamera =
+        value.camera?.withOptions(newOptions) ??
         MapCamera.initialCamera(newOptions);
 
     assert(
@@ -364,12 +361,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   /// To be called when a gesture that causes movement starts.
   void moveStarted(MapEventSource source) {
-    _emitMapEvent(
-      MapEventMoveStart(
-        camera: camera,
-        source: source,
-      ),
-    );
+    _emitMapEvent(MapEventMoveStart(camera: camera, source: source));
   }
 
   /// To be called when an ongoing drag movement updates.
@@ -379,42 +371,22 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     final newCenterPt = oldCenterPt + offset;
     final newCenter = camera.unprojectAtZoom(newCenterPt);
 
-    moveRaw(
-      newCenter,
-      camera.zoom,
-      hasGesture: true,
-      source: source,
-    );
+    moveRaw(newCenter, camera.zoom, hasGesture: true, source: source);
   }
 
   /// To be called when a drag gesture ends.
   void moveEnded(MapEventSource source) {
-    _emitMapEvent(
-      MapEventMoveEnd(
-        camera: camera,
-        source: source,
-      ),
-    );
+    _emitMapEvent(MapEventMoveEnd(camera: camera, source: source));
   }
 
   /// To be called when a rotation gesture starts.
   void rotateStarted(MapEventSource source) {
-    _emitMapEvent(
-      MapEventRotateStart(
-        camera: camera,
-        source: source,
-      ),
-    );
+    _emitMapEvent(MapEventRotateStart(camera: camera, source: source));
   }
 
   /// To be called when a rotation gesture ends.
   void rotateEnded(MapEventSource source) {
-    _emitMapEvent(
-      MapEventRotateEnd(
-        camera: camera,
-        source: source,
-      ),
-    );
+    _emitMapEvent(MapEventRotateEnd(camera: camera, source: source));
   }
 
   /// To be called when a fling gesture starts.
@@ -429,58 +401,32 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   /// To be called when a fling gesture ends.
   void flingEnded(MapEventSource source) {
-    _emitMapEvent(
-      MapEventFlingAnimationEnd(
-        camera: camera,
-        source: source,
-      ),
-    );
+    _emitMapEvent(MapEventFlingAnimationEnd(camera: camera, source: source));
   }
 
   /// To be called when a fling gesture does not start.
   void flingNotStarted(MapEventSource source) {
     _emitMapEvent(
-      MapEventFlingAnimationNotStarted(
-        camera: camera,
-        source: source,
-      ),
+      MapEventFlingAnimationNotStarted(camera: camera, source: source),
     );
   }
 
   /// To be called when a double tap zoom starts.
   void doubleTapZoomStarted(MapEventSource source) {
-    _emitMapEvent(
-      MapEventDoubleTapZoomStart(
-        camera: camera,
-        source: source,
-      ),
-    );
+    _emitMapEvent(MapEventDoubleTapZoomStart(camera: camera, source: source));
   }
 
   /// To be called when a double tap zoom ends.
   void doubleTapZoomEnded(MapEventSource source) {
-    _emitMapEvent(
-      MapEventDoubleTapZoomEnd(
-        camera: camera,
-        source: source,
-      ),
-    );
+    _emitMapEvent(MapEventDoubleTapZoomEnd(camera: camera, source: source));
   }
 
   /// Called when a long-press gesture has happened, calls the
   /// [MapOptions.onTap] callback and emits a [MapEventTap] event.
-  void tapped(
-    MapEventSource source,
-    TapPosition tapPosition,
-    LatLng position,
-  ) {
+  void tapped(MapEventSource source, TapPosition tapPosition, LatLng position) {
     options.onTap?.call(tapPosition, position);
     _emitMapEvent(
-      MapEventTap(
-        tapPosition: position,
-        camera: camera,
-        source: source,
-      ),
+      MapEventTap(tapPosition: position, camera: camera, source: source),
     );
   }
 
@@ -564,15 +510,18 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
-    _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
-    _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
-    _rotationAnimation = Tween<double>(begin: camera.rotation, end: newRotation)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
+    _moveAnimation = LatLngTween(
+      begin: camera.center,
+      end: newCenter,
+    ).chain(CurveTween(curve: curve)).animate(_animationController);
+    _zoomAnimation = Tween<double>(
+      begin: camera.zoom,
+      end: newZoom,
+    ).chain(CurveTween(curve: curve)).animate(_animationController);
+    _rotationAnimation = Tween<double>(
+      begin: camera.rotation,
+      end: newRotation,
+    ).chain(CurveTween(curve: curve)).animate(_animationController);
 
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
@@ -599,9 +548,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (newRotation == camera.rotation) return;
 
     // create the new animation
-    _rotationAnimation = Tween<double>(begin: camera.rotation, end: newRotation)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
+    _rotationAnimation = Tween<double>(
+      begin: camera.rotation,
+      end: newRotation,
+    ).chain(CurveTween(curve: curve)).animate(_animationController);
 
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
@@ -685,12 +635,14 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
-    _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
-    _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
+    _moveAnimation = LatLngTween(
+      begin: camera.center,
+      end: newCenter,
+    ).chain(CurveTween(curve: curve)).animate(_animationController);
+    _zoomAnimation = Tween<double>(
+      begin: camera.zoom,
+      end: newZoom,
+    ).chain(CurveTween(curve: curve)).animate(_animationController);
 
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
@@ -713,7 +665,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   void _handleAnimation() {
     // fling animation
     if (_flingAnimation != null) {
-      final newCenterPoint = _flingMapCenterStartPoint +
+      final newCenterPoint =
+          _flingMapCenterStartPoint +
           _flingAnimation!.value.rotate(camera.rotationRad);
       moveRaw(
         camera.unprojectAtZoom(newCenterPoint),
@@ -779,8 +732,8 @@ class _MapControllerState {
   });
 
   _MapControllerState withMapCamera(MapCamera camera) => _MapControllerState(
-        options: options,
-        camera: camera,
-        animationController: animationController,
-      );
+    options: options,
+    camera: camera,
+    animationController: animationController,
+  );
 }

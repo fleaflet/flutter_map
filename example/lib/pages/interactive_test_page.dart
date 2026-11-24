@@ -53,9 +53,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                     children: [
                       const Text(
                         'Move/Pan',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -97,9 +95,8 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                             children: [
                               Checkbox.adaptive(
                                 value: keyboardWASDMove,
-                                onChanged: (enabled) => setState(
-                                  () => keyboardWASDMove = enabled!,
-                                ),
+                                onChanged: (enabled) =>
+                                    setState(() => keyboardWASDMove = enabled!),
                               ),
                               const Text(
                                 'Keyboard\nW/A/S/D',
@@ -108,7 +105,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                             ],
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                   Column(
@@ -117,9 +114,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                     children: [
                       const Text(
                         'Zoom',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -166,9 +161,8 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                             children: [
                               Checkbox.adaptive(
                                 value: keyboardRFZoom,
-                                onChanged: (enabled) => setState(
-                                  () => keyboardRFZoom = enabled!,
-                                ),
+                                onChanged: (enabled) =>
+                                    setState(() => keyboardRFZoom = enabled!),
                               ),
                               const Text(
                                 'Keyboard\nR/F',
@@ -177,7 +171,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                             ],
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                   Column(
@@ -186,9 +180,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                     children: [
                       const Text(
                         'Rotate',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -220,9 +212,8 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                             children: [
                               Checkbox.adaptive(
                                 value: keyboardQERotate,
-                                onChanged: (enabled) => setState(
-                                  () => keyboardQERotate = enabled!,
-                                ),
+                                onChanged: (enabled) =>
+                                    setState(() => keyboardQERotate = enabled!),
                               ),
                               const Text(
                                 'Keyboard\nQ/E',
@@ -231,17 +222,14 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                             ],
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          const Divider(
-            indent: 16,
-            endIndent: 16,
-          ),
+          const Divider(indent: 16, endIndent: 16),
           Padding(
             padding: const EdgeInsets.all(8),
             child: Center(
@@ -267,11 +255,11 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                         : const ScrollZoomOptions.snap(),
                     cursorKeyboardRotationOptions:
                         CursorKeyboardRotationOptions(
-                      isKeyTrigger: (key) =>
-                          keyboardCursorRotate &&
-                          CursorKeyboardRotationOptions.defaultTriggerKeys
-                              .contains(key),
-                    ),
+                          isKeyTrigger: (key) =>
+                              keyboardCursorRotate &&
+                              CursorKeyboardRotationOptions.defaultTriggerKeys
+                                  .contains(key),
+                        ),
                     keyboardOptions: KeyboardOptions(
                       enableArrowKeysPanning: keyboardArrowsMove,
                       enableWASDPanning: keyboardWASDMove,

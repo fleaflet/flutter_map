@@ -14,9 +14,7 @@ void main() {
       child: SizedBox(
         width: screenSize.width,
         height: screenSize.height,
-        child: Container(
-          color: Colors.red,
-        ),
+        child: Container(color: Colors.red),
       ),
     );
 
@@ -36,8 +34,9 @@ void main() {
     await tap(Offset(screenSize.width - 1, screenSize.height - 1));
   });
 
-  testWidgets('Test tap is detected where expected with scale and offset.',
-      (tester) async {
+  testWidgets('Test tap is detected where expected with scale and offset.', (
+    tester,
+  ) async {
     const screenSize = Size(400, 400);
     await tester.binding.setSurfaceSize(screenSize);
 
@@ -51,9 +50,7 @@ void main() {
         child: SizedBox(
           width: screenSize.width,
           height: screenSize.height,
-          child: Container(
-            color: Colors.red,
-          ),
+          child: Container(color: Colors.red),
         ),
       ),
     );
@@ -74,7 +71,9 @@ void main() {
     await tap(const Offset(0, 100), Offset.zero);
 
     // Tap bottom right of PositionedTapDetector2
-    await tap(const Offset(400 - 1, 300 - 0.5),
-        Offset(screenSize.width - 1, screenSize.height - 1));
+    await tap(
+      const Offset(400 - 1, 300 - 0.5),
+      Offset(screenSize.width - 1, screenSize.height - 1),
+    );
   });
 }
