@@ -38,8 +38,9 @@ class WMSLayerPage extends StatelessWidget {
                       text: 'EOxCloudless - https://cloudless.eox.at',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
-                        decorationColor:
-                            DefaultTextStyle.of(context).style.color,
+                        decorationColor: DefaultTextStyle.of(
+                          context,
+                        ).style.color,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () =>
@@ -50,8 +51,9 @@ class WMSLayerPage extends StatelessWidget {
                       text: 'EOX IT Services GmbH',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
-                        decorationColor:
-                            DefaultTextStyle.of(context).style.color,
+                        decorationColor: DefaultTextStyle.of(
+                          context,
+                        ).style.color,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () => launchUrl(Uri.parse('https://eox.at/')),
@@ -65,20 +67,23 @@ class WMSLayerPage extends StatelessWidget {
                       text: 'OpenStreetMap',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
-                        decorationColor:
-                            DefaultTextStyle.of(context).style.color,
+                        decorationColor: DefaultTextStyle.of(
+                          context,
+                        ).style.color,
                       ),
                       recognizer: TapGestureRecognizer()
-                        ..onTap = () => launchUrl(Uri.parse(
-                            'https://www.openstreetmap.org/copyright')),
+                        ..onTap = () => launchUrl(
+                          Uri.parse('https://www.openstreetmap.org/copyright'),
+                        ),
                     ),
                     const TextSpan(text: ' contributors, Rendering © '),
                     TextSpan(
                       text: 'EOX',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
-                        decorationColor:
-                            DefaultTextStyle.of(context).style.color,
+                        decorationColor: DefaultTextStyle.of(
+                          context,
+                        ).style.color,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () => launchUrl(Uri.parse('https://eox.at/')),
@@ -88,12 +93,14 @@ class WMSLayerPage extends StatelessWidget {
                       text: 'MapServer',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
-                        decorationColor:
-                            DefaultTextStyle.of(context).style.color,
+                        decorationColor: DefaultTextStyle.of(
+                          context,
+                        ).style.color,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () => launchUrl(
-                            Uri.parse('https://github.com/mapserver/basemaps')),
+                          Uri.parse('https://github.com/mapserver/basemaps'),
+                        ),
                     ),
                     const TextSpan(text: ' }'),
                   ],

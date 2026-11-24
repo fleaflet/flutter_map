@@ -78,7 +78,7 @@ class ExpandableAttributionLayer extends StatefulWidget {
   /// Defaults to a filled 'i' icon when minimised and an outline 'i' icon when
   /// expanded.
   final Widget Function(BuildContext context, bool isExpanded)?
-      customButtonIconBuilder;
+  customButtonIconBuilder;
 
   /// String builder that determines text shown in tooltip for button that
   /// expands/minimises attribution.
@@ -96,7 +96,7 @@ class ExpandableAttributionLayer extends StatefulWidget {
   ///
   /// Defaults to a custom implementation using [RawTooltip].
   final Widget Function(BuildContext context, Widget child, bool isExpanded)?
-      customButtonTooltipBuilder;
+  customButtonTooltipBuilder;
 
   /// Optional widget shown adjacent to icon button that moves out of the way
   /// of the [expandedBuilder] as necessary.
@@ -170,11 +170,11 @@ class ExpandableAttributionLayer extends StatefulWidget {
   ///
   /// Returns `true` when the [evt] was likely* a gesture.
   static bool defaultMinimizeOnMapEvent(MapEvent evt) => !{
-        MapEventSource.mapController,
-        MapEventSource.nonRotatedSizeChange,
-        MapEventSource.fitCamera,
-        MapEventSource.custom
-      }.contains(evt.source);
+    MapEventSource.mapController,
+    MapEventSource.nonRotatedSizeChange,
+    MapEventSource.fitCamera,
+    MapEventSource.custom,
+  }.contains(evt.source);
 
   @override
   State<ExpandableAttributionLayer> createState() =>
@@ -198,24 +198,24 @@ class _ExpandableAttributionLayerState
 
     _minimizeTimer =
         _useInitialExpansion && widget.initialExpansionDuration != null
-            ? Timer(
-                widget.initialExpansionDuration!,
-                () => _isExpanded.value = false,
-              )
-            : null;
+        ? Timer(
+            widget.initialExpansionDuration!,
+            () => _isExpanded.value = false,
+          )
+        : null;
 
     void minimizeOnMapEvent() {
-      _mapEventSubscription = MapController.of(context).mapEventStream.listen(
-        (e) {
-          if (widget.forceInitialExpansionDurationElapse &&
-                  _useInitialExpansion &&
-                  (_minimizeTimer?.isActive ?? true) // `null` = always active
-              ) {
-            return;
-          }
-          if (widget.minimizeOnMapEvent(e)) _isExpanded.value = false;
-        },
-      );
+      _mapEventSubscription = MapController.of(context).mapEventStream.listen((
+        e,
+      ) {
+        if (widget.forceInitialExpansionDurationElapse &&
+            _useInitialExpansion &&
+            (_minimizeTimer?.isActive ?? true) // `null` = always active
+            ) {
+          return;
+        }
+        if (widget.minimizeOnMapEvent(e)) _isExpanded.value = false;
+      });
     }
 
     if (_useInitialExpansion) {
@@ -244,10 +244,12 @@ class _ExpandableAttributionLayerState
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = widget.backgroundColor ??
+    final backgroundColor =
+        widget.backgroundColor ??
         MapOptions.maybeOf(context)?.backgroundColor ??
         const Color(0xFFE0E0E0);
-    final foregroundColor = widget.foregroundColor ??
+    final foregroundColor =
+        widget.foregroundColor ??
         (HSLColor.fromColor(backgroundColor).lightness > 0.5
             ? const Color(0xFF000000)
             : const Color(0xFFFFFFFF));

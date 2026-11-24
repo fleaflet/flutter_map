@@ -46,7 +46,8 @@ class AttributionLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: ExpandableAttributionLayer(
-        backgroundColor: backgroundColor ??
+        backgroundColor:
+            backgroundColor ??
             // Just a bit of fun, and showing that it can handle it
             Colors.primaries[Random().nextInt(Colors.primaries.length)],
         initialExpansionDuration: showAttributionImmediately
@@ -70,7 +71,8 @@ class AttributionLayer extends StatelessWidget {
                 ),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () => launchUrl(
-                      Uri.parse('https://www.openstreetmap.org/copyright')),
+                    Uri.parse('https://www.openstreetmap.org/copyright'),
+                  ),
               ),
               const TextSpan(text: ' contributors'),
             ],

@@ -19,16 +19,17 @@ class _ExpandInfoButton extends StatelessWidget {
   final Duration animationDuration;
   final int direction;
   final Widget Function(BuildContext context, bool isExpanded)?
-      customButtonIconBuilder;
+  customButtonIconBuilder;
   final String Function(bool isExpanded)? customButtonTooltipTextBuilder;
   final Widget Function(BuildContext context, Widget child, bool isExpanded)?
-      customButtonTooltipBuilder;
+  customButtonTooltipBuilder;
 
   @override
   Widget build(BuildContext context) {
     final foregroundColor = DefaultTextStyle.of(context).style.color!;
 
-    late final tooltipText = customButtonTooltipTextBuilder?.call(isExpanded) ??
+    late final tooltipText =
+        customButtonTooltipTextBuilder?.call(isExpanded) ??
         '${isExpanded ? 'Hide' : 'Show'} attribution';
 
     final button = MouseRegion(
@@ -38,7 +39,8 @@ class _ExpandInfoButton extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         child: Padding(
           padding: const EdgeInsets.all(4),
-          child: customButtonIconBuilder?.call(context, isExpanded) ??
+          child:
+              customButtonIconBuilder?.call(context, isExpanded) ??
               SizedBox.square(
                 dimension: 20,
                 child: AnimatedCrossFade(
@@ -55,8 +57,10 @@ class _ExpandInfoButton extends StatelessWidget {
                       'lib/assets/info_icon_filled.svg.vec',
                       packageName: 'flutter_map',
                     ),
-                    colorFilter:
-                        ColorFilter.mode(foregroundColor, BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(
+                      foregroundColor,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   secondChild: SvgPicture(
                     key: const ValueKey('outline'),
@@ -64,8 +68,10 @@ class _ExpandInfoButton extends StatelessWidget {
                       'lib/assets/info_icon_outline.svg.vec',
                       packageName: 'flutter_map',
                     ),
-                    colorFilter:
-                        ColorFilter.mode(backgroundColor, BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(
+                      backgroundColor,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
               ),
@@ -81,13 +87,11 @@ class _ExpandInfoButton extends StatelessWidget {
       duration: animationDuration,
       curve: Curves.easeInOut,
       builder: (context, value, child) => DecoratedBox(
-        decoration: ShapeDecoration(
-          shape: const CircleBorder(),
-          color: value,
-        ),
+        decoration: ShapeDecoration(shape: const CircleBorder(), color: value),
         child: child,
       ),
-      child: customButtonTooltipBuilder?.call(context, button, isExpanded) ??
+      child:
+          customButtonTooltipBuilder?.call(context, button, isExpanded) ??
           RawTooltip(
             hoverDelay: const Duration(milliseconds: 500),
             semanticsTooltip: tooltipText,
@@ -107,8 +111,10 @@ class _ExpandInfoButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 8,
+                  ),
                   child: Text(
                     tooltipText,
                     style: TextStyle(

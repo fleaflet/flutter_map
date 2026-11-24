@@ -146,8 +146,9 @@ class TileBuilderPageState extends State<TileBuilderPage> {
                   ],
                 ),
                 AttributionLayer(
-                  backgroundColor:
-                      darkMode ? Colors.grey[900]! : Colors.grey[200]!,
+                  backgroundColor: darkMode
+                      ? Colors.grey[900]!
+                      : Colors.grey[200]!,
                 ),
               ],
             ),

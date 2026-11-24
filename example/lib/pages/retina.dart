@@ -186,42 +186,49 @@ class _RetinaPageState extends State<RetinaPage> {
                             text: 'Mapbox',
                             style: TextStyle(
                               decoration: TextDecoration.underline,
-                              decorationColor:
-                                  DefaultTextStyle.of(context).style.color,
+                              decorationColor: DefaultTextStyle.of(
+                                context,
+                              ).style.color,
                             ),
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () => launchUrl(Uri.parse(
-                                  'https://www.mapbox.com/about/maps/')),
+                              ..onTap = () => launchUrl(
+                                Uri.parse('https://www.mapbox.com/about/maps/'),
+                              ),
                           ),
                           const TextSpan(text: ', © '),
                           TextSpan(
                             text: 'OpenStreetMap',
                             style: TextStyle(
                               decoration: TextDecoration.underline,
-                              decorationColor:
-                                  DefaultTextStyle.of(context).style.color,
+                              decorationColor: DefaultTextStyle.of(
+                                context,
+                              ).style.color,
                             ),
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () => launchUrl(Uri.parse(
-                                  'https://www.openstreetmap.org/copyright')),
+                              ..onTap = () => launchUrl(
+                                Uri.parse(
+                                  'https://www.openstreetmap.org/copyright',
+                                ),
+                              ),
                           ),
                           const TextSpan(text: ' contributors | '),
                           TextSpan(
                             text: 'Improve this map',
                             style: TextStyle(
                               decoration: TextDecoration.underline,
-                              decorationColor:
-                                  DefaultTextStyle.of(context).style.color,
+                              decorationColor: DefaultTextStyle.of(
+                                context,
+                              ).style.color,
                             ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrl(
-                                    Uri.parse(
-                                      'https://apps.mapbox.com/feedback/#/'
-                                      '${MapCamera.of(context).center.longitude}'
-                                      '/${MapCamera.of(context).center.latitude}'
-                                      '/${MapCamera.of(context).zoom.round()}',
-                                    ),
-                                  ),
+                                Uri.parse(
+                                  'https://apps.mapbox.com/feedback/#/'
+                                  '${MapCamera.of(context).center.longitude}'
+                                  '/${MapCamera.of(context).center.latitude}'
+                                  '/${MapCamera.of(context).zoom.round()}',
+                                ),
+                              ),
                           ),
                         ],
                       ),

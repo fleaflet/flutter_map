@@ -63,34 +63,37 @@ class SimpleAttributionLayer extends StatelessWidget {
     this.foregroundColor,
     this.alignment = Alignment.bottomRight,
   }) : builder = ((context) => Text.rich(
-              TextSpan(
-                children: [
-                  if (showFlutterMapPrefix)
-                    const TextSpan(text: 'flutter_map | '),
-                  TextSpan(
-                    text: text,
-                    style: textStyle ??
-                        (onTap == null
-                            ? null
-                            : TextStyle(
-                                decoration: TextDecoration.underline,
-                                decorationColor:
-                                    DefaultTextStyle.of(context).style.color,
-                              )),
-                    recognizer: onTap == null
-                        ? null
-                        : (TapGestureRecognizer()..onTap = onTap),
-                  ),
-                ],
-              ),
-            ));
+         TextSpan(
+           children: [
+             if (showFlutterMapPrefix) const TextSpan(text: 'flutter_map | '),
+             TextSpan(
+               text: text,
+               style:
+                   textStyle ??
+                   (onTap == null
+                       ? null
+                       : TextStyle(
+                           decoration: TextDecoration.underline,
+                           decorationColor: DefaultTextStyle.of(
+                             context,
+                           ).style.color,
+                         )),
+               recognizer: onTap == null
+                   ? null
+                   : (TapGestureRecognizer()..onTap = onTap),
+             ),
+           ],
+         ),
+       ));
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = this.backgroundColor ??
+    final backgroundColor =
+        this.backgroundColor ??
         MapOptions.maybeOf(context)?.backgroundColor ??
         const Color(0xFFE0E0E0);
-    final foregroundColor = this.foregroundColor ??
+    final foregroundColor =
+        this.foregroundColor ??
         (HSLColor.fromColor(backgroundColor).lightness > 0.5
             ? const Color(0xFF000000)
             : const Color(0xFFFFFFFF));
