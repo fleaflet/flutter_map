@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vector_graphics/vector_graphics.dart';
-import 'package:vector_graphics/vector_graphics_compat.dart';
+import 'package:flutter_map/src/layer/attribution_layer/v2/expandable/toggle_button/attribution_layer_info_icons_icons.dart';
 
-part 'widgets/expand_info_button.dart';
+part 'toggle_button/toggle_button.dart';
 
 /// An animated attribution box which can be either minimized - showing just an
 /// icon button - or expanded - showing a custom widget (usually attribution
@@ -290,7 +288,7 @@ class _ExpandableAttributionLayerState
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (direction == -1) Flexible(child: expandedAttribution),
-                _ExpandInfoButton(
+                _ToggleButton(
                   isExpanded: isExpanded,
                   toggleExpanded: () => _isExpanded.value = !isExpanded,
                   backgroundColor: backgroundColor,

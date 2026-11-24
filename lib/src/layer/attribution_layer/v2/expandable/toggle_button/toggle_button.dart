@@ -1,7 +1,7 @@
 part of '../expandable_attribution_layer.dart';
 
-class _ExpandInfoButton extends StatelessWidget {
-  const _ExpandInfoButton({
+class _ToggleButton extends StatelessWidget {
+  const _ToggleButton({
     required this.isExpanded,
     required this.toggleExpanded,
     required this.backgroundColor,
@@ -51,27 +51,17 @@ class _ExpandInfoButton extends StatelessWidget {
                   firstCurve: Curves.easeIn,
                   secondCurve: Curves.easeOut,
                   sizeCurve: Curves.easeInOut,
-                  firstChild: SvgPicture(
+                  firstChild: Icon(
+                    AttributionLayerInfoIcons.info_icon_filled,
                     key: const ValueKey('filled'),
-                    const AssetBytesLoader(
-                      'lib/assets/info_icon_filled.svg.vec',
-                      packageName: 'flutter_map',
-                    ),
-                    colorFilter: ColorFilter.mode(
-                      foregroundColor,
-                      BlendMode.srcIn,
-                    ),
+                    color: DefaultTextStyle.of(context).style.color,
+                    size: 20,
                   ),
-                  secondChild: SvgPicture(
+                  secondChild: Icon(
+                    AttributionLayerInfoIcons.info_icon_outline,
                     key: const ValueKey('outline'),
-                    const AssetBytesLoader(
-                      'lib/assets/info_icon_outline.svg.vec',
-                      packageName: 'flutter_map',
-                    ),
-                    colorFilter: ColorFilter.mode(
-                      backgroundColor,
-                      BlendMode.srcIn,
-                    ),
+                    color: backgroundColor,
+                    size: 20,
                   ),
                 ),
               ),

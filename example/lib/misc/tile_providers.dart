@@ -53,6 +53,27 @@ class AttributionLayer extends StatelessWidget {
         initialExpansionDuration: showAttributionImmediately
             ? const Duration(seconds: 3)
             : Duration.zero,
+        /*customButtonIconBuilder: (context, isExpanded) => AnimatedCrossFade(
+          crossFadeState: isExpanded
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
+          duration: const Duration(milliseconds: 200),
+          firstCurve: Curves.easeIn,
+          secondCurve: Curves.easeOut,
+          sizeCurve: Curves.easeInOut,
+          firstChild: Icon(
+            Icons.info_rounded,
+            key: const ValueKey('filled'),
+            color: DefaultTextStyle.of(context).style.color,
+            size: 20,
+          ),
+          secondChild: Icon(
+            Icons.info_outline_rounded,
+            key: const ValueKey('outline'),
+            color: backgroundColor,
+            size: 20,
+          ),
+        ),*/
         adjacentPersistentChild: SizedBox.square(
           dimension: 26,
           child: Image.asset('assets/ProjectIcon.png'),
