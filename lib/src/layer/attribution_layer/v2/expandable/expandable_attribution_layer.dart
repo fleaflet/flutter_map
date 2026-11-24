@@ -271,7 +271,10 @@ class _ExpandableAttributionLayerState
               transitionBuilder: (child, animation) => SizeTransition(
                 sizeFactor: animation,
                 axis: Axis.horizontal,
-                alignment: Alignment(-widget.alignment.x, 0),
+                // Support <Flutter 3.44
+                // alignment: Alignment(-widget.alignment.x, 0),
+                // ignore: deprecated_member_use
+                axisAlignment: -widget.alignment.x,
                 child: child,
               ),
               child: isExpanded
