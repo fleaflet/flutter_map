@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
@@ -21,18 +24,40 @@ class PrimaryTileLayer extends StatelessWidget {
           tileProvider: NetworkTileProvider(httpClient: _httpClient),
           maxNativeZoom: 19,
         ),
-        RichAttributionWidget(
-          popupInitialDisplayDuration: showAttributionImmediately
-              ? const Duration(seconds: 5)
-              : Duration.zero,
-          animationConfig: const ScaleRAWA(),
-          attributions: [
-            TextSourceAttribution(
-              'OpenStreetMap contributors',
-              onTap: () async =>
-                  launchUrl(Uri.parse('https://openstreetmap.org/copyright')),
+        SafeArea(
+          child: ExpandableAttributionLayer(
+            backgroundColor: showAttributionImmediately
+                ? null
+                // Just a bit of fun, and showing that it can handle it
+                : Colors.primaries[Random().nextInt(Colors.primaries.length)],
+            initialExpansionDuration: showAttributionImmediately
+                ? const Duration(seconds: 3)
+                : Duration.zero,
+            adjacentPersistentChild: SizedBox.square(
+              dimension: 26,
+              child: Image.asset('assets/ProjectIcon.png'),
             ),
-          ],
+            expandedBuilder: (context) => Text.rich(
+              maxLines: 1,
+              softWrap: false,
+              TextSpan(
+                children: [
+                  const TextSpan(text: '© '),
+                  TextSpan(
+                    text: 'OpenStreetMap',
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      decorationColor: DefaultTextStyle.of(context).style.color,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => launchUrl(
+                          Uri.parse('https://www.openstreetmap.org/copyright')),
+                  ),
+                  const TextSpan(text: ' contributors'),
+                ],
+              ),
+            ),
+          ),
         ),
       ],
     );
