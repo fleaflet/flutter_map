@@ -8,11 +8,11 @@ class NumberOfItemsSlider extends StatelessWidget {
     required this.maxNumber,
     this.itemDescription = 'Item',
     int itemsPerDivision = 1000,
-  })  : assert(
-          (maxNumber / itemsPerDivision) % 1 == 0,
-          '`maxNumber` / `itemsPerDivision` must yield integer',
-        ),
-        divisions = maxNumber ~/ itemsPerDivision;
+  }) : assert(
+         (maxNumber / itemsPerDivision) % 1 == 0,
+         '`maxNumber` / `itemsPerDivision` must yield integer',
+       ),
+       divisions = maxNumber ~/ itemsPerDivision;
 
   final int number;
   final void Function(int) onChanged;

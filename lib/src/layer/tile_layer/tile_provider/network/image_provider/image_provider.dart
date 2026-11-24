@@ -109,13 +109,10 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
 
     return MultiFrameImageStreamCompleter(
       codec: _loadImage(key, chunkEvents.sink, decode)
-        ..then(
-          (_) {
-            loaded = true;
-            unawaited(chunkEvents.close());
-          },
-          onError: (_) => unawaited(chunkEvents.close()),
-        ),
+        ..then((_) {
+          loaded = true;
+          unawaited(chunkEvents.close());
+        }, onError: (_) => unawaited(chunkEvents.close())),
       chunkEvents: chunkEvents.stream,
       scale: 1,
       debugLabel: key.url,
@@ -239,10 +236,10 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
             ? null
             : {
                 if (cachedTile?.metadata.lastModified case final lastModified?)
-                  HttpHeaders.ifModifiedSinceHeader:
-                      HttpDate.format(lastModified),
-                if (cachedTile?.metadata.etag case final etag?)
-                  HttpHeaders.ifNoneMatchHeader: etag,
+                  HttpHeaders.ifModifiedSinceHeader: HttpDate.format(
+                    lastModified,
+                  ),
+                HttpHeaders.ifNoneMatchHeader: ?cachedTile?.metadata.etag,
               },
       );
 
@@ -298,10 +295,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
         // We piggyback off of an error meant for `NetworkImage` - it's the same
         // as we need
         Error.throwWithStackTrace(
-          NetworkImageLoadException(
-            statusCode: response.statusCode,
-            uri: uri,
-          ),
+          NetworkImageLoadException(statusCode: response.statusCode, uri: uri),
           stackTrace,
         );
       }
@@ -347,8 +341,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
   @override
   SynchronousFuture<NetworkTileImageProvider> obtainKey(
     ImageConfiguration configuration,
-  ) =>
-      SynchronousFuture(this);
+  ) => SynchronousFuture(this);
 
   @override
   bool operator ==(Object other) =>

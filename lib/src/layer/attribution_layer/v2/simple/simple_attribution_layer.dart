@@ -47,33 +47,35 @@ class SimpleAttributionLayer extends StatelessWidget {
     this.backgroundColor,
     this.alignment = Alignment.bottomRight,
   }) : child = Text.rich(
-          TextSpan(
-            children: [
-              if (showFlutterMapPrefix) const TextSpan(text: 'flutter_map | '),
-              TextSpan(
-                text: text,
-                style: textStyle ??
-                    (onTap == null
-                        ? null
-                        : const TextStyle(
-                            color: Color(0xFF3366CC),
-                            decorationColor: Color(0xFF3366CC),
-                            decoration: TextDecoration.underline,
-                          )),
-                recognizer: onTap == null
-                    ? null
-                    : (TapGestureRecognizer()..onTap = onTap),
-              ),
-            ],
-          ),
-        );
+         TextSpan(
+           children: [
+             if (showFlutterMapPrefix) const TextSpan(text: 'flutter_map | '),
+             TextSpan(
+               text: text,
+               style:
+                   textStyle ??
+                   (onTap == null
+                       ? null
+                       : const TextStyle(
+                           color: Color(0xFF3366CC),
+                           decorationColor: Color(0xFF3366CC),
+                           decoration: TextDecoration.underline,
+                         )),
+               recognizer: onTap == null
+                   ? null
+                   : (TapGestureRecognizer()..onTap = onTap),
+             ),
+           ],
+         ),
+       );
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: alignment,
       child: ColoredBox(
-        color: backgroundColor ??
+        color:
+            backgroundColor ??
             MapOptions.maybeOf(context)?.backgroundColor ??
             const Color(0xFFE0E0E0),
         child: Padding(

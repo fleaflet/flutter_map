@@ -16,10 +16,7 @@ class PluginZoomButtons extends StatelessWidget {
       appBar: AppBar(title: const Text('Zoom Buttons Plugin')),
       drawer: const MenuDrawer(PluginZoomButtons.route),
       body: const FlutterMap(
-        options: MapOptions(
-          initialCenter: LatLng(51.5, -0.09),
-          initialZoom: 5,
-        ),
+        options: MapOptions(initialCenter: LatLng(51.5, -0.09), initialZoom: 5),
         children: [
           PrimaryTileLayer(),
           FlutterMapZoomButtons(

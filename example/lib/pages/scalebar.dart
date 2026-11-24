@@ -15,10 +15,7 @@ class ScaleBarPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Scale Bar Layer')),
       drawer: const MenuDrawer(ScaleBarPage.route),
       body: const FlutterMap(
-        options: MapOptions(
-          initialCenter: LatLng(51.5, -0.09),
-          initialZoom: 5,
-        ),
+        options: MapOptions(initialCenter: LatLng(51.5, -0.09), initialZoom: 5),
         children: [
           PrimaryTileLayer(),
           Scalebar(

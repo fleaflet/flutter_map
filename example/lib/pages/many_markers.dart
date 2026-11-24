@@ -30,35 +30,32 @@ class ManyMarkersPage extends StatefulWidget {
 
 class ManyMarkersPageState extends State<ManyMarkersPage> {
   final randomGenerator = Random(10);
-  late List<Marker> allMarkers = List.generate(
-    _maxMarkersCount,
-    (_) {
-      final angle = randomGenerator.nextDouble() * 2 * pi;
-      final distance = randomGenerator.nextDouble() * 0.5;
-      final latOffset =
-          distance * sin(angle) * (0.7 + randomGenerator.nextDouble() * 0.6);
-      final lngOffset =
-          distance * cos(angle) * (0.7 + randomGenerator.nextDouble() * 0.6);
-      final position = LatLng(
-        _londonOrigin.latitude + latOffset,
-        _londonOrigin.longitude + lngOffset,
-      );
+  late List<Marker> allMarkers = List.generate(_maxMarkersCount, (_) {
+    final angle = randomGenerator.nextDouble() * 2 * pi;
+    final distance = randomGenerator.nextDouble() * 0.5;
+    final latOffset =
+        distance * sin(angle) * (0.7 + randomGenerator.nextDouble() * 0.6);
+    final lngOffset =
+        distance * cos(angle) * (0.7 + randomGenerator.nextDouble() * 0.6);
+    final position = LatLng(
+      _londonOrigin.latitude + latOffset,
+      _londonOrigin.longitude + lngOffset,
+    );
 
-      return Marker(
-        point: position,
-        child: Icon(
-          Icons.location_pin,
-          size: 30,
-          color: Color.fromARGB(
-            255,
-            randomGenerator.nextInt(256),
-            randomGenerator.nextInt(256),
-            randomGenerator.nextInt(256),
-          ),
+    return Marker(
+      point: position,
+      child: Icon(
+        Icons.location_pin,
+        size: 30,
+        color: Color.fromARGB(
+          255,
+          randomGenerator.nextInt(256),
+          randomGenerator.nextInt(256),
+          randomGenerator.nextInt(256),
         ),
-      );
-    },
-  );
+      ),
+    );
+  });
   int displayedMarkersCount = _maxMarkersCount ~/ 10;
 
   bool useIcons = true;
@@ -139,8 +136,9 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
                           ),
                           Switch.adaptive(
                             value: useSizeInMeters,
-                            onChanged:
-                                useIcons ? null : _useDimensionsInMetersToggler,
+                            onChanged: useIcons
+                                ? null
+                                : _useDimensionsInMetersToggler,
                           ),
                           const Tooltip(
                             message: 'Optimise Meters Radius',
@@ -150,7 +148,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
                             value: optimizeSizeInMeters,
                             onChanged: useSizeInMeters && !useIcons
                                 ? (v) =>
-                                    setState(() => optimizeSizeInMeters = v)
+                                      setState(() => optimizeSizeInMeters = v)
                                 : null,
                           ),
                         ],
@@ -174,23 +172,21 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
   }
 
   void _useDimensionsInMetersToggler(bool v) {
-    allMarkers = allMarkers.map(
-      (c) {
-        return Marker(
-          point: c.point,
-          useDimensionsInMeters: v ? const BoxConstraints() : null,
-          height: v ? 1000 : 30,
-          width: v ? 1000 : 30,
-          child: SizedBox.expand(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border.all(),
+    allMarkers = allMarkers
+        .map((c) {
+          return Marker(
+            point: c.point,
+            useDimensionsInMeters: v ? const BoxConstraints() : null,
+            height: v ? 1000 : 30,
+            width: v ? 1000 : 30,
+            child: SizedBox.expand(
+              child: DecoratedBox(
+                decoration: BoxDecoration(border: Border.all()),
               ),
             ),
-          ),
-        );
-      },
-    ).toList(growable: false);
+          );
+        })
+        .toList(growable: false);
     useSizeInMeters = v;
     setState(() {});
   }
@@ -200,32 +196,31 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
         .map(
           v
               ? (c) => Marker(
-                    point: c.point,
-                    child: Icon(
-                      Icons.location_pin,
-                      size: 30,
-                      color: Color.fromARGB(
-                        255,
-                        randomGenerator.nextInt(256),
-                        randomGenerator.nextInt(256),
-                        randomGenerator.nextInt(256),
-                      ),
-                    ),
-                  )
-              : (c) => Marker(
-                    point: c.point,
-                    useDimensionsInMeters:
-                        useSizeInMeters ? const BoxConstraints() : null,
-                    height: useSizeInMeters ? 1000 : 30,
-                    width: useSizeInMeters ? 1000 : 30,
-                    child: SizedBox.expand(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          border: Border.all(),
-                        ),
-                      ),
+                  point: c.point,
+                  child: Icon(
+                    Icons.location_pin,
+                    size: 30,
+                    color: Color.fromARGB(
+                      255,
+                      randomGenerator.nextInt(256),
+                      randomGenerator.nextInt(256),
+                      randomGenerator.nextInt(256),
                     ),
                   ),
+                )
+              : (c) => Marker(
+                  point: c.point,
+                  useDimensionsInMeters: useSizeInMeters
+                      ? const BoxConstraints()
+                      : null,
+                  height: useSizeInMeters ? 1000 : 30,
+                  width: useSizeInMeters ? 1000 : 30,
+                  child: SizedBox.expand(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(border: Border.all()),
+                    ),
+                  ),
+                ),
         )
         .toList(growable: false);
     useIcons = v;

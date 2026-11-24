@@ -50,8 +50,10 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       );
       await Directory(cacheDirectoryPath).create(recursive: true);
 
-      final sizeMonitorFilePath =
-          p.join(cacheDirectoryPath, sizeMonitorFileName);
+      final sizeMonitorFilePath = p.join(
+        cacheDirectoryPath,
+        sizeMonitorFileName,
+      );
 
       _cacheDirectoryPath = cacheDirectoryPath;
       _cacheDirectoryPathReady.complete(cacheDirectoryPath);
@@ -69,38 +71,33 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
         workerPortReady.future.then((port) => port.send(message));
       }
 
-      _writeTileFile = (path, metadata, tileBytes) => sendMessageToWorker(
-            (path: path, metadata: metadata, tileBytes: tileBytes),
-          );
+      _writeTileFile = (path, metadata, tileBytes) => sendMessageToWorker((
+        path: path,
+        metadata: metadata,
+        tileBytes: tileBytes,
+      ));
       _reportReadFailure = () => sendMessageToWorker(false);
 
       final workerReceivePort = ReceivePort();
       final workerExited = Completer<void>();
 
-      await Isolate.spawn(
-        tileAndSizeMonitorWriterWorker,
-        (
-          port: workerReceivePort.sendPort,
-          cacheDirectoryPath: cacheDirectoryPath,
-          sizeMonitorFilePath: sizeMonitorFilePath,
-          maxCacheSize: maxCacheSize,
-        ),
-        debugName: '[flutter_map: cache] Tile & Size Monitor Writer',
-      );
+      await Isolate.spawn(tileAndSizeMonitorWriterWorker, (
+        port: workerReceivePort.sendPort,
+        cacheDirectoryPath: cacheDirectoryPath,
+        sizeMonitorFilePath: sizeMonitorFilePath,
+        maxCacheSize: maxCacheSize,
+      ), debugName: '[flutter_map: cache] Tile & Size Monitor Writer');
 
-      workerReceivePort.listen(
-        (response) {
-          if (response is SendPort && workerPort == null) {
-            return workerPortReady.complete(workerPort = response);
-          }
-          if (response == null) {
-            return workerReceivePort.close();
-          }
+      workerReceivePort.listen((response) {
+        if (response is SendPort && workerPort == null) {
+          return workerPortReady.complete(workerPort = response);
+        }
+        if (response == null) {
+          return workerReceivePort.close();
+        }
 
-          throw UnsupportedError('Response was in unknown format');
-        },
-        onDone: workerExited.complete,
-      );
+        throw UnsupportedError('Response was in unknown format');
+      }, onDone: workerExited.complete);
       killWorker = () {
         sendMessageToWorker(null);
         return workerExited.future;
@@ -115,9 +112,10 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     String path,
     CachedMapTileMetadata metadata,
     Uint8List? tileBytes,
-  ) _writeTileFile;
+  )
+  _writeTileFile;
   late final void Function()
-      _reportReadFailure; // See `disableSizeMonitor` in worker
+  _reportReadFailure; // See `disableSizeMonitor` in worker
   late final Future<void> Function() _killWorker;
 
   final _asciiDecoder = const AsciiDecoder();
@@ -149,7 +147,8 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       if (bytes.lengthInBytes < 30) {
         throw CachedMapTileReadFailure(
           url: url,
-          description: 'file was shorter than the min. expected size (found '
+          description:
+              'file was shorter than the min. expected size (found '
               '${bytes.lengthInBytes} bytes, expected >= 30 bytes)',
         );
       }
@@ -182,8 +181,10 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       }
 
       final timestamps = bytes.buffer.asInt64List(8, 2);
-      final staleAt =
-          DateTime.fromMillisecondsSinceEpoch(timestamps[0], isUtc: true);
+      final staleAt = DateTime.fromMillisecondsSinceEpoch(
+        timestamps[0],
+        isUtc: true,
+      );
       final lastModified = timestamps[1] == 0
           ? null
           : DateTime.fromMillisecondsSinceEpoch(timestamps[1], isUtc: true);
@@ -198,14 +199,17 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       }
 
       final tileBytesExpectedLength = // Perform an unaligned read
-          bytes.buffer.asByteData(26 + etagLength, 4).getUint32(0, Endian.host);
+      bytes.buffer
+          .asByteData(26 + etagLength, 4)
+          .getUint32(0, Endian.host);
       // We read the remainder of the file, rather than just reading the
       // specified number of bytes
       final tileBytes = Uint8List.sublistView(bytes, 26 + etagLength + 4);
       if (tileBytes.lengthInBytes != tileBytesExpectedLength) {
         throw CachedMapTileReadFailure(
           url: url,
-          description: 'tile image bytes were not of expected length (found '
+          description:
+              'tile image bytes were not of expected length (found '
               '${tileBytes.lengthInBytes} bytes, expected '
               '$tileBytesExpectedLength bytes)',
         );

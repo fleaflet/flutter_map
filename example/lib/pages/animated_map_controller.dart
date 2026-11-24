@@ -51,18 +51,26 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     // In our case, we want to split the transition be<tween> our current map center and the destination.
     final camera = mapController.camera;
     final latTween = Tween<double>(
-        begin: camera.center.latitude, end: destLocation.latitude);
+      begin: camera.center.latitude,
+      end: destLocation.latitude,
+    );
     final lngTween = Tween<double>(
-        begin: camera.center.longitude, end: destLocation.longitude);
+      begin: camera.center.longitude,
+      end: destLocation.longitude,
+    );
     final zoomTween = Tween<double>(begin: camera.zoom, end: destZoom);
 
     // Create a animation controller that has a duration and a TickerProvider.
     final controller = AnimationController(
-        duration: const Duration(milliseconds: 500), vsync: this);
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
     // The animation determines what path the animation will take. You can try different Curves values, although I found
     // fastOutSlowIn to be my favorite.
-    final Animation<double> animation =
-        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+    final Animation<double> animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.fastOutSlowIn,
+    );
 
     // Note this method of encoding the target destination is a workaround.
     // When proper animated movement is supported (see #1263) we should be able
@@ -198,34 +206,35 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
 /// whilst animating movement. When proper animated movement is added (see
 /// #1263) we should just detect the appropriate AnimatedMove events and
 /// use their target zoom/center.
-final _animatedMoveTileUpdateTransformer =
-    TileUpdateTransformer.fromHandlers(handleData: (updateEvent, sink) {
-  final mapEvent = updateEvent.mapEvent;
+final _animatedMoveTileUpdateTransformer = TileUpdateTransformer.fromHandlers(
+  handleData: (updateEvent, sink) {
+    final mapEvent = updateEvent.mapEvent;
 
-  final id = mapEvent is MapEventMove ? mapEvent.id : null;
-  if (id?.startsWith(AnimatedMapControllerPageState._startedId) ?? false) {
-    final parts = id!.split('#')[2].split(',');
-    final lat = double.parse(parts[0]);
-    final lon = double.parse(parts[1]);
-    final zoom = double.parse(parts[2]);
+    final id = mapEvent is MapEventMove ? mapEvent.id : null;
+    if (id?.startsWith(AnimatedMapControllerPageState._startedId) ?? false) {
+      final parts = id!.split('#')[2].split(',');
+      final lat = double.parse(parts[0]);
+      final lon = double.parse(parts[1]);
+      final zoom = double.parse(parts[2]);
 
-    // When animated movement starts load tiles at the target location and do
-    // not prune. Disabling pruning means existing tiles will remain visible
-    // whilst animating.
-    sink.add(
-      updateEvent.loadOnly(
-        loadCenterOverride: LatLng(lat, lon),
-        loadZoomOverride: zoom,
-      ),
-    );
-  } else if (id == AnimatedMapControllerPageState._inProgressId) {
-    // Do not prune or load whilst animating so that any existing tiles remain
-    // visible. A smarter implementation may start pruning once we are close to
-    // the target zoom/location.
-  } else if (id == AnimatedMapControllerPageState._finishedId) {
-    // We already prefetched the tiles when animation started so just prune.
-    sink.add(updateEvent.pruneOnly());
-  } else {
-    sink.add(updateEvent);
-  }
-});
+      // When animated movement starts load tiles at the target location and do
+      // not prune. Disabling pruning means existing tiles will remain visible
+      // whilst animating.
+      sink.add(
+        updateEvent.loadOnly(
+          loadCenterOverride: LatLng(lat, lon),
+          loadZoomOverride: zoom,
+        ),
+      );
+    } else if (id == AnimatedMapControllerPageState._inProgressId) {
+      // Do not prune or load whilst animating so that any existing tiles remain
+      // visible. A smarter implementation may start pruning once we are close to
+      // the target zoom/location.
+    } else if (id == AnimatedMapControllerPageState._finishedId) {
+      // We already prefetched the tiles when animation started so just prune.
+      sink.add(updateEvent.pruneOnly());
+    } else {
+      sink.add(updateEvent);
+    }
+  },
+);

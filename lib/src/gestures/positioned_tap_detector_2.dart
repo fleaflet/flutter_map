@@ -208,7 +208,8 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
       }
     }
     return GestureDetector(
-      behavior: widget.behavior ??
+      behavior:
+          widget.behavior ??
           (widget.child == null
               ? HitTestBehavior.translucent
               : HitTestBehavior.deferToChild),

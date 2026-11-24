@@ -20,29 +20,29 @@ class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
     Polygon<R> polygon,
     bool drawInSingleWorld,
   ) : this._(
-          polygon: polygon,
-          points: projection.projectList(
-            polygon.points,
-            projectToSingleWorld: drawInSingleWorld,
-          ),
-          holePoints: () {
-            final holes = polygon.holePointsList;
-            if (holes == null ||
-                holes.isEmpty ||
-                polygon.points.isEmpty ||
-                holes.every((e) => e.isEmpty)) {
-              return <List<Offset>>[];
-            }
+        polygon: polygon,
+        points: projection.projectList(
+          polygon.points,
+          projectToSingleWorld: drawInSingleWorld,
+        ),
+        holePoints: () {
+          final holes = polygon.holePointsList;
+          if (holes == null ||
+              holes.isEmpty ||
+              polygon.points.isEmpty ||
+              holes.every((e) => e.isEmpty)) {
+            return <List<Offset>>[];
+          }
 
-            return List<List<Offset>>.generate(
-              holes.length,
-              (j) => projection.projectList(
-                holes[j],
-                referencePoint: polygon.points[0],
-                projectToSingleWorld: drawInSingleWorld,
-              ),
-              growable: false,
-            );
-          }(),
-        );
+          return List<List<Offset>>.generate(
+            holes.length,
+            (j) => projection.projectList(
+              holes[j],
+              referencePoint: polygon.points[0],
+              projectToSingleWorld: drawInSingleWorld,
+            ),
+            growable: false,
+          );
+        }(),
+      );
 }

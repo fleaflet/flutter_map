@@ -6,10 +6,7 @@ import 'dart:ui';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:latlong2/latlong.dart';
 
-typedef Result = ({
-  String name,
-  Duration duration,
-});
+typedef Result = ({String name, Duration duration});
 
 Future<Result> timedRun(String name, dynamic Function() body) async {
   print('running $name...');
@@ -29,37 +26,8 @@ Future<void> main() async {
   const N = 100000000;
 
   const crs = Epsg3857();
-  results.add(await timedRun('Concrete type: ${crs.code}.latLngToXY()', () {
-    double x = 0;
-    double y = 0;
-    for (int i = 0; i < N; ++i) {
-      final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
-      final (cx, cy) = crs.latLngToXY(latlng, 1);
-      x += cx;
-      y += cy;
-    }
-    return x + y;
-  }));
-
-  results.add(await timedRun('Concrete type: ${crs.code}.latLngToOffset()', () {
-    double x = 0;
-    double y = 0;
-    for (int i = 0; i < N; ++i) {
-      final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
-      final p = crs.latLngToOffset(latlng, 1);
-      x += p.dx;
-      y += p.dy;
-    }
-    return x + y;
-  }));
-
-  const crss = <Crs>[
-    Epsg3857(),
-    Epsg4326(),
-  ];
-
-  for (final crs in crss) {
-    results.add(await timedRun('${crs.code}.latLngToXY()', () {
+  results.add(
+    await timedRun('Concrete type: ${crs.code}.latLngToXY()', () {
       double x = 0;
       double y = 0;
       for (int i = 0; i < N; ++i) {
@@ -69,30 +37,66 @@ Future<void> main() async {
         y += cy;
       }
       return x + y;
-    }));
+    }),
+  );
 
-    results.add(await timedRun('${crs.code}.latlngToPoint()', () {
+  results.add(
+    await timedRun('Concrete type: ${crs.code}.latLngToOffset()', () {
       double x = 0;
       double y = 0;
       for (int i = 0; i < N; ++i) {
         final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
-        final point = crs.latLngToOffset(latlng, 1);
-        x += point.dx;
-        y += point.dy;
+        final p = crs.latLngToOffset(latlng, 1);
+        x += p.dx;
+        y += p.dy;
       }
       return x + y;
-    }));
+    }),
+  );
 
-    results.add(await timedRun('${crs.code}.pointToLatLng()', () {
-      double x = 0;
-      double y = 0;
-      for (int i = 0; i < N; ++i) {
-        final latlng = crs.offsetToLatLng(Offset(x, y), 1);
-        x += latlng.longitude;
-        y += latlng.latitude;
-      }
-      return x + y;
-    }));
+  const crss = <Crs>[Epsg3857(), Epsg4326()];
+
+  for (final crs in crss) {
+    results.add(
+      await timedRun('${crs.code}.latLngToXY()', () {
+        double x = 0;
+        double y = 0;
+        for (int i = 0; i < N; ++i) {
+          final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
+          final (cx, cy) = crs.latLngToXY(latlng, 1);
+          x += cx;
+          y += cy;
+        }
+        return x + y;
+      }),
+    );
+
+    results.add(
+      await timedRun('${crs.code}.latlngToPoint()', () {
+        double x = 0;
+        double y = 0;
+        for (int i = 0; i < N; ++i) {
+          final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
+          final point = crs.latLngToOffset(latlng, 1);
+          x += point.dx;
+          y += point.dy;
+        }
+        return x + y;
+      }),
+    );
+
+    results.add(
+      await timedRun('${crs.code}.pointToLatLng()', () {
+        double x = 0;
+        double y = 0;
+        for (int i = 0; i < N; ++i) {
+          final latlng = crs.offsetToLatLng(Offset(x, y), 1);
+          x += latlng.longitude;
+          y += latlng.latitude;
+        }
+        return x + y;
+      }),
+    );
   }
 
   print('Results:\n${results.map((r) => r.toString()).join('\n')}');

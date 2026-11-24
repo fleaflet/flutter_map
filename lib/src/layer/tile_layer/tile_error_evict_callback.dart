@@ -21,8 +21,5 @@ enum EvictErrorTileStrategy {
 }
 
 /// Callback definition for the [TileLayer.errorTileCallback] option.
-typedef ErrorTileCallBack = void Function(
-  TileImage tile,
-  Object error,
-  StackTrace? stackTrace,
-);
+typedef ErrorTileCallBack =
+    void Function(TileImage tile, Object error, StackTrace? stackTrace);

@@ -76,32 +76,33 @@ base class PolylineLayer<R extends Object>
 
 class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     with
-        ProjectionSimplificationManagement<_ProjectedPolyline<R>, Polyline<R>,
-            PolylineLayer<R>> {
+        ProjectionSimplificationManagement<
+          _ProjectedPolyline<R>,
+          Polyline<R>,
+          PolylineLayer<R>
+        > {
   @override
   _ProjectedPolyline<R> projectElement({
     required Projection projection,
     required Polyline<R> element,
-  }) =>
-      _ProjectedPolyline._fromPolyline(
-        projection,
-        element,
-        widget.drawInSingleWorld,
-      );
+  }) => _ProjectedPolyline._fromPolyline(
+    projection,
+    element,
+    widget.drawInSingleWorld,
+  );
 
   @override
   _ProjectedPolyline<R> simplifyProjectedElement({
     required _ProjectedPolyline<R> projectedElement,
     required double tolerance,
-  }) =>
-      _ProjectedPolyline._(
-        polyline: projectedElement.polyline,
-        points: simplifyPoints(
-          points: projectedElement.points,
-          tolerance: tolerance,
-          highQuality: true,
-        ),
-      );
+  }) => _ProjectedPolyline._(
+    polyline: projectedElement.polyline,
+    points: simplifyPoints(
+      points: projectedElement.points,
+      tolerance: tolerance,
+      highQuality: true,
+    ),
+  );
 
   @override
   List<Polyline<R>> get elements => widget.polylines;
@@ -249,8 +250,12 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
         final p1 = projectedPolyline.points[i];
         final p2 = projectedPolyline.points[i + 1];
 
-        containsSegment =
-            projBounds.aabbContainsLine(p1.dx, p1.dy, p2.dx, p2.dy);
+        containsSegment = projBounds.aabbContainsLine(
+          p1.dx,
+          p1.dy,
+          p2.dx,
+          p2.dy,
+        );
         if (containsSegment) {
           if (start == -1) {
             start = i;

@@ -84,16 +84,16 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
     required this.wrapX,
     required this.wrapY,
   }) : assert(
-          wrapX != null || wrapY != null,
-          'Either wrapX or wrapY needs to be not null',
-        );
+         wrapX != null || wrapY != null,
+         'Either wrapX or wrapY needs to be not null',
+       );
 
   @override
   TileCoordinates wrap(TileCoordinates coordinates) => TileCoordinates(
-        wrapX != null ? _wrapInt(coordinates.x, wrapX!) : coordinates.x,
-        wrapY != null ? _wrapInt(coordinates.y, wrapY!) : coordinates.y,
-        coordinates.z,
-      );
+    wrapX != null ? _wrapInt(coordinates.x, wrapX!) : coordinates.x,
+    wrapY != null ? _wrapInt(coordinates.y, wrapY!) : coordinates.y,
+    coordinates.z,
+  );
 
   @override
   Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange) {
@@ -126,11 +126,13 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
   }
 
   bool _wrappedBothContains(TileCoordinates coordinates) {
-    return tileRange.contains(TileCoordinates(
-      _wrapInt(coordinates.x, wrapX!),
-      _wrapInt(coordinates.y, wrapY!),
-      coordinates.z,
-    ));
+    return tileRange.contains(
+      TileCoordinates(
+        _wrapInt(coordinates.x, wrapX!),
+        _wrapInt(coordinates.y, wrapY!),
+        coordinates.z,
+      ),
+    );
   }
 
   bool _wrappedXInRange(TileCoordinates coordinates) {

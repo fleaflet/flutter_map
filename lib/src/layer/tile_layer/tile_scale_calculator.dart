@@ -12,10 +12,7 @@ class TileScaleCalculator {
   final Map<int, double> _cache = {};
 
   /// Create a new [TileScaleCalculator] instance.
-  TileScaleCalculator({
-    required this.crs,
-    required this.tileDimension,
-  });
+  TileScaleCalculator({required this.crs, required this.tileDimension});
 
   /// Returns true to indicate that the TileDimensionCache should get replaced.
   bool shouldReplace(Crs crs, int tileDimension) =>

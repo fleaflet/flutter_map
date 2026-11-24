@@ -32,22 +32,14 @@ abstract class TileBounds {
     }
   }
 
-  const TileBounds._(
-    this.crs,
-    this._tileDimension,
-    this._latLngBounds,
-  );
+  const TileBounds._(this.crs, this._tileDimension, this._latLngBounds);
 
   /// Create a [TileBoundsAtZoom] for a given [zoom] level.
   TileBoundsAtZoom atZoom(int zoom);
 
   /// Returns true if these bounds may no longer be valid for the given
   /// parameters.
-  bool shouldReplace(
-    Crs crs,
-    int tileDimension,
-    LatLngBounds? latLngBounds,
-  ) =>
+  bool shouldReplace(Crs crs, int tileDimension, LatLngBounds? latLngBounds) =>
       crs != this.crs ||
       tileDimension != _tileDimension ||
       latLngBounds != _latLngBounds;
@@ -71,17 +63,16 @@ class InfiniteTileBounds extends TileBounds {
 class DiscreteTileBounds extends TileBounds {
   final Map<int, TileBoundsAtZoom> _tileBoundsAtZoomCache = {};
 
-  DiscreteTileBounds._(
-    super.crs,
-    super._tileDimension,
-    super._latLngBounds,
-  ) : super._();
+  DiscreteTileBounds._(super.crs, super._tileDimension, super._latLngBounds)
+    : super._();
 
   /// Return the [TileBoundsAtZoom] for the given zoom level (cached).
   @override
   TileBoundsAtZoom atZoom(int zoom) {
     return _tileBoundsAtZoomCache.putIfAbsent(
-        zoom, () => _tileBoundsAtZoomImpl(zoom));
+      zoom,
+      () => _tileBoundsAtZoomImpl(zoom),
+    );
   }
 
   /// Calculate the [TileBoundsAtZoom] for the given zoom level.
@@ -113,16 +104,15 @@ class DiscreteTileBounds extends TileBounds {
 class WrappedTileBounds extends TileBounds {
   final Map<int, WrappedTileBoundsAtZoom> _tileBoundsAtZoomCache = {};
 
-  WrappedTileBounds._(
-    super.crs,
-    super._tileDimension,
-    super._latLngBounds,
-  ) : super._();
+  WrappedTileBounds._(super.crs, super._tileDimension, super._latLngBounds)
+    : super._();
 
   @override
   TileBoundsAtZoom atZoom(int zoom) {
     return _tileBoundsAtZoomCache.putIfAbsent(
-        zoom, () => _tileBoundsAtZoomImpl(zoom));
+      zoom,
+      () => _tileBoundsAtZoomImpl(zoom),
+    );
   }
 
   WrappedTileBoundsAtZoom _tileBoundsAtZoomImpl(int zoom) {

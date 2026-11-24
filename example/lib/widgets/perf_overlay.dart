@@ -31,9 +31,8 @@ class _PerfOverlayState extends State<PerfOverlay> {
         Padding(
           padding: const EdgeInsets.only(right: 8),
           child: IconButton.outlined(
-            onPressed: () => setState(
-              () => showPerformanceChart = !showPerformanceChart,
-            ),
+            onPressed: () =>
+                setState(() => showPerformanceChart = !showPerformanceChart),
             icon: const Icon(Icons.troubleshoot),
             isSelected: showPerformanceChart,
             tooltip: 'Show Performance Overlay',

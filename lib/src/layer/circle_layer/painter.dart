@@ -92,15 +92,17 @@ class CirclePainter<R extends Object> extends CustomPainter
           if (circle.color.a == 1) {
             pointsFilledBorder[circle.borderColor] ??= {};
             pointsFilledBorder[circle.borderColor]![radiusWithBorder] ??= [];
-            pointsFilledBorder[circle.borderColor]![radiusWithBorder]!
-                .add(center);
+            pointsFilledBorder[circle.borderColor]![radiusWithBorder]!.add(
+              center,
+            );
           } else {
             pointsBorder[circle.borderColor] ??= {};
             pointsBorder[circle.borderColor]![circle.borderStrokeWidth] ??= {};
-            pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
-                radiusWithoutBorder] ??= [];
-            pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
-                    radiusWithoutBorder]!
+            pointsBorder[circle.borderColor]![circle
+                    .borderStrokeWidth]![radiusWithoutBorder] ??=
+                [];
+            pointsBorder[circle.borderColor]![circle
+                    .borderStrokeWidth]![radiusWithoutBorder]!
                 .add(center);
           }
         }
@@ -187,10 +189,8 @@ class CirclePainter<R extends Object> extends CustomPainter
   }
 
   /// Returns true if a centered circle with this radius is on the screen.
-  bool _isVisible({
-    required Offset center,
-    required double radiusInPixel,
-  }) =>
-      viewportRect
-          .overlaps(Rect.fromCircle(center: center, radius: radiusInPixel));
+  bool _isVisible({required Offset center, required double radiusInPixel}) =>
+      viewportRect.overlaps(
+        Rect.fromCircle(center: center, radius: radiusInPixel),
+      );
 }
