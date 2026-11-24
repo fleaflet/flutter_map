@@ -23,8 +23,11 @@ void main() {
 
         expect(
           emptyTileRange,
-          isA<EmptyTileRange>()
-              .having((e) => e.coordinates, 'coordinates', isEmpty),
+          isA<EmptyTileRange>().having(
+            (e) => e.coordinates,
+            'coordinates',
+            isEmpty,
+          ),
         );
       });
     });
@@ -41,36 +44,33 @@ void main() {
             ),
           );
 
-          expect(
-              tileRange.coordinates.toList(), [const TileCoordinates(2, 2, 0)]);
+          expect(tileRange.coordinates.toList(), [
+            const TileCoordinates(2, 2, 0),
+          ]);
         });
 
         test('lower tile edge', () {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
             tileDimension: 10,
-            pixelBounds: Rect.fromPoints(
-              Offset.zero,
-              const Offset(0.1, 0.1),
-            ),
+            pixelBounds: Rect.fromPoints(Offset.zero, const Offset(0.1, 0.1)),
           );
 
-          expect(
-              tileRange.coordinates.toList(), [const TileCoordinates(0, 0, 0)]);
+          expect(tileRange.coordinates.toList(), [
+            const TileCoordinates(0, 0, 0),
+          ]);
         });
 
         test('upper tile edge', () {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
             tileDimension: 10,
-            pixelBounds: Rect.fromPoints(
-              Offset.zero,
-              const Offset(9.99, 9.99),
-            ),
+            pixelBounds: Rect.fromPoints(Offset.zero, const Offset(9.99, 9.99)),
           );
 
-          expect(
-              tileRange.coordinates.toList(), [const TileCoordinates(0, 0, 0)]);
+          expect(tileRange.coordinates.toList(), [
+            const TileCoordinates(0, 0, 0),
+          ]);
         });
 
         test('both tile edges', () {
@@ -107,8 +107,9 @@ void main() {
           ),
         );
 
-        expect(
-            tileRange.coordinates.toList(), [const TileCoordinates(2, 2, 0)]);
+        expect(tileRange.coordinates.toList(), [
+          const TileCoordinates(2, 2, 0),
+        ]);
         final expandedTileRange = tileRange.expand(1);
 
         expect(expandedTileRange.coordinates.toList(), [
@@ -169,10 +170,14 @@ void main() {
           ),
         );
 
-        final intersectionA =
-            tileRange1.intersect(tileRange2).coordinates.toList();
-        final intersectionB =
-            tileRange1.intersect(tileRange2).coordinates.toList();
+        final intersectionA = tileRange1
+            .intersect(tileRange2)
+            .coordinates
+            .toList();
+        final intersectionB = tileRange1
+            .intersect(tileRange2)
+            .coordinates
+            .toList();
 
         expect(intersectionA, [const TileCoordinates(3, 3, 0)]);
         expect(intersectionB, [const TileCoordinates(3, 3, 0)]);
@@ -197,10 +202,14 @@ void main() {
           ),
         );
 
-        final intersectionA =
-            tileRange1.intersect(tileRange2).coordinates.toList();
-        final intersectionB =
-            tileRange1.intersect(tileRange2).coordinates.toList();
+        final intersectionA = tileRange1
+            .intersect(tileRange2)
+            .coordinates
+            .toList();
+        final intersectionB = tileRange1
+            .intersect(tileRange2)
+            .coordinates
+            .toList();
 
         expect(intersectionA, tileRange1.coordinates.toList());
         expect(intersectionB, tileRange1.coordinates.toList());

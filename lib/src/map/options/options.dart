@@ -14,37 +14,27 @@ typedef MapEventCallback = void Function(MapEvent);
 typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
 
 /// Callback to notify when the map emits long-press gesture
-typedef LongPressCallback = void Function(
-  TapPosition tapPosition,
-  LatLng point,
-);
+typedef LongPressCallback =
+    void Function(TapPosition tapPosition, LatLng point);
 
 /// Callback to notify when the map registers a pointer down event.
-typedef PointerDownCallback = void Function(
-  PointerDownEvent event,
-  LatLng point,
-);
+typedef PointerDownCallback =
+    void Function(PointerDownEvent event, LatLng point);
 
 /// Callback to notify when the map registers a pointer up event.
 typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
 
 /// Callback to notify when the map registers a pointer cancel event.
-typedef PointerCancelCallback = void Function(
-  PointerCancelEvent event,
-  LatLng point,
-);
+typedef PointerCancelCallback =
+    void Function(PointerCancelEvent event, LatLng point);
 
 /// Callback to notify when the map registers a pointer hover event.
-typedef PointerHoverCallback = void Function(
-  PointerHoverEvent event,
-  LatLng point,
-);
+typedef PointerHoverCallback =
+    void Function(PointerHoverEvent event, LatLng point);
 
 /// Callback to notify when the map registers a pointer move event.
-typedef PointerMoveCallback = void Function(
-  PointerMoveEvent event,
-  LatLng point,
-);
+typedef PointerMoveCallback =
+    void Function(PointerMoveEvent event, LatLng point);
 
 /// Callback that gets called when the viewport of the map changes.
 ///
@@ -209,7 +199,8 @@ class MapOptions {
   static MapOptions of(BuildContext context) =>
       maybeOf(context) ??
       (throw StateError(
-          '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants'));
+        '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants',
+      ));
 
   @override
   bool operator ==(Object other) =>
@@ -239,28 +230,28 @@ class MapOptions {
 
   @override
   int get hashCode => Object.hashAll([
-        crs,
-        initialCenter,
-        initialZoom,
-        initialRotation,
-        initialCameraFit,
-        minZoom,
-        maxZoom,
-        backgroundColor,
-        backgroundGridOptions,
-        onTap,
-        onSecondaryTap,
-        onLongPress,
-        onPointerDown,
-        onPointerUp,
-        onPointerCancel,
-        onPointerHover,
-        onPositionChanged,
-        onMapEvent,
-        cameraConstraint,
-        onMapReady,
-        keepAlive,
-        interactionOptions,
-        backgroundColor,
-      ]);
+    crs,
+    initialCenter,
+    initialZoom,
+    initialRotation,
+    initialCameraFit,
+    minZoom,
+    maxZoom,
+    backgroundColor,
+    backgroundGridOptions,
+    onTap,
+    onSecondaryTap,
+    onLongPress,
+    onPointerDown,
+    onPointerUp,
+    onPointerCancel,
+    onPointerHover,
+    onPositionChanged,
+    onMapEvent,
+    cameraConstraint,
+    onMapReady,
+    keepAlive,
+    interactionOptions,
+    backgroundColor,
+  ]);
 }

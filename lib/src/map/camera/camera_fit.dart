@@ -127,16 +127,10 @@ class FitBounds extends CameraFit {
     }
 
     final center = camera.unprojectAtZoom(projectedCenter, newZoom);
-    return camera.withPosition(
-      center: center,
-      zoom: newZoom,
-    );
+    return camera.withPosition(center: center, zoom: newZoom);
   }
 
-  double _getBoundsZoom(
-    MapCamera camera,
-    Offset pixelPadding,
-  ) {
+  double _getBoundsZoom(MapCamera camera, Offset pixelPadding) {
     final nw = bounds.northWest;
     final se = bounds.southEast;
     var size = camera.nonRotatedSize - pixelPadding as Size;
@@ -157,7 +151,9 @@ class FitBounds extends CameraFit {
     }
 
     final scale = math.min(
-        size.width / boundsSize.width, size.height / boundsSize.height);
+      size.width / boundsSize.width,
+      size.height / boundsSize.height,
+    );
 
     var boundsZoom = camera.getScaleZoom(scale);
 
@@ -165,10 +161,7 @@ class FitBounds extends CameraFit {
       boundsZoom = boundsZoom.floorToDouble();
     }
 
-    final min = math.max(
-      camera.minZoom ?? 0,
-      minZoom,
-    );
+    final min = math.max(camera.minZoom ?? 0, minZoom);
     final max = math.min(
       camera.maxZoom ?? double.infinity,
       maxZoom ?? double.infinity,
@@ -244,10 +237,7 @@ class FitInsideBounds extends CameraFit {
       newZoom = newZoom.ceilToDouble();
     }
 
-    final min = math.max(
-      camera.minZoom ?? 0,
-      minZoom,
-    );
+    final min = math.max(camera.minZoom ?? 0, minZoom);
     final max = math.min(
       camera.maxZoom ?? double.infinity,
       maxZoom ?? double.infinity,
@@ -260,10 +250,7 @@ class FitInsideBounds extends CameraFit {
       paddingOffset: paddingOffset,
     );
 
-    return camera.withPosition(
-      center: newCenter,
-      zoom: newZoom,
-    );
+    return camera.withPosition(center: newCenter, zoom: newZoom);
   }
 
   LatLng _getCenter(
@@ -316,15 +303,18 @@ class FitInsideBounds extends CameraFit {
     var kmin = double.infinity;
     final quadrant = (2.0 * normalizedAngleRad / math.pi).floor();
     if (quadrant.isOdd) {
-      final px = bigRectHalfWidth * math.cos(normalizedAngleRad) +
+      final px =
+          bigRectHalfWidth * math.cos(normalizedAngleRad) +
           bigRectHalfHeight * math.sin(normalizedAngleRad);
-      final py = bigRectHalfWidth * math.sin(normalizedAngleRad) -
+      final py =
+          bigRectHalfWidth * math.sin(normalizedAngleRad) -
           bigRectHalfHeight * math.cos(normalizedAngleRad);
       final dx = -math.cos(normalizedAngleRad);
       final dy = -math.sin(normalizedAngleRad);
 
       if (smallRectHalfWidth * dy - smallRectHalfHeight * dx != 0) {
-        var k = (px * dy - py * dx) /
+        var k =
+            (px * dy - py * dx) /
             (smallRectHalfWidth * dy - smallRectHalfHeight * dx);
         if (quadrant >= 2) {
           k = -k;
@@ -336,7 +326,8 @@ class FitInsideBounds extends CameraFit {
       }
 
       if (-smallRectHalfWidth * dx + smallRectHalfHeight * dy != 0) {
-        var k = (px * dx + py * dy) /
+        var k =
+            (px * dx + py * dy) /
             (-smallRectHalfWidth * dx + smallRectHalfHeight * dy);
         if (quadrant >= 2) {
           k = -k;
@@ -349,14 +340,17 @@ class FitInsideBounds extends CameraFit {
 
       return kmin;
     } else {
-      final px = bigRectHalfWidth * math.cos(normalizedAngleRad) -
+      final px =
+          bigRectHalfWidth * math.cos(normalizedAngleRad) -
           bigRectHalfHeight * math.sin(normalizedAngleRad);
-      final py = bigRectHalfWidth * math.sin(normalizedAngleRad) +
+      final py =
+          bigRectHalfWidth * math.sin(normalizedAngleRad) +
           bigRectHalfHeight * math.cos(normalizedAngleRad);
       final dx = math.sin(normalizedAngleRad);
       final dy = -math.cos(normalizedAngleRad);
       if (smallRectHalfWidth * dy - smallRectHalfHeight * dx != 0) {
-        var k = (px * dy - py * dx) /
+        var k =
+            (px * dy - py * dx) /
             (smallRectHalfWidth * dy - smallRectHalfHeight * dx);
         if (quadrant >= 2) {
           k = -k;
@@ -368,7 +362,8 @@ class FitInsideBounds extends CameraFit {
       }
 
       if (-smallRectHalfWidth * dx + smallRectHalfHeight * dy != 0) {
-        var k = (px * dx + py * dy) /
+        var k =
+            (px * dx + py * dy) /
             (-smallRectHalfWidth * dx + smallRectHalfHeight * dy);
         if (quadrant >= 2) {
           k = -k;
@@ -435,12 +430,15 @@ class FitCoordinates extends CameraFit {
     var newZoom = _getCoordinatesZoom(camera, paddingTotalXY);
     if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
-    final projectedPoints =
-        coordinates.map((coord) => camera.projectAtZoom(coord, newZoom));
+    final projectedPoints = coordinates.map(
+      (coord) => camera.projectAtZoom(coord, newZoom),
+    );
 
-    final rotatedBounds = RectExtension.containing(projectedPoints
-        .map((point) => point.rotate(-camera.rotationRad))
-        .toList());
+    final rotatedBounds = RectExtension.containing(
+      projectedPoints
+          .map((point) => point.rotate(-camera.rotationRad))
+          .toList(),
+    );
 
     // Apply padding
     final paddingOffset = (paddingBR - paddingTL) / 2;
@@ -451,27 +449,23 @@ class FitCoordinates extends CameraFit {
 
     final newCenter = camera.unprojectAtZoom(unrotatedNewCenter, newZoom);
 
-    return camera.withPosition(
-      center: newCenter,
-      zoom: newZoom,
-    );
+    return camera.withPosition(center: newCenter, zoom: newZoom);
   }
 
-  double _getCoordinatesZoom(
-    MapCamera camera,
-    Offset pixelPadding,
-  ) {
+  double _getCoordinatesZoom(MapCamera camera, Offset pixelPadding) {
     var size = camera.nonRotatedSize - pixelPadding as Size;
     // Prevent negative size which results in NaN zoom value later on in the calculation
     size = Size(math.max(0, size.width), math.max(0, size.height));
 
     final projectedPoints = [
-      for (final coord in coordinates) camera.projectAtZoom(coord)
+      for (final coord in coordinates) camera.projectAtZoom(coord),
     ];
 
-    final rotatedBounds = RectExtension.containing(projectedPoints
-        .map((point) => point.rotate(-camera.rotationRad))
-        .toList());
+    final rotatedBounds = RectExtension.containing(
+      projectedPoints
+          .map((point) => point.rotate(-camera.rotationRad))
+          .toList(),
+    );
 
     final boundsSize = rotatedBounds.size;
 
@@ -485,10 +479,7 @@ class FitCoordinates extends CameraFit {
       newZoom = newZoom.floorToDouble();
     }
 
-    final min = math.max(
-      camera.minZoom ?? 0,
-      minZoom,
-    );
+    final min = math.max(camera.minZoom ?? 0, minZoom);
     final max = math.min(
       camera.maxZoom ?? double.infinity,
       maxZoom ?? double.infinity,

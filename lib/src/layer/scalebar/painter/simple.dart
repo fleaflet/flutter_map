@@ -41,10 +41,10 @@ class _SimpleScalebarPainter extends ScalebarPainter {
     required Color lineColor,
     required this.alignment,
   }) : _textPainter = TextPainter(
-          text: text,
-          textDirection: TextDirection.ltr,
-          maxLines: 1,
-        ) {
+         text: text,
+         textDirection: TextDirection.ltr,
+         maxLines: 1,
+       ) {
     _linePaint
       ..color = lineColor
       ..strokeCap = StrokeCap.square
@@ -57,10 +57,7 @@ class _SimpleScalebarPainter extends ScalebarPainter {
     // draw text label
     final labelX =
         widgetSize.width / 2 - _textPainter.width / 2 + _halfStrokeWidth;
-    _textPainter.paint(
-      canvas,
-      Offset(max(0, labelX), _topPaddingCorr),
-    );
+    _textPainter.paint(canvas, Offset(max(0, labelX), _topPaddingCorr));
 
     final paddingTop = _topPaddingCorr + _textPainter.height;
     final lineBottomY = lineHeight + paddingTop;
@@ -107,11 +104,7 @@ class _SimpleScalebarPainter extends ScalebarPainter {
     ]);
 
     // draw lines as raw points
-    canvas.drawRawPoints(
-      PointMode.lines,
-      linePoints,
-      _linePaint,
-    );
+    canvas.drawRawPoints(PointMode.lines, linePoints, _linePaint);
   }
 
   @override

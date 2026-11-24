@@ -14,9 +14,11 @@ import 'package:meta/meta.dart';
 /// the result) at the start. The `build` method should/can then use
 /// [simplifiedElements].
 mixin ProjectionSimplificationManagement<
-    ProjectedElement extends Object,
-    Element extends Object,
-    W extends ProjectionSimplificationManagementSupportedWidget> on State<W> {
+  ProjectedElement extends Object,
+  Element extends Object,
+  W extends ProjectionSimplificationManagementSupportedWidget
+>
+    on State<W> {
   /// Project [Element] to [ProjectedElement] using the specified [projection]
   ProjectedElement projectElement({
     required Projection projection,
@@ -86,13 +88,13 @@ mixin ProjectionSimplificationManagement<
         _cachedSimplifiedElements.clear();
       }
 
-      simplifiedElements =
-          _cachedSimplifiedElements[camera.zoom.floor()] ??= _simplifyElements(
-        camera: camera,
-        projectedElements: projected,
-        pixelTolerance: widget.simplificationTolerance,
-        devicePixelRatio: newDPR,
-      ).toList(growable: false);
+      simplifiedElements = _cachedSimplifiedElements[camera.zoom.floor()] ??=
+          _simplifyElements(
+            camera: camera,
+            projectedElements: projected,
+            pixelTolerance: widget.simplificationTolerance,
+            devicePixelRatio: newDPR,
+          ).toList(growable: false);
     }
 
     return Builder(

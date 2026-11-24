@@ -13,20 +13,17 @@ class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
   @override
   R? get hitValue => polyline.hitValue;
 
-  _ProjectedPolyline._({
-    required this.polyline,
-    required this.points,
-  });
+  _ProjectedPolyline._({required this.polyline, required this.points});
 
   _ProjectedPolyline._fromPolyline(
     Projection projection,
     Polyline<R> polyline,
     bool drawInSingleWorld,
   ) : this._(
-          polyline: polyline,
-          points: projection.projectList(
-            polyline.points,
-            projectToSingleWorld: drawInSingleWorld,
-          ),
-        );
+        polyline: polyline,
+        points: projection.projectList(
+          polyline.points,
+          projectToSingleWorld: drawInSingleWorld,
+        ),
+      );
 }

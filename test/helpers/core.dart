@@ -15,5 +15,6 @@ DateTime randomDateTime() =>
 String randomString([int max = 20]) {
   final random = Random();
   return base64Encode(
-      List<int>.generate(max, (i) => random.nextInt(i + 1)).toList());
+    List<int>.generate(max, (i) => random.nextInt(i + 1)).toList(),
+  );
 }

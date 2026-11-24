@@ -94,24 +94,28 @@ class MapControllerPageState extends State<MapControllerPage> {
                     },
                     child: const Text('Fit Bounds'),
                   ),
-                  Builder(builder: (context) {
-                    return MaterialButton(
-                      onPressed: () {
-                        final bounds = _mapController.camera.visibleBounds;
+                  Builder(
+                    builder: (context) {
+                      return MaterialButton(
+                        onPressed: () {
+                          final bounds = _mapController.camera.visibleBounds;
 
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(
-                            'Map bounds: \n'
-                            'E: ${bounds.east} \n'
-                            'N: ${bounds.north} \n'
-                            'W: ${bounds.west} \n'
-                            'S: ${bounds.south}',
-                          ),
-                        ));
-                      },
-                      child: const Text('Get Bounds'),
-                    );
-                  }),
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Map bounds: \n'
+                                'E: ${bounds.east} \n'
+                                'N: ${bounds.north} \n'
+                                'W: ${bounds.west} \n'
+                                'S: ${bounds.south}',
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('Get Bounds'),
+                      );
+                    },
+                  ),
                   const Text('Rotation:'),
                   Expanded(
                     child: Slider(
@@ -125,7 +129,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                         _mapController.rotate(degree);
                       },
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

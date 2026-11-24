@@ -13,9 +13,7 @@ part of 'placement_calculator.dart';
 /// {@endtemplate}
 class PolylabelCalculator implements PolygonLabelPlacementCalculator {
   // Does not need to be `@literal`, as equality is implemented based on state
-  const PolylabelCalculator._({
-    this.precision = 0.0001,
-  });
+  const PolylabelCalculator._({this.precision = 0.0001});
 
   /// Threshold for when to stop dividing-and-conquering the polygon in the
   /// hopes of finding a better point with more distance to the polygon's
@@ -34,17 +32,13 @@ class PolylabelCalculator implements PolygonLabelPlacementCalculator {
 
   @override
   LatLng call(Polygon polygon) {
-    final (point: (:x, :y), distance: _) = dart_polylabel2.polylabel(
-      [
-        List<dart_polylabel2.Point>.generate(
-          polygon.points.length,
-          (i) =>
-              (x: polygon.points[i].latitude, y: polygon.points[i].longitude),
-          growable: false,
-        ),
-      ],
-      precision: precision,
-    );
+    final (point: (:x, :y), distance: _) = dart_polylabel2.polylabel([
+      List<dart_polylabel2.Point>.generate(
+        polygon.points.length,
+        (i) => (x: polygon.points[i].latitude, y: polygon.points[i].longitude),
+        growable: false,
+      ),
+    ], precision: precision);
     return LatLng(x, y);
   }
 

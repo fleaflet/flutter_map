@@ -43,12 +43,9 @@ mixin FeatureLayerUtils on CustomPainter {
       if (maxX < offset.dx) maxX = offset.dx;
       if (maxY < offset.dy) maxY = offset.dy;
     }
-    return viewportRect.overlaps(Rect.fromLTRB(
-      minX - margin,
-      minY - margin,
-      maxX + margin,
-      maxY + margin,
-    ));
+    return viewportRect.overlaps(
+      Rect.fromLTRB(minX - margin, minY - margin, maxX + margin, maxY + margin),
+    );
   }
 
   /// Perform the callback in all world copies (until stopped)
@@ -59,9 +56,7 @@ mixin FeatureLayerUtils on CustomPainter {
   /// Internally, the worker is invoked in the 'negative' worlds (worlds to the
   /// left of the 'primary' world) until repetition is stopped, then in the
   /// 'positive' worlds: <--||-->.
-  bool workAcrossWorlds(
-    WorldWorkControl Function(double shift) work,
-  ) {
+  bool workAcrossWorlds(WorldWorkControl Function(double shift) work) {
     // Protection in case of unexpected infinite loop if `work` never returns
     // `invisible`. e.g. https://github.com/fleaflet/flutter_map/issues/2052.
     //! This can produce false positives - but it's better than a crash.
@@ -84,7 +79,7 @@ mixin FeatureLayerUtils on CustomPainter {
     if (worldWidth == 0) return false;
 
     bool workInDirection(double worldShift) {
-      for (double shift = worldShift;; shift += worldShift) {
+      for (double shift = worldShift; ; shift += worldShift) {
         protectInfiniteLoop();
         switch (work(shift)) {
           case WorldWorkControl.hit:

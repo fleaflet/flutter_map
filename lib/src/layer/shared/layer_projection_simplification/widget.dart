@@ -25,7 +25,7 @@ abstract base class ProjectionSimplificationManagementSupportedWidget
     super.key,
     this.simplificationTolerance = 0.3,
   }) : assert(
-          simplificationTolerance >= 0,
-          'simplificationTolerance cannot be negative: $simplificationTolerance',
-        );
+         simplificationTolerance >= 0,
+         'simplificationTolerance cannot be negative: $simplificationTolerance',
+       );
 }

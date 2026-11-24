@@ -262,41 +262,45 @@ class TileLayer extends StatefulWidget {
     this.tileBounds,
     TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
-  })  : assert(
-          tileDisplay.when(
-            instantaneous: (_) => true,
-            fadeIn: (fadeIn) => fadeIn.duration > Duration.zero,
-          )!,
-          'The tile fade in duration needs to be bigger than zero',
-        ),
-        assert(
-          urlTemplate == null || wmsOptions == null,
-          'Cannot specify both `urlTemplate` and `wmsOptions`',
-        ),
-        tileProvider = tileProvider ?? NetworkTileProvider(),
-        tileUpdateTransformer =
-            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
+  }) : assert(
+         tileDisplay.when(
+           instantaneous: (_) => true,
+           fadeIn: (fadeIn) => fadeIn.duration > Duration.zero,
+         )!,
+         'The tile fade in duration needs to be bigger than zero',
+       ),
+       assert(
+         urlTemplate == null || wmsOptions == null,
+         'Cannot specify both `urlTemplate` and `wmsOptions`',
+       ),
+       tileProvider = tileProvider ?? NetworkTileProvider(),
+       tileUpdateTransformer =
+           tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
     // If the tile provider doesn't define a User-Agent, we define it here.
     // This is so there's a convienient way for users to specifiy the agent
     // without always having to manually specify a tile provider and headers.
     if (!kIsWeb) {
       this.tileProvider.headers.putIfAbsent(
-          'User-Agent', () => 'flutter_map ($userAgentPackageName)');
+        'User-Agent',
+        () => 'flutter_map ($userAgentPackageName)',
+      );
     }
 
     // Retina Mode Setup
     resolvedRetinaMode = (retinaMode ?? false)
         ? wmsOptions == null && (urlTemplate?.contains('{r}') ?? false)
-            ? RetinaMode.server
-            : RetinaMode.simulation
+              ? RetinaMode.server
+              : RetinaMode.simulation
         : RetinaMode.disabled;
     final useSimulatedRetina = resolvedRetinaMode == RetinaMode.simulation;
 
     this.maxZoom = useSimulatedRetina && !zoomReverse ? maxZoom - 1 : maxZoom;
-    this.maxNativeZoom =
-        useSimulatedRetina && !zoomReverse ? maxNativeZoom - 1 : maxNativeZoom;
-    this.minZoom =
-        useSimulatedRetina && zoomReverse ? max(minZoom + 1.0, 0) : minZoom;
+    this.maxNativeZoom = useSimulatedRetina && !zoomReverse
+        ? maxNativeZoom - 1
+        : maxNativeZoom;
+    this.minZoom = useSimulatedRetina && zoomReverse
+        ? max(minZoom + 1.0, 0)
+        : minZoom;
     this.minNativeZoom = useSimulatedRetina && zoomReverse
         ? max(minNativeZoom + 1, 0)
         : minNativeZoom;
@@ -308,10 +312,11 @@ class TileLayer extends StatefulWidget {
     this.tileSize = tileSize == null
         ? null
         : useSimulatedRetina
-            ? (tileSize / 2).floorToDouble()
-            : tileSize;
-    this.tileDimension =
-        useSimulatedRetina ? tileDimension ~/ 2 : tileDimension;
+        ? (tileSize / 2).floorToDouble()
+        : tileSize;
+    this.tileDimension = useSimulatedRetina
+        ? tileDimension ~/ 2
+        : tileDimension;
   }
 
   @override
@@ -324,7 +329,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void _warnOpenStreetMapUrl() {
     if (!kDebugMode) return;
 
-    final isOSMUrl = widget.urlTemplate != null &&
+    final isOSMUrl =
+        widget.urlTemplate != null &&
         _openStreetMapUrls.any(widget.urlTemplate!.contains);
 
     if (!isOSMUrl) return;
@@ -335,14 +341,16 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final hasSubdomainPart = widget.urlTemplate!.contains('{s}');
 
     // ignore: avoid_print
-    print('''  \x1B[1m[flutter_map]\x1B[0m
+    print(
+      '''  \x1B[1m[flutter_map]\x1B[0m
     We want to help keep OpenStreetMap available for everyone. Our examples
     and demo app use the public tile servers, but they are NOT free to use by
     everyone! Please review whether the OpenStreetMap tile servers are suitable
     for your project.
     See:
       * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)
-      * https://docs.fleaflet.dev/osm-warn for more information about this warning''');
+      * https://docs.fleaflet.dev/osm-warn for more information about this warning''',
+    );
 
     if (!hasSetGoodUserAgent) {
       // ignore: avoid_print
@@ -354,10 +362,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (hasSubdomainPart) {
       // ignore: avoid_print
-      print('''\x1B[0;33m    ---
+      print(
+        '''\x1B[0;33m    ---
     \x1B[0;33mAvoid using subdomains with the OpenStreetMap public tile server. Support may
     \x1B[0;33mbecome slow or be removed in future.
-    \x1B[0;33mSee https://github.com/openstreetmap/operations/issues/737 for more info.''');
+    \x1B[0;33mSee https://github.com/openstreetmap/operations/issues/737 for more info.''',
+      );
     }
   }
 
@@ -419,7 +429,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     var reloadTiles = false;
     if (!_initializedFromMapCamera ||
         _tileBounds.shouldReplace(
-            camera.crs, _tileDimension, widget.tileBounds)) {
+          camera.crs,
+          _tileDimension,
+          widget.tileBounds,
+        )) {
       reloadTiles = true;
       _tileBounds = TileBounds(
         crs: camera.crs,
@@ -451,7 +464,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
 
     if (_tileBounds.shouldReplace(
-        _tileBounds.crs, _tileDimension, widget.tileBounds)) {
+      _tileBounds.crs,
+      _tileDimension,
+      widget.tileBounds,
+    )) {
       _tileBounds = TileBounds(
         crs: _tileBounds.crs,
         tileDimension: _tileDimension,
@@ -476,8 +492,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (oldWidget.minZoom != widget.minZoom ||
         oldWidget.maxZoom != widget.maxZoom) {
-      reloadTiles |=
-          !_tileImageManager.allWithinZoom(widget.minZoom, widget.maxZoom);
+      reloadTiles |= !_tileImageManager.allWithinZoom(
+        widget.minZoom,
+        widget.maxZoom,
+      );
     }
 
     if (!reloadTiles) {
@@ -489,8 +507,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       final newOptions = widget.additionalOptions;
 
       if (oldUrl != newUrl ||
-          !(const MapEquality<String, String>())
-              .equals(oldOptions, newOptions)) {
+          !(const MapEquality<String, String>()).equals(
+            oldOptions,
+            newOptions,
+          )) {
         _tileImageManager.reloadImages(widget, _tileBounds);
       }
     }
@@ -558,19 +578,21 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // cycles saved later on in the render pipeline.
     final tiles = _tileImageManager
         .getTilesToRender(visibleRange: visibleTileRange)
-        .map((tileRenderer) => Tile(
-              // Must be an ObjectKey, not a ValueKey using the coordinates, in
-              // case we remove and replace the TileImage with a different one.
-              key: TileKey(tileRenderer),
-              scaledTileDimension: _tileScaleCalculator.scaledTileDimension(
-                map.zoom,
-                tileRenderer.positionCoordinates.z,
-              ),
-              currentPixelOrigin: map.pixelOrigin,
-              tileImage: tileRenderer.tileImage,
-              positionCoordinates: tileRenderer.positionCoordinates,
-              tileBuilder: widget.tileBuilder,
-            ))
+        .map(
+          (tileRenderer) => Tile(
+            // Must be an ObjectKey, not a ValueKey using the coordinates, in
+            // case we remove and replace the TileImage with a different one.
+            key: TileKey(tileRenderer),
+            scaledTileDimension: _tileScaleCalculator.scaledTileDimension(
+              map.zoom,
+              tileRenderer.positionCoordinates.z,
+            ),
+            currentPixelOrigin: map.pixelOrigin,
+            tileImage: tileRenderer.tileImage,
+            positionCoordinates: tileRenderer.positionCoordinates,
+            tileBuilder: widget.tileBuilder,
+          ),
+        )
         .toList();
 
     // Sort in render order. In reverse:
@@ -658,10 +680,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
 
     if (!_outsideZoomLimits(tileZoom)) {
-      _loadTiles(
-        visibleTileRange,
-        pruneAfterLoad: true,
-      );
+      _loadTiles(visibleTileRange, pruneAfterLoad: true);
     }
 
     _tileImageManager.evictAndPrune(
@@ -705,8 +724,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // Re-order the tiles by their distance to the center of the range.
     final tileCenter = expandedTileLoadRange.center;
     tilesToLoad.sort(
-      (a, b) => (a.coordinates.toOffset() - tileCenter)
-          .distanceSquared
+      (a, b) => (a.coordinates.toOffset() - tileCenter).distanceSquared
           .compareTo((b.coordinates.toOffset() - tileCenter).distanceSquared),
     );
 
@@ -732,17 +750,20 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       return;
     }
 
-    widget.tileDisplay.when(instantaneous: (_) {
-      _pruneWithCurrentCamera();
-    }, fadeIn: (fadeIn) {
-      // Wait a bit more than tileFadeInDuration to trigger a pruning so that
-      // we don't see tile removal under a fading tile.
-      _pruneLater?.cancel();
-      _pruneLater = Timer(
-        fadeIn.duration + const Duration(milliseconds: 50),
-        _pruneWithCurrentCamera,
-      );
-    });
+    widget.tileDisplay.when(
+      instantaneous: (_) {
+        _pruneWithCurrentCamera();
+      },
+      fadeIn: (fadeIn) {
+        // Wait a bit more than tileFadeInDuration to trigger a pruning so that
+        // we don't see tile removal under a fading tile.
+        _pruneLater?.cancel();
+        _pruneLater = Timer(
+          fadeIn.duration + const Duration(milliseconds: 50),
+          _pruneWithCurrentCamera,
+        );
+      },
+    );
   }
 
   void _pruneWithCurrentCamera() {

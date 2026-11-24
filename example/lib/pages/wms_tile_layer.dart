@@ -35,24 +35,28 @@ class WMSLayerPage extends StatelessWidget {
                 'Sentinel-2 provided by the European Commission (free, full '
                 'and open access) [Sentinel-2 cloudless 2016, 2018, 2019, '
                 '2020, 2021, 2022 & 2023]',
-                onTap: () => launchUrl(Uri.parse(
-                  'https://sentinel.esa.int/documents/247904/690755/Sentinel_Data_Legal_Notice',
-                )),
+                onTap: () => launchUrl(
+                  Uri.parse(
+                    'https://sentinel.esa.int/documents/247904/690755/Sentinel_Data_Legal_Notice',
+                  ),
+                ),
                 prependCopyright: false,
               ),
               TextSourceAttribution(
                 'OpenStreetMap © OpenStreetMap contributors [Terrain Light, '
                 'Terrain, OpenStreetMap, Overlay]',
-                onTap: () => launchUrl(Uri.parse(
-                  'http://www.openstreetmap.org/copyright',
-                )),
+                onTap: () => launchUrl(
+                  Uri.parse('http://www.openstreetmap.org/copyright'),
+                ),
                 prependCopyright: false,
               ),
               TextSourceAttribution(
                 'NaturalEarth public domain [Terrain Light, Terrain, Overlay]',
-                onTap: () => launchUrl(Uri.parse(
-                  'http://www.naturalearthdata.com/about/terms-of-use/',
-                )),
+                onTap: () => launchUrl(
+                  Uri.parse(
+                    'http://www.naturalearthdata.com/about/terms-of-use/',
+                  ),
+                ),
                 prependCopyright: false,
               ),
               const TextSourceAttribution(
@@ -62,9 +66,9 @@ class WMSLayerPage extends StatelessWidget {
               ),
               TextSourceAttribution(
                 'ASTER GDEM is a product of METI and NASA [Terrain Light]',
-                onTap: () => launchUrl(Uri.parse(
-                  'https://lpdaac.usgs.gov/products/aster_policies',
-                )),
+                onTap: () => launchUrl(
+                  Uri.parse('https://lpdaac.usgs.gov/products/aster_policies'),
+                ),
                 prependCopyright: false,
               ),
               TextSourceAttribution(
@@ -75,9 +79,8 @@ class WMSLayerPage extends StatelessWidget {
               TextSourceAttribution(
                 'GTOPO30 Data available from the U.S. Geological Survey '
                 '[Terrain Light, Terrain]',
-                onTap: () => launchUrl(Uri.parse(
-                  'https://lta.cr.usgs.gov/GTOPO30',
-                )),
+                onTap: () =>
+                    launchUrl(Uri.parse('https://lta.cr.usgs.gov/GTOPO30')),
                 prependCopyright: false,
               ),
               const TextSourceAttribution(
@@ -91,9 +94,9 @@ class WMSLayerPage extends StatelessWidget {
               ),
               TextSourceAttribution(
                 'GlobCover © ESA [Terrain]',
-                onTap: () => launchUrl(Uri.parse(
-                  'http://due.esrin.esa.int/page_globcover.php',
-                )),
+                onTap: () => launchUrl(
+                  Uri.parse('http://due.esrin.esa.int/page_globcover.php'),
+                ),
                 prependCopyright: false,
               ),
               const TextSourceAttribution(
@@ -112,9 +115,9 @@ class WMSLayerPage extends StatelessWidget {
               ),
               TextSourceAttribution(
                 'Rendering: © MapServer [OpenStreetMap, Overlay]',
-                onTap: () => launchUrl(Uri.parse(
-                  'https://github.com/mapserver/basemaps',
-                )),
+                onTap: () => launchUrl(
+                  Uri.parse('https://github.com/mapserver/basemaps'),
+                ),
                 prependCopyright: false,
               ),
             ],

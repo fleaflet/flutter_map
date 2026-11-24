@@ -7,10 +7,9 @@ import 'package:meta/meta.dart';
 
 @internal
 class OffsetHelper {
-  OffsetHelper({
-    required this.camera,
-  })  : _replicatesWorldLongitude = camera.crs.replicatesWorldLongitude,
-        _origin = camera.pixelOrigin;
+  OffsetHelper({required this.camera})
+    : _replicatesWorldLongitude = camera.crs.replicatesWorldLongitude,
+      _origin = camera.pixelOrigin;
 
   final MapCamera camera;
 
@@ -18,10 +17,7 @@ class OffsetHelper {
   final bool _replicatesWorldLongitude;
 
   /// Calculate the [Offset] for the [LatLng] point.
-  Offset getOffset(
-    LatLng point, {
-    double shift = 0,
-  }) {
+  Offset getOffset(LatLng point, {double shift = 0}) {
     final crs = camera.crs;
     final zoomScale = crs.scale(camera.zoom);
     final (x, y) = crs.latLngToXY(point, zoomScale);
@@ -103,11 +99,7 @@ class OffsetHelper {
         return forcedAddedWorldWidth;
       }
       final worldWidth = crs.projection.getWorldWidth();
-      final List<double> addedWidths = [
-        0,
-        worldWidth,
-        -worldWidth,
-      ];
+      final List<double> addedWidths = [0, worldWidth, -worldWidth];
       final halfScreenWidth = camera.size.width / 2;
       final p = realPoints[0];
       late double result;

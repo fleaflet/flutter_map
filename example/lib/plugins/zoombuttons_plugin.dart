@@ -43,8 +43,11 @@ class FlutterMapZoomButtons extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Padding(
-            padding:
-                EdgeInsets.only(left: padding, top: padding, right: padding),
+            padding: EdgeInsets.only(
+              left: padding,
+              top: padding,
+              right: padding,
+            ),
             child: FloatingActionButton(
               heroTag: 'zoomInButton',
               mini: mini,
@@ -53,8 +56,10 @@ class FlutterMapZoomButtons extends StatelessWidget {
                 final zoom = min(camera.zoom + 1, maxZoom);
                 controller.move(camera.center, zoom);
               },
-              child: Icon(zoomInIcon,
-                  color: zoomInColorIcon ?? theme.iconTheme.color),
+              child: Icon(
+                zoomInIcon,
+                color: zoomInColorIcon ?? theme.iconTheme.color,
+              ),
             ),
           ),
           Padding(
@@ -67,8 +72,10 @@ class FlutterMapZoomButtons extends StatelessWidget {
                 final zoom = max(camera.zoom - 1, minZoom);
                 controller.move(camera.center, zoom);
               },
-              child: Icon(zoomOutIcon,
-                  color: zoomOutColorIcon ?? theme.iconTheme.color),
+              child: Icon(
+                zoomOutIcon,
+                color: zoomOutColorIcon ?? theme.iconTheme.color,
+              ),
             ),
           ),
         ],

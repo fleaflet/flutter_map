@@ -6,10 +6,7 @@ import 'dart:ui';
 
 import 'package:flutter_map/src/misc/point_in_polygon.dart';
 
-typedef Result = ({
-  String name,
-  Duration duration,
-});
+typedef Result = ({String name, Duration duration});
 
 Future<Result> timedRun(String name, dynamic Function() body) async {
   print('running $name...');
@@ -40,29 +37,33 @@ Future<void> main() async {
 
   final circle = makeCircle(1000, 1, 0);
 
-  results.add(await timedRun('In circle', () {
-    const point = Offset.zero;
+  results.add(
+    await timedRun('In circle', () {
+      const point = Offset.zero;
 
-    bool yesPlease = true;
-    for (int i = 0; i < N; ++i) {
-      yesPlease = yesPlease && isPointInPolygon(point, circle);
-    }
+      bool yesPlease = true;
+      for (int i = 0; i < N; ++i) {
+        yesPlease = yesPlease && isPointInPolygon(point, circle);
+      }
 
-    assert(yesPlease, 'should be in circle');
-    return yesPlease;
-  }));
+      assert(yesPlease, 'should be in circle');
+      return yesPlease;
+    }),
+  );
 
-  results.add(await timedRun('Not in circle', () {
-    const point = Offset(4, 4);
+  results.add(
+    await timedRun('Not in circle', () {
+      const point = Offset(4, 4);
 
-    bool noSir = false;
-    for (int i = 0; i < N; ++i) {
-      noSir = noSir || isPointInPolygon(point, circle);
-    }
+      bool noSir = false;
+      for (int i = 0; i < N; ++i) {
+        noSir = noSir || isPointInPolygon(point, circle);
+      }
 
-    assert(!noSir, 'should not be in circle');
-    return noSir;
-  }));
+      assert(!noSir, 'should not be in circle');
+      return noSir;
+    }),
+  );
 
   print('Results:\n${results.map((r) => r.toString()).join('\n')}');
 }

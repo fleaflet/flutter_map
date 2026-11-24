@@ -10,8 +10,10 @@ import 'package:test/test.dart';
 void main() {
   group('TileBoundsAtZoom', () {
     const hugeCoordinate = TileCoordinates(999999999, 999999999, 0);
-    final hugePoint =
-        Offset(hugeCoordinate.x.toDouble(), hugeCoordinate.y.toDouble());
+    final hugePoint = Offset(
+      hugeCoordinate.x.toDouble(),
+      hugeCoordinate.y.toDouble(),
+    );
     final tileRangeWithHugeCoordinate = DiscreteTileRange.fromPixelBounds(
       zoom: 0,
       tileDimension: 1,
@@ -19,11 +21,15 @@ void main() {
     );
 
     DiscreteTileRange discreteTileRange(
-            int zoom, int minX, int minY, int maxX, int maxY) =>
-        DiscreteTileRange(
-          zoom,
-          IntegerBounds(Point(minX, minY), Point(maxX, maxY)),
-        );
+      int zoom,
+      int minX,
+      int minY,
+      int maxX,
+      int maxY,
+    ) => DiscreteTileRange(
+      zoom,
+      IntegerBounds(Point(minX, minY), Point(maxX, maxY)),
+    );
 
     test('InfiniteTileBoundsAtZoom', () {
       const tileBoundsAtZoom = InfiniteTileBoundsAtZoom();
@@ -32,10 +38,9 @@ void main() {
       expect(tileBoundsAtZoom.wrap(hugeCoordinate), hugeCoordinate);
 
       // Does not filter out coordinates
-      expect(
-        tileBoundsAtZoom.validCoordinatesIn(tileRangeWithHugeCoordinate),
-        [hugeCoordinate],
-      );
+      expect(tileBoundsAtZoom.validCoordinatesIn(tileRangeWithHugeCoordinate), [
+        hugeCoordinate,
+      ]);
     });
 
     test('DiscreteTileBoundsAtZoom', () {
@@ -60,8 +65,9 @@ void main() {
       );
 
       // Does not filter out valid coordinates
-      final resultingCoordinates =
-          tileBoundsAtZoom.validCoordinatesIn(tileRange);
+      final resultingCoordinates = tileBoundsAtZoom.validCoordinatesIn(
+        tileRange,
+      );
       expect(resultingCoordinates, tileRange.coordinates);
     });
 
@@ -112,8 +118,9 @@ void main() {
 
       // Keeps coordinates which are in the tile range when wrapped.
       expect(
-        tileBoundsAtZoom
-            .validCoordinatesIn(discreteTileRange(0, 13, 0, 25, 12)),
+        tileBoundsAtZoom.validCoordinatesIn(
+          discreteTileRange(0, 13, 0, 25, 12),
+        ),
         discreteTileRange(0, 15, 2, 23, 10).coordinates,
       );
     });
@@ -165,8 +172,9 @@ void main() {
 
       // Keeps all wrapped coordinates, only non-wrapped coordinates in range.
       expect(
-        tileBoundsAtZoom
-            .validCoordinatesIn(discreteTileRange(0, 13, 0, 25, 12)),
+        tileBoundsAtZoom.validCoordinatesIn(
+          discreteTileRange(0, 13, 0, 25, 12),
+        ),
         discreteTileRange(0, 13, 2, 25, 10).coordinates,
       );
     });

@@ -157,28 +157,23 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                                   ),
                                 ),
                               const SizedBox.shrink(),
-                              ...List.generate(
-                                4,
-                                (i) {
-                                  final thickness = i * i;
-                                  return ChoiceChip(
-                                    label: Text(
-                                      thickness == 0
-                                          ? 'None'
-                                          : '${thickness}px',
-                                    ),
-                                    selected: borderThickness == thickness,
-                                    shape: const StadiumBorder(),
-                                    onSelected: (selected) {
-                                      if (!selected) return;
-                                      setState(() {
-                                        borderThickness = thickness.toDouble();
-                                        polygons = generatePolygonsFromPoints();
-                                      });
-                                    },
-                                  );
-                                },
-                              ),
+                              ...List.generate(4, (i) {
+                                final thickness = i * i;
+                                return ChoiceChip(
+                                  label: Text(
+                                    thickness == 0 ? 'None' : '${thickness}px',
+                                  ),
+                                  selected: borderThickness == thickness,
+                                  shape: const StadiumBorder(),
+                                  onSelected: (selected) {
+                                    if (!selected) return;
+                                    setState(() {
+                                      borderThickness = thickness.toDouble();
+                                      polygons = generatePolygonsFromPoints();
+                                    });
+                                  },
+                                );
+                              }),
                             ],
                           ),
                         ),

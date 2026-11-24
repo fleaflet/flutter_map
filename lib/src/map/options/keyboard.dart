@@ -185,42 +185,42 @@ class KeyboardOptions {
     this.focusNode,
     this.autofocus = true,
   }) : assert(
-          leapMaxOfCurveComponent > 0 && leapMaxOfCurveComponent <= 1,
-          '`leapMaxOfCurveComponent` must be between 0 (exclusive) and 1 '
-          '(inclusive)',
-        );
+         leapMaxOfCurveComponent > 0 && leapMaxOfCurveComponent <= 1,
+         '`leapMaxOfCurveComponent` must be between 0 (exclusive) and 1 '
+         '(inclusive)',
+       );
 
   /// Disable keyboard control of the map
   ///
   /// [CursorKeyboardRotationOptions] may still be active, and is not disabled
   /// if this is disabled.
   const KeyboardOptions.disabled()
-      : this(
-          enableArrowKeysPanning: false,
-          performLeapTriggerDuration: null,
-          autofocus: false,
-        );
+    : this(
+        enableArrowKeysPanning: false,
+        performLeapTriggerDuration: null,
+        autofocus: false,
+      );
 
   @override
   int get hashCode => Object.hash(
-        enableArrowKeysPanning,
-        enableWASDPanning,
-        enableQERotating,
-        enableRFZooming,
-        maxPanVelocity,
-        panLeapVelocityMultiplier,
-        maxZoomVelocity,
-        zoomLeapVelocityMultiplier,
-        maxRotateVelocity,
-        rotateLeapVelocityMultiplier,
-        animationCurveDuration,
-        animationCurveReverseDuration,
-        animationCurveCurve,
-        performLeapTriggerDuration,
-        leapMaxOfCurveComponent,
-        focusNode,
-        autofocus,
-      );
+    enableArrowKeysPanning,
+    enableWASDPanning,
+    enableQERotating,
+    enableRFZooming,
+    maxPanVelocity,
+    panLeapVelocityMultiplier,
+    maxZoomVelocity,
+    zoomLeapVelocityMultiplier,
+    maxRotateVelocity,
+    rotateLeapVelocityMultiplier,
+    animationCurveDuration,
+    animationCurveReverseDuration,
+    animationCurveCurve,
+    performLeapTriggerDuration,
+    leapMaxOfCurveComponent,
+    focusNode,
+    autofocus,
+  );
 
   @override
   bool operator ==(Object other) =>

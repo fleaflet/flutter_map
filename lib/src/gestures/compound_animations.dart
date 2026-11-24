@@ -29,7 +29,7 @@ mixin _InfiniteNotifier<T> on CompoundAnimation<T> {
 class _NumInfiniteSumAnimation<T extends num> extends CompoundAnimation<T>
     with _InfiniteNotifier {
   _NumInfiniteSumAnimation(Animation<T> a, Animation<T> b)
-      : super(first: a, next: b);
+    : super(first: a, next: b);
 
   @override
   T get value => first.value + next.value as T;
@@ -38,7 +38,7 @@ class _NumInfiniteSumAnimation<T extends num> extends CompoundAnimation<T>
 class _OffsetInfiniteSumAnimation extends CompoundAnimation<Offset>
     with _InfiniteNotifier {
   _OffsetInfiniteSumAnimation(Animation<Offset> a, Animation<Offset> b)
-      : super(first: a, next: b);
+    : super(first: a, next: b);
 
   @override
   Offset get value => first.value + next.value;
@@ -47,15 +47,15 @@ class _OffsetInfiniteSumAnimation extends CompoundAnimation<Offset>
 class _InfiniteAnimation<T> extends CompoundAnimation<T>
     with _InfiniteNotifier {
   _InfiniteAnimation(Animation<T> repeat, Animation<T> curve)
-      : super(first: repeat, next: curve);
+    : super(first: repeat, next: curve);
 
   @override
   AnimationStatus get status => switch (next.status) {
-        AnimationStatus.completed => AnimationStatus.forward,
-        AnimationStatus.forward => AnimationStatus.forward,
-        AnimationStatus.dismissed => AnimationStatus.dismissed,
-        AnimationStatus.reverse => AnimationStatus.reverse,
-      };
+    AnimationStatus.completed => AnimationStatus.forward,
+    AnimationStatus.forward => AnimationStatus.forward,
+    AnimationStatus.dismissed => AnimationStatus.dismissed,
+    AnimationStatus.reverse => AnimationStatus.reverse,
+  };
 
   @override
   T get value => !next.isCompleted ? next.value : first.value;

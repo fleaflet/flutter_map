@@ -19,6 +19,6 @@ class OverlayImageLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MobileLayerTransformer(
-        child: ClipRect(child: Stack(children: overlayImages)),
-      );
+    child: ClipRect(child: Stack(children: overlayImages)),
+  );
 }

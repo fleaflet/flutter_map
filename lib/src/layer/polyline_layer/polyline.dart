@@ -87,17 +87,17 @@ class Polyline<R extends Object> with HitDetectableElement<R> {
 
   /// A for rendering purposes optimized hashCode function.
   int get renderHashCode => _renderHashCode ??= Object.hash(
-        strokeWidth,
-        color,
-        borderStrokeWidth,
-        borderColor,
-        gradientColors,
-        colorsStop,
-        pattern,
-        strokeCap,
-        strokeJoin,
-        useStrokeWidthInMeter,
-      );
+    strokeWidth,
+    color,
+    borderStrokeWidth,
+    borderColor,
+    gradientColors,
+    colorsStop,
+    pattern,
+    strokeCap,
+    strokeJoin,
+    useStrokeWidthInMeter,
+  );
 
   int? _hashCode;
 
