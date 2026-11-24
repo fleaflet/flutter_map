@@ -186,6 +186,7 @@ class _ExpandableAttributionLayerState
   late final _useInitialExpansion =
       widget.initialExpansionDuration != Duration.zero;
 
+  // These are only exposed to allow disposal
   StreamSubscription<MapEvent>? _mapEventSubscription;
   late final Timer? _minimizeTimer;
 

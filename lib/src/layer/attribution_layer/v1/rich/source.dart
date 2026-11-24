@@ -7,6 +7,9 @@ import 'package:meta/meta.dart';
 /// [RichAttributionWidget]
 ///
 /// Extended by [TextSourceAttribution] & [LogoSourceAttribution].
+@Deprecated(
+  '`RichAttributionLayer`, as the sole user of this type, is deprecated',
+)
 @immutable
 sealed class SourceAttribution extends StatelessWidget {
   const SourceAttribution._({super.key, this.onTap});
@@ -38,6 +41,9 @@ sealed class SourceAttribution extends StatelessWidget {
 
 /// A simple text attribution displayed in the popup box of a
 /// [RichAttributionWidget]
+@Deprecated(
+  '`RichAttributionLayer`, as the sole user of this type, is deprecated',
+)
 @immutable
 class TextSourceAttribution extends SourceAttribution {
   /// Default style used to display the [text], only when
@@ -74,6 +80,9 @@ class TextSourceAttribution extends SourceAttribution {
 
 /// An image attribution permanently displayed adjacent to the open/close icon of
 /// a [RichAttributionWidget]
+@Deprecated(
+  '`RichAttributionLayer`, as the sole user of this type, is deprecated',
+)
 @immutable
 class LogoSourceAttribution extends SourceAttribution {
   /// The logo to display as attribution, usually an [Image.asset] or
