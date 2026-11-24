@@ -37,7 +37,7 @@ class PointToLatlngPage extends State<ScreenPointToLatLngPage> {
           FlutterMap(
             mapController: mapController,
             options: MapOptions(
-              onPositionChanged: (_, __) => updatePoint(context),
+              onPositionChanged: (_, _) => updatePoint(context),
               initialCenter: const LatLng(51.5, -0.09),
               initialZoom: 5,
               minZoom: 3,
