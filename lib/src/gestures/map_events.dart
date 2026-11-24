@@ -84,10 +84,7 @@ abstract class MapEvent {
 
   /// Base constructor for [MapEvent] that gets overridden by its extended
   /// classes.
-  const MapEvent({
-    required this.source,
-    required this.camera,
-  });
+  const MapEvent({required this.source, required this.camera});
 }
 
 /// Base event class which is emitted by MapController instance and
@@ -114,38 +111,35 @@ abstract class MapEventWithMove extends MapEvent {
     required bool hasGesture,
     required MapEventSource source,
     String? id,
-  }) =>
-      switch (source) {
-        MapEventSource.flingAnimationController => MapEventFlingAnimation(
-            oldCamera: oldCamera,
-            camera: camera,
-            source: source,
-          ),
-        MapEventSource.doubleTapZoomAnimationController =>
-          MapEventDoubleTapZoom(
-            oldCamera: oldCamera,
-            camera: camera,
-            source: source,
-          ),
-        MapEventSource.scrollWheel => MapEventScrollWheelZoom(
-            oldCamera: oldCamera,
-            camera: camera,
-            source: source,
-          ),
-        MapEventSource.onDrag ||
-        MapEventSource.onMultiFinger ||
-        MapEventSource.doubleTapHold ||
-        MapEventSource.mapController ||
-        MapEventSource.keyboard ||
-        MapEventSource.custom =>
-          MapEventMove(
-            id: id,
-            oldCamera: oldCamera,
-            camera: camera,
-            source: source,
-          ),
-        _ => null,
-      };
+  }) => switch (source) {
+    MapEventSource.flingAnimationController => MapEventFlingAnimation(
+      oldCamera: oldCamera,
+      camera: camera,
+      source: source,
+    ),
+    MapEventSource.doubleTapZoomAnimationController => MapEventDoubleTapZoom(
+      oldCamera: oldCamera,
+      camera: camera,
+      source: source,
+    ),
+    MapEventSource.scrollWheel => MapEventScrollWheelZoom(
+      oldCamera: oldCamera,
+      camera: camera,
+      source: source,
+    ),
+    MapEventSource.onDrag ||
+    MapEventSource.onMultiFinger ||
+    MapEventSource.doubleTapHold ||
+    MapEventSource.mapController ||
+    MapEventSource.keyboard ||
+    MapEventSource.custom => MapEventMove(
+      id: id,
+      oldCamera: oldCamera,
+      camera: camera,
+      source: source,
+    ),
+    _ => null,
+  };
 }
 
 /// Event which is fired when map is tapped
@@ -209,20 +203,14 @@ class MapEventMove extends MapEventWithMove {
 @immutable
 class MapEventMoveStart extends MapEvent {
   /// Create a new map event that represents the start of a drag event
-  const MapEventMoveStart({
-    required super.source,
-    required super.camera,
-  });
+  const MapEventMoveStart({required super.source, required super.camera});
 }
 
 /// Event which is fired when dragging is finished
 @immutable
 class MapEventMoveEnd extends MapEvent {
   /// Create a new map event that represents the end of a drag event
-  const MapEventMoveEnd({
-    required super.source,
-    required super.camera,
-  });
+  const MapEventMoveEnd({required super.source, required super.camera});
 }
 
 /// Event which is fired when animation started by fling gesture is in progress
@@ -332,20 +320,14 @@ class MapEventRotate extends MapEventWithMove {
 @immutable
 class MapEventRotateStart extends MapEvent {
   /// Create a new map event that represents the start of a map rotation.
-  const MapEventRotateStart({
-    required super.source,
-    required super.camera,
-  });
+  const MapEventRotateStart({required super.source, required super.camera});
 }
 
 /// Event which is fired when rotate gesture has ended
 @immutable
 class MapEventRotateEnd extends MapEvent {
   /// Create a new map event that represents the end of a map rotation.
-  const MapEventRotateEnd({
-    required super.source,
-    required super.camera,
-  });
+  const MapEventRotateEnd({required super.source, required super.camera});
 }
 
 /// Event that fires when the map widget changes size, e.g. when the app window

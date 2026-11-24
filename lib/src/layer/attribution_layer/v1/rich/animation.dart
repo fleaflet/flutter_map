@@ -113,14 +113,13 @@ class ScaleRAWA implements RichAttributionWidgetAnimation {
     required bool isExpanded,
     required RichAttributionWidget config,
     required Widget child,
-  }) =>
-      AnimatedScale(
-        scale: isExpanded ? 1 : 0,
-        curve: isExpanded ? popupCurveOut : popupCurveIn,
-        duration: buttonDuration,
-        alignment: config.alignment.real,
-        child: child,
-      );
+  }) => AnimatedScale(
+    scale: isExpanded ? 1 : 0,
+    curve: isExpanded ? popupCurveOut : popupCurveIn,
+    duration: buttonDuration,
+    alignment: config.alignment.real,
+    child: child,
+  );
 }
 
 /// Prebuilt animation provider for a [RichAttributionWidget]
@@ -184,14 +183,10 @@ class FadeRAWA implements RichAttributionWidgetAnimation {
     required bool isExpanded,
     required RichAttributionWidget config,
     required Widget child,
-  }) =>
-      AnimatedOpacity(
-        opacity: isExpanded ? 1 : 0,
-        curve: isExpanded ? popupCurveOut : popupCurveIn,
-        duration: buttonDuration,
-        child: IgnorePointer(
-          ignoring: !isExpanded,
-          child: child,
-        ),
-      );
+  }) => AnimatedOpacity(
+    opacity: isExpanded ? 1 : 0,
+    curve: isExpanded ? popupCurveOut : popupCurveIn,
+    duration: buttonDuration,
+    child: IgnorePointer(ignoring: !isExpanded, child: child),
+  );
 }

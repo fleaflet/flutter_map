@@ -170,12 +170,9 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
     super.initState();
 
     if (popupExpanded) {
-      Future.delayed(
-        widget.popupInitialDisplayDuration,
-        () {
-          if (mounted) setState(() => popupExpanded = false);
-        },
-      );
+      Future.delayed(widget.popupInitialDisplayDuration, () {
+        if (mounted) setState(() => popupExpanded = false);
+      });
     }
   }
 
@@ -208,39 +205,33 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
         duration: widget.animationConfig.buttonDuration,
         child: popupExpanded
             ? (widget.closeButton ??
-                (context, close) => IconButton(
-                      onPressed: close,
-                      icon: Icon(
-                        Icons.cancel_outlined,
-                        color: Theme.of(context).textTheme.titleSmall?.color ??
-                            Colors.black,
-                        size: widget.permanentHeight,
-                      ),
-                    ))(
-                context,
-                () => setState(() => popupExpanded = false),
-              )
+                  (context, close) => IconButton(
+                    onPressed: close,
+                    icon: Icon(
+                      Icons.cancel_outlined,
+                      color:
+                          Theme.of(context).textTheme.titleSmall?.color ??
+                          Colors.black,
+                      size: widget.permanentHeight,
+                    ),
+                  ))(context, () => setState(() => popupExpanded = false))
             : (widget.openButton ??
-                (context, open) => IconButton(
-                      onPressed: open,
-                      tooltip: 'Attributions',
-                      icon: Icon(
-                        Icons.info_outlined,
-                        color: Colors.black,
-                        size: widget.permanentHeight,
-                      ),
-                    ))(
-                context,
-                () {
-                  setState(() => popupExpanded = true);
-                  mapEventSubscription = MapController.of(context)
-                      .mapEventStream
-                      .listen((e) async {
-                    setState(() => popupExpanded = false);
-                    await mapEventSubscription?.cancel();
-                  });
-                },
-              ),
+                  (context, open) => IconButton(
+                    onPressed: open,
+                    tooltip: 'Attributions',
+                    icon: Icon(
+                      Icons.info_outlined,
+                      color: Colors.black,
+                      size: widget.permanentHeight,
+                    ),
+                  ))(context, () {
+                setState(() => popupExpanded = true);
+                mapEventSubscription = MapController.of(context).mapEventStream
+                    .listen((e) async {
+                      setState(() => popupExpanded = false);
+                      await mapEventSubscription?.cancel();
+                    });
+              }),
       ),
     ];
 
@@ -258,7 +249,8 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
                 config: widget,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: widget.popupBackgroundColor ??
+                    color:
+                        widget.popupBackgroundColor ??
                         Theme.of(context).colorScheme.surface,
                     border: Border.all(width: 0, style: BorderStyle.none),
                     borderRadius:
@@ -300,8 +292,8 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
                       mainAxisSize: MainAxisSize.min,
                       children:
                           widget.alignment == AttributionAlignment.bottomLeft
-                              ? persistentAttributionItems.reversed.toList()
-                              : persistentAttributionItems,
+                          ? persistentAttributionItems.reversed.toList()
+                          : persistentAttributionItems,
                     ),
                   ),
                 ),

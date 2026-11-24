@@ -20,27 +20,25 @@ class _RepeatedWorldsPageState extends State<RepeatedWorldsPage> {
   final _customMarkers = <Marker>[];
 
   Marker _buildPin(LatLng point) => Marker(
-        point: point,
-        width: 60,
-        height: 60,
-        child: GestureDetector(
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tapped existing marker'),
-              duration: Duration(seconds: 1),
-              showCloseIcon: true,
-            ),
-          ),
-          child: const Icon(Icons.location_pin, color: Colors.red),
+    point: point,
+    width: 60,
+    height: 60,
+    child: GestureDetector(
+      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tapped existing marker'),
+          duration: Duration(seconds: 1),
+          showCloseIcon: true,
         ),
-      );
+      ),
+      child: const Icon(Icons.location_pin, color: Colors.red),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Repeated Worlds/Longitudes'),
-      ),
+      appBar: AppBar(title: const Text('Repeated Worlds/Longitudes')),
       drawer: const MenuDrawer(RepeatedWorldsPage.route),
       body: Stack(
         children: [
@@ -145,11 +143,12 @@ class _RepeatedWorldsPageState extends State<RepeatedWorldsPage> {
                   polygons: [
                     Polygon<String>(
                       label: 'Aloha!',
-                      labelStyle:
-                          const TextStyle(color: Colors.green, fontSize: 40),
+                      labelStyle: const TextStyle(
+                        color: Colors.green,
+                        fontSize: 40,
+                      ),
                       labelPlacementCalculator:
-                          const PolygonLabelPlacementCalculator
-                              .simpleMultiWorldCentroid(),
+                          const PolygonLabelPlacementCalculator.simpleMultiWorldCentroid(),
                       rotateLabel: false,
                       points: const [
                         LatLng(40, 149),

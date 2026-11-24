@@ -121,8 +121,9 @@ class TileBuilderPageState extends State<TileBuilderPage> {
               options: MapOptions(
                 initialCenter: const LatLng(51.5, -0.09),
                 initialZoom: 5,
-                backgroundColor:
-                    darkMode ? Colors.grey[900]! : Colors.grey[200]!,
+                backgroundColor: darkMode
+                    ? Colors.grey[900]!
+                    : Colors.grey[200]!,
               ),
               children: [
                 _darkModeContainerIfEnabled(
@@ -140,9 +141,7 @@ class TileBuilderPageState extends State<TileBuilderPage> {
                       width: 80,
                       height: 80,
                       point: LatLng(51.5, -0.09),
-                      child: FlutterLogo(
-                        key: ObjectKey(Colors.blue),
-                      ),
+                      child: FlutterLogo(key: ObjectKey(Colors.blue)),
                     ),
                   ],
                 ),

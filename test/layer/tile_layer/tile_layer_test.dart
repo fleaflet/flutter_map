@@ -16,7 +16,8 @@ void main() {
   // are served already decoded.
   late ui.Image tileImage;
   setUpAll(
-      () async => tileImage = await createTestImage(width: 256, height: 256));
+    () async => tileImage = await createTestImage(width: 256, height: 256),
+  );
 
   TileProvider failingAboveZoom3() =>
       _FailingAboveZoomTileProvider(maxZoom: 3, image: tileImage);
@@ -54,8 +55,9 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('without errorImage - tiles of the previous zoom still drawn',
-        (tester) async {
+    testWidgets('without errorImage - tiles of the previous zoom still drawn', (
+      tester,
+    ) async {
       final controller = await pumpMap(
         tester,
         TileLayer(tileProvider: failingAboveZoom3()),
@@ -65,13 +67,14 @@ void main() {
 
       final drawn = tilesDrawn(tester);
       expect(drawn.where((tile) => tile.coordinates.z == 5), isNotEmpty);
-      expect(drawn.where((tile) => tile.coordinates.z == 5 && tile.loadError),
-          isNotEmpty);
+      expect(
+        drawn.where((tile) => tile.coordinates.z == 5 && tile.loadError),
+        isNotEmpty,
+      );
       expect(drawn.where((tile) => tile.coordinates.z == 3), isNotEmpty);
     });
 
-    testWidgets(
-        'with tileBuilder - builder gets the failed tiles, '
+    testWidgets('with tileBuilder - builder gets the failed tiles, '
         'tiles of the previous zoom still drawn', (tester) async {
       final builtWithError = <TileCoordinates>{};
       final controller = await pumpMap(
@@ -89,7 +92,9 @@ void main() {
 
       expect(builtWithError, isNotEmpty);
       expect(
-          builtWithError.map((coordinates) => coordinates.z), everyElement(5));
+        builtWithError.map((coordinates) => coordinates.z),
+        everyElement(5),
+      );
       expect(
         tilesDrawn(tester).where((tile) => tile.coordinates.z == 3),
         isNotEmpty,
@@ -108,8 +113,10 @@ void main() {
       await zoomIn(tester, controller);
 
       final drawn = tilesDrawn(tester);
-      expect(drawn.where((tile) => tile.coordinates.z == 5),
-          everyElement(predicate<TileImage>((tile) => tile.readyToDisplay)));
+      expect(
+        drawn.where((tile) => tile.coordinates.z == 5),
+        everyElement(predicate<TileImage>((tile) => tile.readyToDisplay)),
+      );
       expect(drawn.where((tile) => tile.coordinates.z == 3), isEmpty);
     });
   });
@@ -144,13 +151,10 @@ class _TileImageProvider extends ImageProvider<_TileImageProvider> {
   ImageStreamCompleter loadImage(
     _TileImageProvider key,
     ImageDecoderCallback decode,
-  ) =>
-      OneFrameImageStreamCompleter(
-        switch (image) {
-          final image? => SynchronousFuture(ImageInfo(image: image.clone())),
-          null => Future<ImageInfo>.error(Exception('No connection')),
-        },
-      );
+  ) => OneFrameImageStreamCompleter(switch (image) {
+    final image? => SynchronousFuture(ImageInfo(image: image.clone())),
+    null => Future<ImageInfo>.error(Exception('No connection')),
+  });
 
   @override
   bool operator ==(Object other) =>

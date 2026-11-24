@@ -8,10 +8,7 @@ import '../test_utils/test_app.dart';
 void main() {
   testWidgets('test fit bounds methods', (tester) async {
     final controller = MapController();
-    final bounds = LatLngBounds(
-      const LatLng(51, 0),
-      const LatLng(52, 1),
-    );
+    final bounds = LatLngBounds(const LatLng(51, 0), const LatLng(52, 1));
     const expectedCenter = LatLng(51.50274289405741, 0.49999999999999833);
 
     await tester.pumpWidget(TestApp(controller: controller));
@@ -53,9 +50,7 @@ void main() {
     }
 
     {
-      final cameraConstraint = CameraFit.insideBounds(
-        bounds: bounds,
-      );
+      final cameraConstraint = CameraFit.insideBounds(bounds: bounds);
 
       final expectedBounds = LatLngBounds(
         const LatLng(51.19148727133182, -5.995204332975845e-13),
@@ -654,13 +649,9 @@ void main() {
       expect(controller.camera.zoom, moreOrLessEquals(expectedZoom));
     }
 
-    FitCoordinates fitCoordinates({
-      EdgeInsets padding = EdgeInsets.zero,
-    }) =>
-        CameraFit.coordinates(
-          coordinates: coordinates,
-          padding: padding,
-        ) as FitCoordinates;
+    FitCoordinates fitCoordinates({EdgeInsets padding = EdgeInsets.zero}) =>
+        CameraFit.coordinates(coordinates: coordinates, padding: padding)
+            as FitCoordinates;
 
     // Tests with no padding
 
@@ -871,9 +862,7 @@ void main() {
 
     await testFitInsideBounds(
       rotation: -360,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.6031134233301474, 29.56772762000039),
         const LatLng(-0.7450743699315154, 33.9183136200004),
@@ -883,9 +872,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: -300,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.614278658020072, 29.56945889748712),
         const LatLng(-0.7338878844415404, 33.920044897487124),
@@ -895,9 +882,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: -240,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.6142786580207207, 29.56945889748632),
         const LatLng(-0.7338878844408534, 33.92004489748633),
@@ -907,9 +892,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: -180,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.6031134233301474, 29.56772762000039),
         const LatLng(-0.7450743699315154, 33.9183136200004),
@@ -919,9 +902,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: -120,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.614278658020072, 29.56945889748712),
         const LatLng(-0.7338878844415404, 33.920044897487124),
@@ -931,9 +912,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: -60,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.6142786580207207, 29.56945889748632),
         const LatLng(-0.7338878844408534, 33.92004489748633),
@@ -943,9 +922,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: 0,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.6031134233301474, 29.56772762000039),
         const LatLng(-0.7450743699315154, 33.9183136200004),
@@ -955,9 +932,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: 60,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.614278658020072, 29.56945889748712),
         const LatLng(-0.7338878844415404, 33.920044897487124),
@@ -967,9 +942,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: 120,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.6142786580207207, 29.56945889748632),
         const LatLng(-0.7338878844408534, 33.92004489748633),
@@ -979,9 +952,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: 180,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.6031134233301474, 29.56772762000039),
         const LatLng(-0.7450743699315154, 33.9183136200004),
@@ -991,9 +962,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: 240,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.614278658020072, 29.56945889748712),
         const LatLng(-0.7338878844415404, 33.920044897487124),
@@ -1003,9 +972,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: 300,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.6142786580207207, 29.56945889748632),
         const LatLng(-0.7338878844408534, 33.92004489748633),
@@ -1015,9 +982,7 @@ void main() {
     );
     await testFitInsideBounds(
       rotation: 360,
-      cameraConstraint: CameraFit.insideBounds(
-        bounds: bounds,
-      ),
+      cameraConstraint: CameraFit.insideBounds(bounds: bounds),
       expectedBounds: LatLngBounds(
         const LatLng(3.6031134233301474, 29.56772762000039),
         const LatLng(-0.7450743699315154, 33.9183136200004),

@@ -19,14 +19,11 @@ class RetinaPage extends StatefulWidget {
 
 class _RetinaPageState extends State<RetinaPage> {
   String urlTemplate = RetinaPage._defaultUrlTemplate;
-  final urlTemplateInputController = InputFieldStylizer(
-    {
-      '{r}': const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
-      '{accessToken}': const TextStyle(fontStyle: FontStyle.italic),
-      '{access_token}': const TextStyle(fontStyle: FontStyle.italic),
-    },
-    initialValue: RetinaPage._defaultUrlTemplate,
-  );
+  final urlTemplateInputController = InputFieldStylizer({
+    '{r}': const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+    '{accessToken}': const TextStyle(fontStyle: FontStyle.italic),
+    '{access_token}': const TextStyle(fontStyle: FontStyle.italic),
+  }, initialValue: RetinaPage._defaultUrlTemplate);
   String? accessToken;
 
   bool? retinaMode;
@@ -137,7 +134,8 @@ class _RetinaPageState extends State<RetinaPage> {
                             }
                           },
                           onSubmitted: (v) => setState(() => accessToken = v),
-                          enabled: urlTemplate.contains('{accessToken}') ||
+                          enabled:
+                              urlTemplate.contains('{accessToken}') ||
                               urlTemplate.contains('{access_token}'),
                           autofocus: true,
                           decoration: InputDecoration(
@@ -145,9 +143,11 @@ class _RetinaPageState extends State<RetinaPage> {
                             border: const UnderlineInputBorder(),
                             isDense: true,
                             labelText: 'Access Token',
-                            errorText: (urlTemplate.contains('{accessToken}') ||
-                                        urlTemplate
-                                            .contains('{access_token}')) &&
+                            errorText:
+                                (urlTemplate.contains('{accessToken}') ||
+                                        urlTemplate.contains(
+                                          '{access_token}',
+                                        )) &&
                                     (accessToken?.isEmpty ?? true)
                                 ? 'Insert your own access token (or remove the placeholder)'
                                 : null,
@@ -243,8 +243,8 @@ class InputFieldStylizer extends TextEditingController {
   final Pattern pattern;
 
   InputFieldStylizer(this.mapping, {String? initialValue})
-      : pattern = RegExp(mapping.keys.map(RegExp.escape).join('|')),
-        super(text: initialValue);
+    : pattern = RegExp(mapping.keys.map(RegExp.escape).join('|')),
+      super(text: initialValue);
 
   @override
   TextSpan buildTextSpan({

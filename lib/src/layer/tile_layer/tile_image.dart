@@ -29,7 +29,7 @@ class TileImage extends ChangeNotifier {
   /// [onLoadComplete] will be called immediately afterwards. This callback is
   /// not triggered after this TileImage is disposed.
   final void Function(TileImage tile, Object error, StackTrace? stackTrace)
-      onLoadError;
+  onLoadError;
 
   /// Options for how the tile image is displayed.
   TileDisplay _tileDisplay;
@@ -69,21 +69,19 @@ class TileImage extends ChangeNotifier {
     required TileDisplay tileDisplay,
     required this.errorImage,
     required this.cancelLoading,
-  })  : _tileDisplay = tileDisplay,
-        _animationController = tileDisplay.when(
-          instantaneous: (_) => null,
-          fadeIn: (fadeIn) => AnimationController(
-            vsync: vsync,
-            duration: fadeIn.duration,
-          ),
-        );
+  }) : _tileDisplay = tileDisplay,
+       _animationController = tileDisplay.when(
+         instantaneous: (_) => null,
+         fadeIn: (fadeIn) =>
+             AnimationController(vsync: vsync, duration: fadeIn.duration),
+       );
 
   /// Get the current opacity value for the tile image.
   double get opacity => _tileDisplay.when(
-        instantaneous: (instantaneous) =>
-            _readyToDisplay ? instantaneous.opacity : 0.0,
-        fadeIn: (fadeIn) => _animationController!.value,
-      )!;
+    instantaneous: (instantaneous) =>
+        _readyToDisplay ? instantaneous.opacity : 0.0,
+    fadeIn: (fadeIn) => _animationController!.value,
+  )!;
 
   /// Getter for the tile [AnimationController]
   AnimationController? get animation => _animationController;
@@ -117,14 +115,17 @@ class TileImage extends ChangeNotifier {
         );
       },
       fadeIn: (fadeIn) {
-        newTileDisplay.when(instantaneous: (instantaneous) {
-          // No longer animated.
-          _animationController!.dispose();
-          _animationController = null;
-        }, fadeIn: (fadeIn) {
-          // Still animated with different fade.
-          _animationController!.duration = fadeIn.duration;
-        });
+        newTileDisplay.when(
+          instantaneous: (instantaneous) {
+            // No longer animated.
+            _animationController!.dispose();
+            _animationController = null;
+          },
+          fadeIn: (fadeIn) {
+            // Still animated with different fade.
+            _animationController!.duration = fadeIn.duration;
+          },
+        );
       },
     );
 
@@ -207,8 +208,9 @@ class TileImage extends ChangeNotifier {
         if (!_disposed) notifyListeners();
       },
       fadeIn: (fadeIn) {
-        final fadeStartOpacity =
-            previouslyLoaded ? fadeIn.reloadStartOpacity : fadeIn.startOpacity;
+        final fadeStartOpacity = previouslyLoaded
+            ? fadeIn.reloadStartOpacity
+            : fadeIn.startOpacity;
 
         if (fadeStartOpacity == 1.0) {
           _readyToDisplay = true;

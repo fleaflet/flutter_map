@@ -57,12 +57,13 @@ class _CirclePageState extends State<CirclePage> {
       // 1000 meters
       hitValue: (
         title: 'Green',
-        subtitle: 'Radius in meters, calibrated over ~2km rowing lake'
+        subtitle: 'Radius in meters, calibrated over ~2km rowing lake',
       ),
     ),
   ];
-  late final _circles =
-      Map.fromEntries(_circlesRaw.map((e) => MapEntry(e.hitValue, e)));
+  late final _circles = Map.fromEntries(
+    _circlesRaw.map((e) => MapEntry(e.hitValue, e)),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +92,8 @@ class _CirclePageState extends State<CirclePage> {
 
                 return CircleMarker<HitValue>(
                   point: original.point,
-                  radius: original.radius +
+                  radius:
+                      original.radius +
                       _initialBorderStrokeWidth / 2 +
                       _hoverBorderStrokeWidth / 2,
                   useRadiusInMeter: original.useRadiusInMeter,
@@ -124,10 +126,7 @@ class _CirclePageState extends State<CirclePage> {
               ),
               child: CircleLayer(
                 hitNotifier: _hitNotifier,
-                circles: [
-                  ..._circlesRaw,
-                  ...?_hoverCircles,
-                ],
+                circles: [..._circlesRaw, ...?_hoverCircles],
               ),
             ),
           ),
@@ -164,8 +163,8 @@ class _CirclePageState extends State<CirclePage> {
                     leading: index == 0
                         ? const Icon(Icons.vertical_align_top)
                         : index == tappedCircles.length - 1
-                            ? const Icon(Icons.vertical_align_bottom)
-                            : const SizedBox.shrink(),
+                        ? const Icon(Icons.vertical_align_bottom)
+                        : const SizedBox.shrink(),
                     title: Text(tappedLineData.title),
                     subtitle: Text(tappedLineData.subtitle),
                     dense: true,

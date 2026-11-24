@@ -38,8 +38,9 @@ class SimplificationToleranceSlider extends StatelessWidget {
                 min: 0,
                 max: 2,
                 divisions: 100,
-                label:
-                    tolerance == 0 ? 'Disabled' : tolerance.toStringAsFixed(2),
+                label: tolerance == 0
+                    ? 'Disabled'
+                    : tolerance.toStringAsFixed(2),
               ),
             ),
           ],

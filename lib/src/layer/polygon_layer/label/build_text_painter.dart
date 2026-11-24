@@ -50,13 +50,7 @@ void Function(Canvas canvas)? _buildLabelTextPainter({
         canvas.translate(-dx, -dy);
       }
 
-      textPainter.paint(
-        canvas,
-        Offset(
-          dx - width / 2,
-          dy - height / 2,
-        ),
-      );
+      textPainter.paint(canvas, Offset(dx - width / 2, dy - height / 2));
 
       if (rotate) {
         canvas.restore();

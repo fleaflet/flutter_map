@@ -69,14 +69,13 @@ class TileImageManager {
   TileImageView _getTileImageView({
     required DiscreteTileRange visibleRange,
     required DiscreteTileRange keepRange,
-  }) =>
-      TileImageView(
-        tileImages: _tiles,
-        positionCoordinates: _positionCoordinates,
-        visibleRange: visibleRange,
-        keepRange: keepRange,
-        resolver: _resolver,
-      );
+  }) => TileImageView(
+    tileImages: _tiles,
+    positionCoordinates: _positionCoordinates,
+    visibleRange: visibleRange,
+    keepRange: keepRange,
+    resolver: _resolver,
+  );
 
   /// Check if all loaded tiles are within the [minZoom] and [maxZoom] level.
   bool allWithinZoom(double minZoom, double maxZoom) => _tiles.values
@@ -159,10 +158,7 @@ class TileImageManager {
   }
 
   /// Reload all tile images of a [TileLayer] for a given tile bounds.
-  void reloadImages(
-    TileLayer layer,
-    TileBounds tileBounds,
-  ) {
+  void reloadImages(TileLayer layer, TileBounds tileBounds) {
     // If a TileImage's imageInfo is already available when load() is called it
     // will call its onLoadComplete callback synchronously which can trigger
     // pruning. Since pruning may cause removals from _tiles we must not

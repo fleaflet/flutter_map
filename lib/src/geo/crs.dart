@@ -110,11 +110,7 @@ abstract class CrsWithStaticTransformation extends Crs {
 
   @override
   LatLng offsetToLatLng(Offset point, double zoom) {
-    final (x, y) = _transformation.untransform(
-      point.dx,
-      point.dy,
-      scale(zoom),
-    );
+    final (x, y) = _transformation.untransform(point.dx, point.dy, scale(zoom));
     return projection.unprojectXY(x, y);
   }
 
@@ -126,10 +122,7 @@ abstract class CrsWithStaticTransformation extends Crs {
     final s = scale(zoom);
     final (minx, miny) = _transformation.transform(b.min.dx, b.min.dy, s);
     final (maxx, maxy) = _transformation.transform(b.max.dx, b.max.dy, s);
-    return Rect.fromPoints(
-      Offset(minx, miny),
-      Offset(maxx, maxy),
-    );
+    return Rect.fromPoints(Offset(minx, miny), Offset(maxx, maxy));
   }
 }
 
@@ -138,14 +131,14 @@ abstract class CrsWithStaticTransformation extends Crs {
 class CrsSimple extends CrsWithStaticTransformation {
   /// Create a new [CrsSimple].
   const CrsSimple()
-      : super._(
-          code: 'CRS.SIMPLE',
-          transformation: const _Transformation(1, 0, -1, 0),
-          projection: const _LonLat(),
-          infinite: false,
-          wrapLat: null,
-          wrapLng: null,
-        );
+    : super._(
+        code: 'CRS.SIMPLE',
+        transformation: const _Transformation(1, 0, -1, 0),
+        projection: const _LonLat(),
+        infinite: false,
+        wrapLat: null,
+        wrapLng: null,
+      );
 }
 
 /// EPSG:3857, The most common CRS used for rendering maps.
@@ -155,13 +148,13 @@ class Epsg3857 extends CrsWithStaticTransformation {
 
   /// Create a new [Epsg3857] object.
   const Epsg3857()
-      : super._(
-          code: 'EPSG:3857',
-          transformation: const _Transformation(_scale, 0.5, -_scale, 0.5),
-          projection: const SphericalMercator(),
-          infinite: false,
-          wrapLng: const (-180, 180),
-        );
+    : super._(
+        code: 'EPSG:3857',
+        transformation: const _Transformation(_scale, 0.5, -_scale, 0.5),
+        projection: const SphericalMercator(),
+        infinite: false,
+        wrapLng: const (-180, 180),
+      );
 
   @override
   (double, double) latLngToXY(LatLng latlng, double scale) =>
@@ -191,13 +184,13 @@ class Epsg3857 extends CrsWithStaticTransformation {
 class Epsg4326 extends CrsWithStaticTransformation {
   /// Create a new [Epsg4326] CRS instance.
   const Epsg4326()
-      : super._(
-          projection: const _LonLat(),
-          transformation: const _Transformation(1 / 180, 1, -1 / 180, 0.5),
-          code: 'EPSG:4326',
-          infinite: false,
-          wrapLng: const (-180, 180),
-        );
+    : super._(
+        projection: const _LonLat(),
+        transformation: const _Transformation(1 / 180, 1, -1 / 180, 0.5),
+        code: 'EPSG:4326',
+        infinite: false,
+        wrapLng: const (-180, 180),
+      );
 }
 
 /// Custom CRS
@@ -214,9 +207,9 @@ class Proj4Crs extends Crs {
     required super.infinite,
     required List<_Transformation> transformations,
     required List<double> scales,
-  })  : _transformations = transformations,
-        _scales = scales,
-        super(wrapLat: null, wrapLng: null);
+  }) : _transformations = transformations,
+       _scales = scales,
+       super(wrapLat: null, wrapLng: null);
 
   /// Create a new [Crs] that has projection.
   factory Proj4Crs.fromFactory({
@@ -239,7 +232,8 @@ class Proj4Crs extends Crs {
       finalScales = resolutions.map((r) => 1 / r).toList(growable: false);
     } else {
       throw Exception(
-          'Please provide scales or resolutions to determine scales');
+        'Please provide scales or resolutions to determine scales',
+      );
     }
 
     List<_Transformation> transformations;
@@ -250,8 +244,9 @@ class Proj4Crs extends Crs {
         final origin = origins[0];
         transformations = [_Transformation(1, -origin.x, -1, origin.y)];
       } else {
-        transformations =
-            origins.map((p) => _Transformation(1, -p.x, -1, p.y)).toList();
+        transformations = origins
+            .map((p) => _Transformation(1, -p.x, -1, p.y))
+            .toList();
       }
     }
 
@@ -284,11 +279,9 @@ class Proj4Crs extends Crs {
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
   LatLng offsetToLatLng(Offset point, double zoom) {
-    final (x, y) = _getTransformationByZoom(zoom).untransform(
-      point.dx,
-      point.dy,
-      scale(zoom),
-    );
+    final (x, y) = _getTransformationByZoom(
+      zoom,
+    ).untransform(point.dx, point.dy, scale(zoom));
     return projection.unprojectXY(x, y);
   }
 
@@ -301,10 +294,16 @@ class Proj4Crs extends Crs {
     final zoomScale = scale(zoom);
 
     final transformation = _getTransformationByZoom(zoom);
-    final (minx, miny) =
-        transformation.transform(b.min.dx, b.min.dy, zoomScale);
-    final (maxx, maxy) =
-        transformation.transform(b.max.dx, b.max.dy, zoomScale);
+    final (minx, miny) = transformation.transform(
+      b.min.dx,
+      b.min.dy,
+      zoomScale,
+    );
+    final (maxx, maxy) = transformation.transform(
+      b.max.dx,
+      b.max.dy,
+      zoomScale,
+    );
     return Rect.fromPoints(Offset(minx, miny), Offset(maxx, maxy));
   }
 
@@ -442,28 +441,24 @@ abstract class Projection {
   }) {
     late double previousX;
     final worldWidth = getWorldWidth();
-    return List<Offset>.generate(
-      points.length,
-      (j) {
-        if (j == 0 && referencePoint != null) {
-          (previousX, _) = projectXY(referencePoint);
-        }
-        var (x, y) = projectXY(points[j]);
-        if (projectToSingleWorld) {
-          return Offset(x, y);
-        }
-        if (j > 0 || referencePoint != null) {
-          if (x - previousX > worldWidth / 2) {
-            x -= worldWidth;
-          } else if (x - previousX < -worldWidth / 2) {
-            x += worldWidth;
-          }
-        }
-        previousX = x;
+    return List<Offset>.generate(points.length, (j) {
+      if (j == 0 && referencePoint != null) {
+        (previousX, _) = projectXY(referencePoint);
+      }
+      var (x, y) = projectXY(points[j]);
+      if (projectToSingleWorld) {
         return Offset(x, y);
-      },
-      growable: false,
-    );
+      }
+      if (j > 0 || referencePoint != null) {
+        if (x - previousX > worldWidth / 2) {
+          x -= worldWidth;
+        } else if (x - previousX < -worldWidth / 2) {
+          x += worldWidth;
+        }
+      }
+      previousX = x;
+      return Offset(x, y);
+    }, growable: false);
   }
 }
 
@@ -518,10 +513,7 @@ class SphericalMercator extends Projection {
 
   @override
   (double, double) projectXY(LatLng latlng) {
-    return (
-      projectLng(latlng.longitude),
-      projectLat(latlng.latitude),
-    );
+    return (projectLng(latlng.longitude), projectLat(latlng.latitude));
   }
 
   @override
@@ -539,16 +531,16 @@ class _Proj4Projection extends Projection {
   final proj4.Projection epsg4326;
   final proj4.Projection proj4Projection;
 
-  _Proj4Projection({
-    required this.proj4Projection,
-    required Rect? bounds,
-  })  : epsg4326 = proj4.Projection.WGS84,
-        super(bounds);
+  _Proj4Projection({required this.proj4Projection, required Rect? bounds})
+    : epsg4326 = proj4.Projection.WGS84,
+      super(bounds);
 
   @override
   (double, double) projectXY(LatLng latlng) {
     final point = epsg4326.transform(
-        proj4Projection, proj4.Point(x: latlng.longitude, y: latlng.latitude));
+      proj4Projection,
+      proj4.Point(x: latlng.longitude, y: latlng.latitude),
+    );
 
     return (point.x, point.y);
   }
@@ -557,10 +549,7 @@ class _Proj4Projection extends Projection {
   LatLng unprojectXY(double x, double y) {
     final point = proj4Projection.transform(epsg4326, proj4.Point(x: x, y: y));
 
-    return LatLng(
-      _inclusiveLat(point.y),
-      _inclusiveLng(point.x),
-    );
+    return LatLng(_inclusiveLat(point.y), _inclusiveLng(point.x));
   }
 }
 
@@ -574,16 +563,12 @@ class _Transformation {
   const _Transformation(this.a, this.b, this.c, this.d);
 
   @nonVirtual
-  (double, double) transform(double x, double y, double scale) => (
-        scale * (a * x + b),
-        scale * (c * y + d),
-      );
+  (double, double) transform(double x, double y, double scale) =>
+      (scale * (a * x + b), scale * (c * y + d));
 
   @nonVirtual
-  (double, double) untransform(double x, double y, double scale) => (
-        (x / scale - b) / a,
-        (y / scale - d) / c,
-      );
+  (double, double) untransform(double x, double y, double scale) =>
+      ((x / scale - b) / a, (y / scale - d) / c);
 }
 
 // Num.clamp is slow due to virtual function overhead.

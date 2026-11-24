@@ -37,15 +37,19 @@ class DottedPixelHiker extends _PixelHiker {
 
     // normal dots
     for (int i = 0; i < offsets.length - 1; i++) {
-      final List<Offset>? visibleDots =
-          _getVisibleDotList(offsets[i], offsets[i + 1]);
+      final List<Offset>? visibleDots = _getVisibleDotList(
+        offsets[i],
+        offsets[i + 1],
+      );
       if (visibleDots != null) {
         result.addAll(visibleDots);
       }
     }
     if (closePath) {
-      final List<Offset>? visibleDots =
-          _getVisibleDotList(offsets.last, offsets.first);
+      final List<Offset>? visibleDots = _getVisibleDotList(
+        offsets.last,
+        offsets.first,
+      );
       if (visibleDots != null) {
         result.addAll(visibleDots);
       }
@@ -72,7 +76,11 @@ class DottedPixelHiker extends _PixelHiker {
   /// Most important method of the class.
   List<Offset>? _getVisibleDotList(Offset offset0, Offset offset1) {
     final VisibleSegment? visibleSegment = VisibleSegment.getVisibleSegment(
-        offset0, offset1, canvasSize, strokeWidth);
+      offset0,
+      offset1,
+      canvasSize,
+      strokeWidth,
+    );
     if (visibleSegment == null) {
       addDistance(getDistance(offset0, offset1));
       return null;
@@ -84,8 +92,10 @@ class DottedPixelHiker extends _PixelHiker {
     List<Offset>? result;
 
     while (true) {
-      final Offset offsetIntermediary =
-          getIntermediateOffset(start, visibleSegment.end);
+      final Offset offsetIntermediary = getIntermediateOffset(
+        start,
+        visibleSegment.end,
+      );
       addDistance(_used);
       if (_remaining == segmentValues.first) {
         result ??= [];
@@ -147,8 +157,10 @@ class DashedPixelHiker extends _PixelHiker {
     }
 
     for (int i = 0; i < offsets.length - 1 + (closePath ? 1 : 0); i++) {
-      final List<VisibleSegment>? visibleSegments =
-          _getVisibleSegmentList(offsets[i], offsets[(i + 1) % offsets.length]);
+      final List<VisibleSegment>? visibleSegments = _getVisibleSegmentList(
+        offsets[i],
+        offsets[(i + 1) % offsets.length],
+      );
       if (visibleSegments != null) {
         result.addAll(visibleSegments);
       }
@@ -190,7 +202,11 @@ class DashedPixelHiker extends _PixelHiker {
     final Offset offset1,
   ) {
     final VisibleSegment? visibleSegment = VisibleSegment.getVisibleSegment(
-        offset0, offset1, canvasSize, strokeWidth);
+      offset0,
+      offset1,
+      canvasSize,
+      strokeWidth,
+    );
     if (visibleSegment == null) {
       addDistance(getDistance(offset0, offset1));
       return null;
@@ -202,8 +218,10 @@ class DashedPixelHiker extends _PixelHiker {
     List<VisibleSegment>? result;
 
     while (true) {
-      final Offset offsetIntermediary =
-          getIntermediateOffset(start, visibleSegment.end);
+      final Offset offsetIntermediary = getIntermediateOffset(
+        start,
+        visibleSegment.end,
+      );
       if (_segmentIndex.isEven) {
         result ??= [];
         result.add(VisibleSegment(start, offsetIntermediary));
@@ -258,10 +276,7 @@ class SolidPixelHiker extends _PixelHiker {
     required super.closePath,
     required super.canvasSize,
     required super.strokeWidth,
-  }) : super(
-          segmentValues: [],
-          patternFit: PatternFit.none,
-        );
+  }) : super(segmentValues: [], patternFit: PatternFit.none);
 
   /// Adds all visible segments to [paths].
   void addAllVisibleSegments(final List<Path> paths) {

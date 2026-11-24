@@ -37,7 +37,7 @@ class PointToLatlngPage extends State<ScreenPointToLatLngPage> {
           FlutterMap(
             mapController: mapController,
             options: MapOptions(
-              onPositionChanged: (_, __) => updatePoint(context),
+              onPositionChanged: (_, _) => updatePoint(context),
               initialCenter: const LatLng(51.5, -0.09),
               initialZoom: 5,
               minZoom: 3,
@@ -56,7 +56,7 @@ class PointToLatlngPage extends State<ScreenPointToLatLngPage> {
                         size: 10,
                         color: Colors.black,
                       ),
-                    )
+                    ),
                   ],
                 ),
             ],
@@ -87,15 +87,17 @@ class PointToLatlngPage extends State<ScreenPointToLatLngPage> {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  void updatePoint(BuildContext context) =>
-      setState(() => latLng = mapController.camera
-          .screenOffsetToLatLng(Offset(_getPointX(context), pointY)));
+  void updatePoint(BuildContext context) => setState(
+    () => latLng = mapController.camera.screenOffsetToLatLng(
+      Offset(_getPointX(context), pointY),
+    ),
+  );
 
   double _getPointX(BuildContext context) =>
       MediaQuery.sizeOf(context).width / 2;

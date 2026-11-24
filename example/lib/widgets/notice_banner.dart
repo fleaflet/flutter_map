@@ -7,27 +7,27 @@ class NoticeBanner extends StatelessWidget {
     required this.text,
     required this.url,
     required this.sizeTransition,
-  })  : icon = Icons.warning_rounded,
-        foregroundColor = const Color(0xFF410002),
-        backgroundColor = const Color(0xFFFFDAD6);
+  }) : icon = Icons.warning_rounded,
+       foregroundColor = const Color(0xFF410002),
+       backgroundColor = const Color(0xFFFFDAD6);
 
   const NoticeBanner.recommendation({
     super.key,
     required this.text,
     required this.url,
     required this.sizeTransition,
-  })  : icon = Icons.task_alt,
-        foregroundColor = const Color(0xFF072100),
-        backgroundColor = const Color(0xFFB8F397);
+  }) : icon = Icons.task_alt,
+       foregroundColor = const Color(0xFF072100),
+       backgroundColor = const Color(0xFFB8F397);
 
   const NoticeBanner.informational({
     super.key,
     required this.text,
     required this.url,
     required this.sizeTransition,
-  })  : icon = Icons.info_outline,
-        foregroundColor = const Color(0xFF072100),
-        backgroundColor = Colors.lightBlueAccent;
+  }) : icon = Icons.info_outline,
+       foregroundColor = const Color(0xFF072100),
+       backgroundColor = Colors.lightBlueAccent;
 
   final String text;
   final String? url;

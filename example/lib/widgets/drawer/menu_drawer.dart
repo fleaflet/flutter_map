@@ -91,7 +91,7 @@ class MenuDrawer extends StatelessWidget {
                           ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -99,14 +99,15 @@ class MenuDrawer extends StatelessWidget {
                   if (runningOnOfficialDomain)
                     Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primaryContainer
-                            .withValues(alpha: 0.5),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       margin: const EdgeInsets.only(bottom: 8),
                       child: Row(
                         spacing: 8,
@@ -123,14 +124,15 @@ class MenuDrawer extends StatelessWidget {
                                 children: [
                                   const TextSpan(
                                     text: 'Uses free resources!\n',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   const TextSpan(
                                     text:
                                         'Please be responsible when using this '
                                         'demo.',
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
@@ -152,10 +154,8 @@ class MenuDrawer extends StatelessWidget {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: '${_commitSHA.substring(
-                                  0,
-                                  min(_commitSHA.length, 7),
-                                )} ',
+                                text:
+                                    '${_commitSHA.substring(0, min(_commitSHA.length, 7))} ',
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = _openCommit,
                               ),
@@ -378,6 +378,6 @@ class MenuDrawer extends StatelessWidget {
   }
 
   void _openCommit() => launchUrl(
-        Uri.parse('https://github.com/fleaflet/flutter_map/commit/$_commitSHA'),
-      );
+    Uri.parse('https://github.com/fleaflet/flutter_map/commit/$_commitSHA'),
+  );
 }

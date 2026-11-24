@@ -48,8 +48,9 @@ sealed class SourceAttribution extends StatelessWidget {
 class TextSourceAttribution extends SourceAttribution {
   /// Default style used to display the [text], only when
   /// [SourceAttribution.onTap] is not `null`
-  static const defaultLinkTextStyle =
-      TextStyle(decoration: TextDecoration.underline);
+  static const defaultLinkTextStyle = TextStyle(
+    decoration: TextDecoration.underline,
+  );
 
   /// The text to display as attribution, styled with [textStyle]
   final String text;
@@ -68,14 +69,12 @@ class TextSourceAttribution extends SourceAttribution {
     super.onTap,
     this.prependCopyright = true,
     TextStyle? textStyle,
-  })  : textStyle = textStyle ?? (onTap == null ? null : defaultLinkTextStyle),
-        super._();
+  }) : textStyle = textStyle ?? (onTap == null ? null : defaultLinkTextStyle),
+       super._();
 
   @override
-  Widget _render(BuildContext context) => Text(
-        '${prependCopyright ? '© ' : ''}$text',
-        style: textStyle,
-      );
+  Widget _render(BuildContext context) =>
+      Text('${prependCopyright ? '© ' : ''}$text', style: textStyle);
 }
 
 /// An image attribution permanently displayed adjacent to the open/close icon of

@@ -36,20 +36,20 @@ class _MarkerPageState extends State<MarkerPage> {
   ];
 
   Marker buildPin(LatLng point) => Marker(
-        point: point,
-        width: 60,
-        height: 60,
-        child: GestureDetector(
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tapped existing marker'),
-              duration: Duration(seconds: 1),
-              showCloseIcon: true,
-            ),
-          ),
-          child: const Icon(Icons.location_pin, size: 60, color: Colors.black),
+    point: point,
+    width: 60,
+    height: 60,
+    child: GestureDetector(
+      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tapped existing marker'),
+          duration: Duration(seconds: 1),
+          showCloseIcon: true,
         ),
-      );
+      ),
+      child: const Icon(Icons.location_pin, size: 60, color: Colors.black),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -77,9 +77,7 @@ class _MarkerPageState extends State<MarkerPage> {
                         child: Text(
                           'ALIGNMENT OF PINS',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium!
+                          style: Theme.of(context).textTheme.labelMedium!
                               .copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.w400,
@@ -92,10 +90,10 @@ class _MarkerPageState extends State<MarkerPage> {
                       child: GridView.builder(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 5,
-                          crossAxisSpacing: 5,
-                        ),
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 5,
+                              crossAxisSpacing: 5,
+                            ),
                         itemCount: 9,
                         itemBuilder: (_, index) {
                           final deg = alignments.keys.elementAt(index);
@@ -135,7 +133,7 @@ class _MarkerPageState extends State<MarkerPage> {
                           'Tap/click map to\nadd more pins',
                           textAlign: TextAlign.center,
                         ),
-                        Icon(Icons.add_location, size: 32)
+                        Icon(Icons.add_location, size: 32),
                       ],
                     ),
                   ),
@@ -161,7 +159,8 @@ class _MarkerPageState extends State<MarkerPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Flexible(
-                              child: Text('Constraints on meter marker')),
+                            child: Text('Constraints on meter marker'),
+                          ),
                           Switch.adaptive(
                             value: constrainMeterMarkers,
                             onChanged: (v) =>
@@ -222,25 +221,20 @@ class _MarkerPageState extends State<MarkerPage> {
                       child: ColoredBox(color: Colors.black),
                     ),
                     Marker(
-                      point: const LatLng(
-                        0,
-                        -0.12835,
-                      ),
+                      point: const LatLng(0, -0.12835),
                       height: 500000,
                       width: 300000,
                       useDimensionsInMeters: constrainMeterMarkers
                           ? const BoxConstraints(maxHeight: 200, maxWidth: 200)
                           : const BoxConstraints(),
                       child: _MeterMarkerChild(
-                        label: '500x300km\n('
+                        label:
+                            '500x300km\n('
                             '${constrainMeterMarkers ? '0-200px²' : 'constraints off'})',
                       ),
                     ),
                     Marker(
-                      point: const LatLng(
-                        51.51868,
-                        -0.12835,
-                      ),
+                      point: const LatLng(51.51868, -0.12835),
                       height: 1000,
                       width: 1000,
                       useDimensionsInMeters: constrainMeterMarkers
@@ -252,15 +246,13 @@ class _MarkerPageState extends State<MarkerPage> {
                             )
                           : const BoxConstraints(),
                       child: _MeterMarkerChild(
-                        label: '\n\n1km²\n('
+                        label:
+                            '\n\n1km²\n('
                             '${constrainMeterMarkers ? '30px²-1000px²' : 'constraints off'})',
                       ),
                     ),
                     const Marker(
-                      point: LatLng(
-                        71.51868,
-                        -0.12835,
-                      ),
+                      point: LatLng(71.51868, -0.12835),
                       height: 500000,
                       width: 300000,
                       useDimensionsInMeters: BoxConstraints(),
@@ -273,19 +265,13 @@ class _MarkerPageState extends State<MarkerPage> {
                 CircleLayer(
                   circles: [
                     CircleMarker(
-                      point: const LatLng(
-                        0,
-                        -0.12835,
-                      ),
+                      point: const LatLng(0, -0.12835),
                       radius: 150000,
                       useRadiusInMeter: true,
                       color: Colors.black.withValues(alpha: 0.2),
                     ),
                     CircleMarker(
-                      point: const LatLng(
-                        71.51868,
-                        -0.12835,
-                      ),
+                      point: const LatLng(71.51868, -0.12835),
                       radius: 150000,
                       useRadiusInMeter: true,
                       color: Colors.black.withValues(alpha: 0.2),

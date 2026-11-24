@@ -38,8 +38,8 @@ class NetworkTileProvider extends TileProvider {
     this.attemptDecodeOfHttpErrorResponses = true,
     this.abortObsoleteRequests = true,
     this.cachingProvider,
-  })  : _isInternallyCreatedClient = httpClient == null,
-        _httpClient = httpClient ?? RetryClient(Client());
+  }) : _isInternallyCreatedClient = httpClient == null,
+       _httpClient = httpClient ?? RetryClient(Client());
 
   /// Whether to ignore exceptions and errors that occur whilst fetching tiles
   /// over the network, and just return a transparent tile.
@@ -113,17 +113,16 @@ class NetworkTileProvider extends TileProvider {
     TileCoordinates coordinates,
     TileLayer options,
     Future<void> cancelLoading,
-  ) =>
-      NetworkTileImageProvider(
-        url: getTileUrl(coordinates, options),
-        fallbackUrl: getTileFallbackUrl(coordinates, options),
-        headers: headers,
-        httpClient: _httpClient,
-        abortTrigger: abortObsoleteRequests ? cancelLoading : null,
-        silenceExceptions: silenceExceptions,
-        attemptDecodeOfHttpErrorResponses: attemptDecodeOfHttpErrorResponses,
-        cachingProvider: cachingProvider,
-      );
+  ) => NetworkTileImageProvider(
+    url: getTileUrl(coordinates, options),
+    fallbackUrl: getTileFallbackUrl(coordinates, options),
+    headers: headers,
+    httpClient: _httpClient,
+    abortTrigger: abortObsoleteRequests ? cancelLoading : null,
+    silenceExceptions: silenceExceptions,
+    attemptDecodeOfHttpErrorResponses: attemptDecodeOfHttpErrorResponses,
+    cachingProvider: cachingProvider,
+  );
 
   @override
   Future<void> dispose() async {

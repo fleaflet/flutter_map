@@ -21,17 +21,18 @@ class MapInheritedModel extends InheritedModel<_FlutterMapAspect> {
     required MapOptions options,
     required super.child,
   }) : data = FlutterMapData(
-          camera: camera,
-          controller: controller,
-          options: options,
-        );
+         camera: camera,
+         controller: controller,
+         options: options,
+       );
 
   static FlutterMapData? _maybeOf(
     BuildContext context, [
     _FlutterMapAspect? aspect,
-  ]) =>
-      InheritedModel.inheritFrom<MapInheritedModel>(context, aspect: aspect)
-          ?.data;
+  ]) => InheritedModel.inheritFrom<MapInheritedModel>(
+    context,
+    aspect: aspect,
+  )?.data;
 
   /// Try to get the [MapCamera] instance for the given [FlutterMap] context.
   static MapCamera? maybeCameraOf(BuildContext context) =>
