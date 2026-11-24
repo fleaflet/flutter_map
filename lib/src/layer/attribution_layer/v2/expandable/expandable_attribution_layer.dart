@@ -8,8 +8,9 @@ import 'package:vector_graphics/vector_graphics_compat.dart';
 
 part 'widgets/expand_info_button.dart';
 
-/// An attribution box which can be either minimized - showing just a button -
-/// or expanded - showing a custom widget (usually attribution text).
+/// An animated attribution box which can be either minimized - showing just an
+/// icon button - or expanded - showing a custom widget (usually attribution
+/// text) alongside.
 ///
 /// The design is similar to that of MapLibre's attribution element.
 ///
@@ -76,7 +77,7 @@ class ExpandableAttributionLayer extends StatefulWidget {
   ///
   /// Defaults to a filled 'i' icon when minimised and an outline 'i' icon when
   /// expanded.
-  final Widget Function(BuildContext context, bool expanded)?
+  final Widget Function(BuildContext context, bool isExpanded)?
       customButtonIconBuilder;
 
   /// String builder that determines text shown in tooltip for button that
@@ -86,7 +87,16 @@ class ExpandableAttributionLayer extends StatefulWidget {
   ///
   /// Defaults to English: "Show attribution" when minimised, "Hide attribution"
   /// when expanded.
-  final String Function(bool expanded)? customButtonTooltipTextBuilder;
+  ///
+  /// No effect if [customButtonTooltipBuilder] is set.
+  final String Function(bool isExpanded)? customButtonTooltipTextBuilder;
+
+  /// Widget builder that allows wrapping of the icon button with custom widget,
+  /// usually a tooltip.
+  ///
+  /// Defaults to a custom implementation using [RawTooltip].
+  final Widget Function(BuildContext context, Widget child, bool isExpanded)?
+      customButtonTooltipBuilder;
 
   /// Optional widget shown adjacent to icon button that moves out of the way
   /// of the [expandedBuilder] as necessary.
@@ -151,6 +161,7 @@ class ExpandableAttributionLayer extends StatefulWidget {
         ExpandableAttributionLayer.defaultMinimizeOnMapEvent,
     this.customButtonIconBuilder,
     this.customButtonTooltipTextBuilder,
+    this.customButtonTooltipBuilder,
     this.adjacentPersistentChild,
     required this.expandedBuilder,
   });
@@ -197,7 +208,7 @@ class _ExpandableAttributionLayerState
         (e) {
           if (widget.forceInitialExpansionDurationElapse &&
                   _useInitialExpansion &&
-                  (_minimizeTimer?.isActive ?? true) // `null` => always active
+                  (_minimizeTimer?.isActive ?? true) // `null` = always active
               ) {
             return;
           }
@@ -282,6 +293,7 @@ class _ExpandableAttributionLayerState
                   customButtonIconBuilder: widget.customButtonIconBuilder,
                   customButtonTooltipTextBuilder:
                       widget.customButtonTooltipTextBuilder,
+                  customButtonTooltipBuilder: widget.customButtonTooltipBuilder,
                 ),
                 if (direction == 1) Flexible(child: expandedAttribution),
               ],
