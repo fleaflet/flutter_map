@@ -32,7 +32,7 @@ dependencies:
   dart_polylabel2: ^1.0.0
   flutter:
     sdk: flutter
-  flutter_svg: ^2.5.0
+  flutter_svg: ^2.0.0
   http: ^1.5.0
   latlong2: ">=0.9.1 <0.11.0"
   meta: ^1.11.0
@@ -40,7 +40,7 @@ dependencies:
   path_provider: ^2.1.5
   proj4dart: ">=2.1.0 <4.0.0"
   uuid: ^4.5.1
-  vector_graphics: ^1.3.1
+  vector_graphics: ^1.1.19
 
 dev_dependencies:
   flutter_lints: ">=5.0.0 <7.0.0"
