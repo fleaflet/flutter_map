@@ -75,26 +75,38 @@ class LatLngBounds {
     required this.south,
     required this.longitudeCenter,
     required this.longitudeWidth,
-  })  : assert(north <= maxLatitude,
-            "The north latitude can't be bigger than $maxLatitude: $north"),
-        assert(north >= minLatitude,
-            "The north latitude can't be smaller than $minLatitude: $north"),
-        assert(south <= maxLatitude,
-            "The south latitude can't be bigger than $maxLatitude: $south"),
-        assert(south >= minLatitude,
-            "The south latitude can't be smaller than $minLatitude: $south"),
-        assert(longitudeCenter <= maxLongitude,
-            "The longitude center can't be bigger than $maxLongitude: $longitudeCenter"),
-        assert(longitudeCenter >= minLongitude,
-            "The longitude center can't be smaller than $minLongitude: $longitudeCenter"),
-        assert(longitudeWidth >= 0, 'The longitude width must be positive'),
-        assert(
-          north >= south,
-          "The north latitude ($north) can't be smaller than the "
-          'south latitude ($south)',
-        ),
-        east = min(longitudeCenter + longitudeWidth / 2, maxLongitude),
-        west = max(longitudeCenter - longitudeWidth / 2, minLongitude);
+  }) : assert(
+         north <= maxLatitude,
+         "The north latitude can't be bigger than $maxLatitude: $north",
+       ),
+       assert(
+         north >= minLatitude,
+         "The north latitude can't be smaller than $minLatitude: $north",
+       ),
+       assert(
+         south <= maxLatitude,
+         "The south latitude can't be bigger than $maxLatitude: $south",
+       ),
+       assert(
+         south >= minLatitude,
+         "The south latitude can't be smaller than $minLatitude: $south",
+       ),
+       assert(
+         longitudeCenter <= maxLongitude,
+         "The longitude center can't be bigger than $maxLongitude: $longitudeCenter",
+       ),
+       assert(
+         longitudeCenter >= minLongitude,
+         "The longitude center can't be smaller than $minLongitude: $longitudeCenter",
+       ),
+       assert(longitudeWidth >= 0, 'The longitude width must be positive'),
+       assert(
+         north >= south,
+         "The north latitude ($north) can't be smaller than the "
+         'south latitude ($south)',
+       ),
+       east = min(longitudeCenter + longitudeWidth / 2, maxLongitude),
+       west = max(longitudeCenter - longitudeWidth / 2, minLongitude);
 
   /// Create a [LatLngBounds] instance from raw edge values.
   ///
@@ -106,34 +118,50 @@ class LatLngBounds {
     required this.south,
     required this.east,
     required this.west,
-  })  : assert(north <= maxLatitude,
-            "The north latitude can't be bigger than $maxLatitude: $north"),
-        assert(north >= minLatitude,
-            "The north latitude can't be smaller than $minLatitude: $north"),
-        assert(south <= maxLatitude,
-            "The south latitude can't be bigger than $maxLatitude: $south"),
-        assert(south >= minLatitude,
-            "The south latitude can't be smaller than $minLatitude: $south"),
-        assert(east <= maxLongitude,
-            "The east longitude can't be bigger than $maxLongitude: $east"),
-        assert(east >= minLongitude,
-            "The east longitude can't be smaller than $minLongitude: $east"),
-        assert(west <= maxLongitude,
-            "The west longitude can't be bigger than $maxLongitude: $west"),
-        assert(west >= minLongitude,
-            "The west longitude can't be smaller than $minLongitude: $west"),
-        assert(
-          north >= south,
-          "The north latitude ($north) can't be smaller than the "
-          'south latitude ($south)',
-        ),
-        assert(
-          east >= west,
-          "The west longitude ($west) can't be smaller than the "
-          'east longitude ($east)',
-        ),
-        longitudeCenter = (east + west) / 2,
-        longitudeWidth = (east - west).abs();
+  }) : assert(
+         north <= maxLatitude,
+         "The north latitude can't be bigger than $maxLatitude: $north",
+       ),
+       assert(
+         north >= minLatitude,
+         "The north latitude can't be smaller than $minLatitude: $north",
+       ),
+       assert(
+         south <= maxLatitude,
+         "The south latitude can't be bigger than $maxLatitude: $south",
+       ),
+       assert(
+         south >= minLatitude,
+         "The south latitude can't be smaller than $minLatitude: $south",
+       ),
+       assert(
+         east <= maxLongitude,
+         "The east longitude can't be bigger than $maxLongitude: $east",
+       ),
+       assert(
+         east >= minLongitude,
+         "The east longitude can't be smaller than $minLongitude: $east",
+       ),
+       assert(
+         west <= maxLongitude,
+         "The west longitude can't be bigger than $maxLongitude: $west",
+       ),
+       assert(
+         west >= minLongitude,
+         "The west longitude can't be smaller than $minLongitude: $west",
+       ),
+       assert(
+         north >= south,
+         "The north latitude ($north) can't be smaller than the "
+         'south latitude ($south)',
+       ),
+       assert(
+         east >= west,
+         "The west longitude ($west) can't be smaller than the "
+         'east longitude ($east)',
+       ),
+       longitudeCenter = (east + west) / 2,
+       longitudeWidth = (east - west).abs();
 
   /// Create a new [LatLngBounds] from a list of [LatLng] points. This
   /// calculates the bounding box of the provided points.
@@ -258,8 +286,10 @@ class LatLngBounds {
 
     final bx = cos(phi2) * cos(dLambda);
     final by = cos(phi2) * sin(dLambda);
-    final phi3 = atan2(sin(phi1) + sin(phi2),
-        sqrt((cos(phi1) + bx) * (cos(phi1) + bx) + by * by));
+    final phi3 = atan2(
+      sin(phi1) + sin(phi2),
+      sqrt((cos(phi1) + bx) * (cos(phi1) + bx) + by * by),
+    );
     final lambda3 = lambda1 + atan2(by, cos(phi1) + bx);
 
     // phi3 and lambda3 are actually in radians and LatLng wants degrees

@@ -19,11 +19,7 @@ import 'package:flutter/widgets.dart';
 class TranslucentPointer extends SingleChildRenderObjectWidget {
   /// Creates a widget that is invisible for its parent during hit testing, but
   /// still allows its subtree to receive pointer events
-  const TranslucentPointer({
-    super.key,
-    this.translucent = true,
-    super.child,
-  });
+  const TranslucentPointer({super.key, this.translucent = true, super.child});
 
   /// Whether this widget is invisible to its parent during hit testing.
   ///
@@ -40,8 +36,7 @@ class TranslucentPointer extends SingleChildRenderObjectWidget {
   void updateRenderObject(
     BuildContext context,
     RenderTranslucentPointer renderObject,
-  ) =>
-      renderObject.translucent = translucent;
+  ) => renderObject.translucent = translucent;
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -66,11 +61,9 @@ class TranslucentPointer extends SingleChildRenderObjectWidget {
 ///    nodes in the subtree from seeing them.
 class RenderTranslucentPointer extends RenderProxyBox {
   /// Creates a render object that is invisible to its parent during hit testing
-  RenderTranslucentPointer({
-    RenderBox? child,
-    bool translucent = true,
-  })  : _translucent = translucent,
-        super(child);
+  RenderTranslucentPointer({RenderBox? child, bool translucent = true})
+    : _translucent = translucent,
+      super(child);
 
   /// Whether this widget is invisible to its parent during hit testing.
   ///

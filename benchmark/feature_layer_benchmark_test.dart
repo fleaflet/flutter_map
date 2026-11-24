@@ -35,9 +35,9 @@ List<LatLng> _randomWalk(
 }
 
 LatLng _randomNear(math.Random rng, LatLng base, double spreadDeg) => LatLng(
-      base.latitude + (rng.nextDouble() - 0.5) * spreadDeg,
-      base.longitude + (rng.nextDouble() - 0.5) * spreadDeg,
-    );
+  base.latitude + (rng.nextDouble() - 0.5) * spreadDeg,
+  base.longitude + (rng.nextDouble() - 0.5) * spreadDeg,
+);
 
 Widget _app(MapController controller, double zoom, List<Widget> layers) =>
     MaterialApp(
@@ -104,8 +104,10 @@ void main() {
       _app(controller, 13, [PolylineLayer(polylines: polylines)]),
     );
     final us = await _benchPans(tester, controller, 13);
-    debugPrint('RESULT polylines_pan_all_visible: '
-        '${us.toStringAsFixed(0)} us/frame');
+    debugPrint(
+      'RESULT polylines_pan_all_visible: '
+      '${us.toStringAsFixed(0)} us/frame',
+    );
   });
 
   testWidgets('benchmark: polylines pan (mostly culled)', (tester) async {
@@ -124,8 +126,10 @@ void main() {
       _app(controller, 16, [PolylineLayer(polylines: polylines)]),
     );
     final us = await _benchPans(tester, controller, 16);
-    debugPrint('RESULT polylines_pan_mostly_culled: '
-        '${us.toStringAsFixed(0)} us/frame');
+    debugPrint(
+      'RESULT polylines_pan_mostly_culled: '
+      '${us.toStringAsFixed(0)} us/frame',
+    );
   });
 
   testWidgets('benchmark: polygons with holes pan', (tester) async {
@@ -189,8 +193,10 @@ void main() {
       _app(controller, 16, [MarkerLayer(markers: markers)]),
     );
     final us = await _benchPans(tester, controller, 16);
-    debugPrint('RESULT markers_pan_mostly_culled: '
-        '${us.toStringAsFixed(0)} us/frame');
+    debugPrint(
+      'RESULT markers_pan_mostly_culled: '
+      '${us.toStringAsFixed(0)} us/frame',
+    );
   });
 
   test('benchmark: marker projection kernel', () {
@@ -232,9 +238,11 @@ void main() {
     sw.stop();
     final newNs = sw.elapsedMicroseconds * 1000 / (frames * points.length);
 
-    debugPrint('RESULT marker_projection_kernel: sink=${sink.isFinite} '
-        'full=${oldNs.toStringAsFixed(1)} ns/marker '
-        'cached=${newNs.toStringAsFixed(1)} ns/marker');
+    debugPrint(
+      'RESULT marker_projection_kernel: sink=${sink.isFinite} '
+      'full=${oldNs.toStringAsFixed(1)} ns/marker '
+      'cached=${newNs.toStringAsFixed(1)} ns/marker',
+    );
   });
 
   test('benchmark: getOffsetsXY holed polygon (direct)', () {
@@ -271,7 +279,9 @@ void main() {
       final per = sw.elapsedMicroseconds / n;
       if (per < best) best = per;
     }
-    debugPrint('RESULT get_offsets_xy_holed: '
-        '${best.toStringAsFixed(1)} us/call');
+    debugPrint(
+      'RESULT get_offsets_xy_holed: '
+      '${best.toStringAsFixed(1)} us/call',
+    );
   });
 }

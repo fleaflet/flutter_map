@@ -21,19 +21,23 @@ Future<int> sizeReducerWorker({
   final cacheDirectory = Directory(cacheDirectoryPath);
 
   final tiles = await Future.wait(
-    cacheDirectory.listSync().whereType<File>().where((f) {
-      final uuid = p.basename(f.absolute.path);
-      return uuid != BuiltInMapCachingProviderImpl.sizeMonitorFileName;
-    }).map((f) async {
-      // `stat.accessed` may be unstable on some OSs, but seems to work enough?
-      final stat = await f.stat();
+    cacheDirectory
+        .listSync()
+        .whereType<File>()
+        .where((f) {
+          final uuid = p.basename(f.absolute.path);
+          return uuid != BuiltInMapCachingProviderImpl.sizeMonitorFileName;
+        })
+        .map((f) async {
+          // `stat.accessed` may be unstable on some OSs, but seems to work enough?
+          final stat = await f.stat();
 
-      return _SizeReducerTile(
-        path: f.absolute.path,
-        size: stat.size,
-        sortKey: stat.accessed,
-      );
-    }),
+          return _SizeReducerTile(
+            path: f.absolute.path,
+            size: stat.size,
+            sortKey: stat.accessed,
+          );
+        }),
   );
 
   int compareSortKeys(_SizeReducerTile a, _SizeReducerTile b) =>
@@ -48,21 +52,23 @@ Future<int> sizeReducerWorker({
     while (deletedSize < minSizeToDelete && i < tiles.length) {
       final tile = tiles[i++];
       deletedSize += tile.size;
-      yield File(tile.path).delete().then((_) {}, onError: (_) {
-        // We might not be able to delete the tile if its being read/just been
-        // read, because "another process" has obtained a lock on the tile.
-        // (jaffaketchup) (it's difficult to prove whether this is the case, but
-        // it makes sense)
-        // This could be seen as a useful feature: the tiles which the user sees
-        // when they start the app remain cached.
-        // In reality, this is unlikely to occur unless the size limit is really
-        // small (since other older tiles will be deleted first, which shouldn't
-        // be locked).
-        // This silences the error.
-      });
+      yield File(tile.path).delete().then(
+        (_) {},
+        onError: (_) {
+          // We might not be able to delete the tile if its being read/just been
+          // read, because "another process" has obtained a lock on the tile.
+          // (jaffaketchup) (it's difficult to prove whether this is the case, but
+          // it makes sense)
+          // This could be seen as a useful feature: the tiles which the user sees
+          // when they start the app remain cached.
+          // In reality, this is unlikely to occur unless the size limit is really
+          // small (since other older tiles will be deleted first, which shouldn't
+          // be locked).
+          // This silences the error.
+        },
+      );
     }
-  }()
-      .toList(growable: false);
+  }().toList(growable: false);
 
   await Future.wait(deletionOperations);
 

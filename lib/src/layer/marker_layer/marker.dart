@@ -99,9 +99,5 @@ class Marker {
     required final double height,
     required final double left,
     required final double top,
-  }) =>
-      Alignment(
-        1.0 - 2 * left / width,
-        1.0 - 2 * top / height,
-      );
+  }) => Alignment(1.0 - 2 * left / width, 1.0 - 2 * top / height);
 }

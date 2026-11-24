@@ -18,9 +18,8 @@ sealed class TileDisplay {
   ///
   /// If you wish to show a transparent map without these restrictions you
   /// can simply wrap the entire [TileLayer] in an [Opacity] widget.
-  const factory TileDisplay.instantaneous({
-    double opacity,
-  }) = InstantaneousTileDisplay._;
+  const factory TileDisplay.instantaneous({double opacity}) =
+      InstantaneousTileDisplay._;
 
   /// Fade in the tile when it is loaded. Not that opacity is not supported
   /// when fading is enabled. This is because underlying tiles are kept when
@@ -67,10 +66,10 @@ class InstantaneousTileDisplay extends TileDisplay {
   final double opacity;
 
   const InstantaneousTileDisplay._({this.opacity = 1.0})
-      : assert(
-          opacity >= 0.0 && opacity <= 1.0,
-          'The opacity value needs to be between 0 and 1',
-        );
+    : assert(
+        opacity >= 0.0 && opacity <= 1.0,
+        'The opacity value needs to be between 0 and 1',
+      );
 
   /// Note this is used to check if the option has changed.
   @override
@@ -100,12 +99,14 @@ class FadeInTileDisplay extends TileDisplay {
     this.duration = const Duration(milliseconds: 100),
     this.startOpacity = 0.0,
     this.reloadStartOpacity = 0.0,
-  })  : assert(
-          startOpacity >= 0.0 && startOpacity <= 1.0,
-          'startOpacity needs to be between 0 and 1',
-        ),
-        assert(reloadStartOpacity >= 0.0 && reloadStartOpacity <= 1.0,
-            'reloadStartOpacity needs to be between 0 and 1');
+  }) : assert(
+         startOpacity >= 0.0 && startOpacity <= 1.0,
+         'startOpacity needs to be between 0 and 1',
+       ),
+       assert(
+         reloadStartOpacity >= 0.0 && reloadStartOpacity <= 1.0,
+         'reloadStartOpacity needs to be between 0 and 1',
+       );
 
   // Note this is used to check if the option has changed.
   @override

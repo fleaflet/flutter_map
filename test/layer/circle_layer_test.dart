@@ -27,8 +27,11 @@ void main() {
     // Assert that batching works and all circles are drawn into the same
     // CustomPaint/Canvas.
     expect(
-        find.descendant(
-            of: find.byType(CircleLayer), matching: find.byType(CustomPaint)),
-        findsOneWidget);
+      find.descendant(
+        of: find.byType(CircleLayer),
+        matching: find.byType(CustomPaint),
+      ),
+      findsOneWidget,
+    );
   });
 }

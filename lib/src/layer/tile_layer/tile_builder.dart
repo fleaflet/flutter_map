@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 /// Builder function that returns a [TileBuilder] instance.
-typedef TileBuilder = Widget Function(
-    BuildContext context, Widget tileWidget, TileImage tile);
+typedef TileBuilder =
+    Widget Function(BuildContext context, Widget tileWidget, TileImage tile);
 
 /// Applies inversion color matrix on Tiles container which may simulate Dark mode.
 Widget darkModeTilesContainerBuilder(
@@ -51,12 +51,13 @@ Widget coordinateDebugTileBuilder(
   final readableKey = '${coordinates.x} : ${coordinates.y} : ${coordinates.z}';
 
   return DecoratedBox(
-    decoration: BoxDecoration(
-      border: Border.all(),
-    ),
+    decoration: BoxDecoration(border: Border.all()),
     child: Stack(
       fit: StackFit.passthrough,
-      children: [tileWidget, Center(child: Text(readableKey))],
+      children: [
+        tileWidget,
+        Center(child: Text(readableKey)),
+      ],
     ),
   );
 }
@@ -75,12 +76,13 @@ Widget loadingTimeDebugTileBuilder(
       : '${(loaded.millisecond - loadStarted!.millisecond).abs()} ms';
 
   return DecoratedBox(
-    decoration: BoxDecoration(
-      border: Border.all(),
-    ),
+    decoration: BoxDecoration(border: Border.all()),
     child: Stack(
       fit: StackFit.passthrough,
-      children: [tileWidget, Center(child: Text(time))],
+      children: [
+        tileWidget,
+        Center(child: Text(time)),
+      ],
     ),
   );
 }

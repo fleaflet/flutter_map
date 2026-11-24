@@ -97,40 +97,36 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
   List<Offset> _projectPoints(Crs crs) {
     final projection = crs.projection;
-    return List<Offset>.generate(
-      widget.markers.length,
-      (i) {
-        final point = widget.markers[i].point;
-        // Guard against memory leaks (see
-        // https://github.com/fleaflet/flutter_map/issues/2178)
-        if (!(point.latitude.isFinite && point.longitude.isFinite)) {
-          throw RangeError('All markers must have finite `point`s');
-        }
-        return projection.project(point);
-      },
-      growable: false,
-    );
+    return List<Offset>.generate(widget.markers.length, (i) {
+      final point = widget.markers[i].point;
+      // Guard against memory leaks (see
+      // https://github.com/fleaflet/flutter_map/issues/2178)
+      if (!(point.latitude.isFinite && point.longitude.isFinite)) {
+        throw RangeError('All markers must have finite `point`s');
+      }
+      return projection.project(point);
+    }, growable: false);
   }
 
   Map<int, (Offset, Offset)> _projectMeterSizes(Crs crs) {
     final projection = crs.projection;
-    return HashMap.fromEntries(
-      () sync* {
-        for (int i = 0; i < widget.markers.length; i++) {
-          final m = widget.markers[i];
-          if (m.useDimensionsInMeters == null) continue;
+    return HashMap.fromEntries(() sync* {
+      for (int i = 0; i < widget.markers.length; i++) {
+        final m = widget.markers[i];
+        if (m.useDimensionsInMeters == null) continue;
 
-          final w =
-              projection.project(_distance.offset(m.point, m.width / 2, 90));
-          late final h =
-              projection.project(_distance.offset(m.point, m.height / 2, 180));
-          yield MapEntry(i, (w, m.width == m.height ? w : h));
+        final w = projection.project(
+          _distance.offset(m.point, m.width / 2, 90),
+        );
+        late final h = projection.project(
+          _distance.offset(m.point, m.height / 2, 180),
+        );
+        yield MapEntry(i, (w, m.width == m.height ? w : h));
 
-          // If we're optimizing, we'll never use any more values we generate
-          if (widget.optimizeDimensionsInMeters) break;
-        }
-      }(),
-    );
+        // If we're optimizing, we'll never use any more values we generate
+        if (widget.optimizeDimensionsInMeters) break;
+      }
+    }());
   }
 
   /// Use generated [_projectedMeterSizes] to convert a marker's size in meters
@@ -174,8 +170,11 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
             // Scale the cached projection to the current zoom
             final projected = _projectedPoints![i];
-            final (px, py) =
-                camera.crs.transform(projected.dx, projected.dy, zoomScale);
+            final (px, py) = camera.crs.transform(
+              projected.dx,
+              projected.dy,
+              zoomScale,
+            );
             final pxPoint = Offset(px, py);
 
             // Resolve real size and alignment
@@ -189,20 +188,31 @@ class _MarkerLayerState extends State<MarkerLayer> {
                 );
               }
               if (!widget.optimizeDimensionsInMeters) {
-                final size =
-                    _metersToScreenPixels(camera, m, pxPoint, i, zoomScale);
+                final size = _metersToScreenPixels(
+                  camera,
+                  m,
+                  pxPoint,
+                  i,
+                  zoomScale,
+                );
                 width = constraints.constrainWidth(size.width);
                 height = constraints.constrainHeight(size.height);
               } else {
                 // If optimizing, use the cached ratio if available, or
                 // calculate it (using the first marker in the layer)
                 _pixelsPerMeter ??=
-                    _metersToScreenPixels(camera, m, pxPoint, i, zoomScale)
-                            .width /
-                        m.width;
+                    _metersToScreenPixels(
+                      camera,
+                      m,
+                      pxPoint,
+                      i,
+                      zoomScale,
+                    ).width /
+                    m.width;
                 width = constraints.constrainWidth(_pixelsPerMeter! * m.width);
-                height =
-                    constraints.constrainHeight(_pixelsPerMeter! * m.height);
+                height = constraints.constrainHeight(
+                  _pixelsPerMeter! * m.height,
+                );
               }
             } else {
               width = m.width;
@@ -263,19 +273,18 @@ class _MarkerLayerState extends State<MarkerLayer> {
             // that marker is out of view, and therefore all further markers in
             // that direction will also be
             if (worldWidth == 0) continue;
-            for (double shift = -worldWidth;; shift -= worldWidth) {
+            for (double shift = -worldWidth; ; shift -= worldWidth) {
               final additional = getPositioned(shift);
               if (additional == null) break;
               yield additional;
             }
-            for (double shift = worldWidth;; shift += worldWidth) {
+            for (double shift = worldWidth; ; shift += worldWidth) {
               final additional = getPositioned(shift);
               if (additional == null) break;
               yield additional;
             }
           }
-        }()
-            .toList(),
+        }().toList(),
       ),
     );
   }

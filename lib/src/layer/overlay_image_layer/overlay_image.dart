@@ -39,22 +39,19 @@ abstract class BaseOverlayImage extends StatelessWidget {
   /// If more control over the [Image] itself is required, prefer subclassing
   /// one of the existing subclasses and overriding [build].
   @protected
-  Widget layout(
-    BuildContext context, {
-    required Image child,
-  });
+  Widget layout(BuildContext context, {required Image child});
 
   @override
   Widget build(BuildContext context) => layout(
-        context,
-        child: Image(
-          image: imageProvider,
-          fit: BoxFit.fill,
-          opacity: AlwaysStoppedAnimation(opacity),
-          gaplessPlayback: gaplessPlayback,
-          filterQuality: filterQuality,
-        ),
-      );
+    context,
+    child: Image(
+      image: imageProvider,
+      fit: BoxFit.fill,
+      opacity: AlwaysStoppedAnimation(opacity),
+      gaplessPlayback: gaplessPlayback,
+      filterQuality: filterQuality,
+    ),
+  );
 }
 
 /// Unrotated overlay image that spans between a given bounding box.
@@ -77,10 +74,7 @@ class OverlayImage extends BaseOverlayImage {
   });
 
   @override
-  Widget layout(
-    BuildContext context, {
-    required Image child,
-  }) {
+  Widget layout(BuildContext context, {required Image child}) {
     final camera = MapCamera.of(context);
 
     // northWest is not necessarily upperLeft depending on projection
@@ -145,10 +139,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
   });
 
   @override
-  Widget layout(
-    BuildContext context, {
-    required Image child,
-  }) {
+  Widget layout(BuildContext context, {required Image child}) {
     final camera = MapCamera.of(context);
 
     final pxTopLeft = camera.projectAtZoom(topLeftCorner) - camera.pixelOrigin;
@@ -162,8 +153,12 @@ class RotatedOverlayImage extends BaseOverlayImage {
     final pxTopRight = pxTopLeft - pxBottomLeft + pxBottomRight;
 
     /// update/enlarge bounds so the new corner points fit within
-    final bounds = RectExtension.containing(
-        [pxTopLeft, pxBottomRight, pxTopRight, pxBottomLeft]);
+    final bounds = RectExtension.containing([
+      pxTopLeft,
+      pxBottomRight,
+      pxTopRight,
+      pxBottomLeft,
+    ]);
 
     final vectorX = (pxTopRight - pxTopLeft) / bounds.size.width;
     final vectorY = (pxBottomLeft - pxTopLeft) / bounds.size.height;

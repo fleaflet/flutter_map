@@ -56,8 +56,9 @@ class _FlutterMapStateContainer extends State<FlutterMap>
     super.initState();
     _setMapController();
 
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => widget.options.onMapReady?.call());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => widget.options.onMapReady?.call(),
+    );
   }
 
   @override
@@ -138,10 +139,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   }
 
   void _updateAndEmitSizeIfConstraintsChanged(BoxConstraints constraints) {
-    final nonRotatedSize = Size(
-      constraints.maxWidth,
-      constraints.maxHeight,
-    );
+    final nonRotatedSize = Size(constraints.maxWidth, constraints.maxHeight);
     final oldCamera = _mapController.camera;
     if (_mapController.setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
       final newMapCamera = _mapController.camera;
@@ -168,8 +166,9 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   /// differentiate zero constraints caused by missing platform resolution vs
   /// zero constraints which were actually provided by the parent widget.
   bool _parentConstraintsAreSet(
-          BuildContext context, BoxConstraints constraints) =>
-      constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
+    BuildContext context,
+    BoxConstraints constraints,
+  ) => constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
 
   @override
   bool get wantKeepAlive => widget.options.keepAlive;

@@ -21,7 +21,8 @@ Future<void> tileAndSizeMonitorWriterWorker(
     String cacheDirectoryPath,
     String sizeMonitorFilePath,
     int? maxCacheSize,
-  }) input,
+  })
+  input,
 ) async {
   //! SIZE MONITOR HANDLING
 
@@ -117,15 +118,14 @@ Future<void> tileAndSizeMonitorWriterWorker(
         required String cacheDirectoryPath,
         required String sizeMonitorFilePath,
         required int minSizeToDelete,
-      }) =>
-          Isolate.run(
-            () => sizeReducerWorker(
-              cacheDirectoryPath: cacheDirectoryPath,
-              sizeMonitorFilePath: sizeMonitorFilePath,
-              minSizeToDelete: minSizeToDelete,
-            ),
-            debugName: '[flutter_map: cache] Size Reducer',
-          );
+      }) => Isolate.run(
+        () => sizeReducerWorker(
+          cacheDirectoryPath: cacheDirectoryPath,
+          sizeMonitorFilePath: sizeMonitorFilePath,
+          minSizeToDelete: minSizeToDelete,
+        ),
+        debugName: '[flutter_map: cache] Size Reducer',
+      );
 
       runSizeReducer(
         cacheDirectoryPath: input.cacheDirectoryPath,
@@ -150,8 +150,9 @@ Future<void> tileAndSizeMonitorWriterWorker(
 
     final tileFile = File(path);
     final initialTileFileExists = tileFile.existsSync();
-    final initialTileFileLength =
-        initialTileFileExists ? tileFile.lengthSync() : 0;
+    final initialTileFileLength = initialTileFileExists
+        ? tileFile.lengthSync()
+        : 0;
 
     if (!initialTileFileExists && mTileBytes == null) {
       // This should only be caused by the size reducer deleting the tile after
@@ -311,12 +312,11 @@ Future<void> tileAndSizeMonitorWriterWorker(
   input.port.send(receivePort.sendPort);
 
   await for (final val in receivePort) {
-    if (val
-        case (
-          :final String path,
-          :final CachedMapTileMetadata metadata,
-          :final Uint8List? tileBytes,
-        )) {
+    if (val case (
+      :final String path,
+      :final CachedMapTileMetadata metadata,
+      :final Uint8List? tileBytes,
+    )) {
       writeTile(path: path, metadata: metadata, tileBytes: tileBytes);
     } else if (val == false) {
       disableSizeMonitor();

@@ -155,20 +155,20 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
     PolygonLabelPlacementCalculator? labelPlacementCalculator,
     this.rotateLabel = false,
     this.hitValue,
-  })  : _filledAndClockwise = color != null && isClockwise(points),
-        labelPlacementCalculator = labelPlacementCalculator ??
-            switch (labelPlacement) {
-              // ignore: deprecated_member_use_from_same_package
-              PolygonLabelPlacement.centroid =>
-                const PolygonLabelPlacementCalculator.centroid(),
-              // ignore: deprecated_member_use_from_same_package
-              PolygonLabelPlacement.centroidWithMultiWorld =>
-                const PolygonLabelPlacementCalculator
-                    .simpleMultiWorldCentroid(),
-              // ignore: deprecated_member_use_from_same_package
-              PolygonLabelPlacement.polylabel =>
-                const PolygonLabelPlacementCalculator.polylabel(),
-            };
+  }) : _filledAndClockwise = color != null && isClockwise(points),
+       labelPlacementCalculator =
+           labelPlacementCalculator ??
+           switch (labelPlacement) {
+             // ignore: deprecated_member_use_from_same_package
+             PolygonLabelPlacement.centroid =>
+               const PolygonLabelPlacementCalculator.centroid(),
+             // ignore: deprecated_member_use_from_same_package
+             PolygonLabelPlacement.centroidWithMultiWorld =>
+               const PolygonLabelPlacementCalculator.simpleMultiWorldCentroid(),
+             // ignore: deprecated_member_use_from_same_package
+             PolygonLabelPlacement.polylabel =>
+               const PolygonLabelPlacementCalculator.polylabel(),
+           };
 
   /// Checks if the [Polygon] points are ordered clockwise in the list.
   static bool isClockwise(List<LatLng> points) {
@@ -211,27 +211,27 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
   ///
   /// Note that opacity is handled in the painter.
   int get renderHashCode => _renderHashCode ??= Object.hash(
-        color,
-        borderStrokeWidth,
-        borderColor,
-        disableHolesBorder,
-        pattern,
-        strokeCap,
-        strokeJoin,
-        _filledAndClockwise,
-      );
+    color,
+    borderStrokeWidth,
+    borderColor,
+    disableHolesBorder,
+    pattern,
+    strokeCap,
+    strokeJoin,
+    _filledAndClockwise,
+  );
 
   int? _hashCode;
 
   @override
   int get hashCode => _hashCode ??= Object.hashAll([
-        ...points,
-        label,
-        labelStyle,
-        // ignore: deprecated_member_use_from_same_package
-        labelPlacement,
-        labelPlacementCalculator,
-        rotateLabel,
-        renderHashCode,
-      ]);
+    ...points,
+    label,
+    labelStyle,
+    // ignore: deprecated_member_use_from_same_package
+    labelPlacement,
+    labelPlacementCalculator,
+    rotateLabel,
+    renderHashCode,
+  ]);
 }
