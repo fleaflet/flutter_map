@@ -29,6 +29,7 @@ Contains the following user-affecting bug fixes:
 - Correct touch gesture fling direction - [#2226](https://github.com/fleaflet/flutter_map/pull/2226) for [#2225](https://github.com/fleaflet/flutter_map/issues/2225)
 - Respect `InteractionOptions.rotationThreshold` even when not multi-finger gesture racing - [#2249](https://github.com/fleaflet/flutter_map/pull/2249) for [#2232](https://github.com/fleaflet/flutter_map/issues/2232)
 - Evict tile image from memory cache immediately on tile abort - [#2286](https://github.com/fleaflet/flutter_map/pull/2286)
+- Perform double-tap-drag zoom even after second tap is held still before drag - [#2251](https://github.com/fleaflet/flutter_map/pull/2251) for [#2246](https://github.com/fleaflet/flutter_map/issues/2246)
 
 Many thanks to these contributors (in no particular order):
 
@@ -40,6 +41,7 @@ Many thanks to these contributors (in no particular order):
 - @ZaraclaJ
 - @JonasGrunau
 - @greensopinion
+- @HsukqiLee
 - ... and all the maintainers
 
 ## [8.3.2] - 2026/08/27
