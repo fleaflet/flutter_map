@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
@@ -168,35 +169,71 @@ class _RetinaPageState extends State<RetinaPage> {
               ),
               children: [
                 if (accessToken?.isNotEmpty ?? true) tileLayer,
-                RichAttributionWidget(
-                  attributions: [
-                    LogoSourceAttribution(
-                      Image.asset(
-                        'assets/mapbox-logo-white.png',
-                        color: Colors.black,
-                      ),
-                      height: 16,
+                SafeArea(
+                  child: ExpandableAttributionLayer(
+                    adjacentPersistentChild: Image.asset(
+                      'assets/mapbox-logo-white.png',
+                      color: Colors.black,
+                      height: 24,
                     ),
-                    TextSourceAttribution(
-                      'Mapbox',
-                      onTap: () => launchUrl(
-                        Uri.parse('https://www.mapbox.com/about/maps/'),
+                    expandedBuilder: (context) => Text.rich(
+                      maxLines: 1,
+                      softWrap: false,
+                      TextSpan(
+                        children: [
+                          const TextSpan(text: '© '),
+                          TextSpan(
+                            text: 'Mapbox',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              decorationColor: DefaultTextStyle.of(
+                                context,
+                              ).style.color,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrl(
+                                Uri.parse('https://www.mapbox.com/about/maps/'),
+                              ),
+                          ),
+                          const TextSpan(text: ', © '),
+                          TextSpan(
+                            text: 'OpenStreetMap',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              decorationColor: DefaultTextStyle.of(
+                                context,
+                              ).style.color,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrl(
+                                Uri.parse(
+                                  'https://www.openstreetmap.org/copyright',
+                                ),
+                              ),
+                          ),
+                          const TextSpan(text: ' contributors | '),
+                          TextSpan(
+                            text: 'Improve this map',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              decorationColor: DefaultTextStyle.of(
+                                context,
+                              ).style.color,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrl(
+                                Uri.parse(
+                                  'https://apps.mapbox.com/feedback/#/'
+                                  '${MapCamera.of(context).center.longitude}'
+                                  '/${MapCamera.of(context).center.latitude}'
+                                  '/${MapCamera.of(context).zoom.round()}',
+                                ),
+                              ),
+                          ),
+                        ],
                       ),
                     ),
-                    TextSourceAttribution(
-                      'OpenStreetMap',
-                      onTap: () => launchUrl(
-                        Uri.parse('https://www.openstreetmap.org/copyright'),
-                      ),
-                    ),
-                    TextSourceAttribution(
-                      'Improve this map',
-                      prependCopyright: false,
-                      onTap: () => launchUrl(
-                        Uri.parse('https://www.mapbox.com/map-feedback'),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
