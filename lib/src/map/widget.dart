@@ -46,6 +46,7 @@ class FlutterMap extends StatefulWidget {
 class _FlutterMapStateContainer extends State<FlutterMap>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   bool _initialCameraFitApplied = false;
+  bool _mapReadyScheduled = false;
 
   late MapControllerImpl _mapController;
 
@@ -55,10 +56,6 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   void initState() {
     super.initState();
     _setMapController();
-
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => widget.options.onMapReady?.call(),
-    );
   }
 
   @override
@@ -99,6 +96,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
     return RepaintBoundary(
       child: LayoutBuilder(
         builder: (context, constraints) {
+          _scheduleMapReady();
           _updateAndEmitSizeIfConstraintsChanged(constraints);
 
           return MapInteractiveViewer(
@@ -136,6 +134,27 @@ class _FlutterMapStateContainer extends State<FlutterMap>
 
       _mapController.fitCamera(widget.options.initialCameraFit!);
     }
+  }
+
+  /// Schedules [MapOptions.onMapReady] for the end of the frame in which the
+  /// map is first laid out.
+  ///
+  /// The [MapInteractiveViewer], which the controller needs for camera
+  /// movements, is created during layout. A map that is built but not laid
+  /// out - for example on a route that another opaque route covers from the
+  /// first frame - has no viewer yet, so the map is only ready once it is laid
+  /// out.
+  ///
+  /// Called before [_updateAndEmitSizeIfConstraintsChanged], so `onMapReady`
+  /// keeps running before the first size change event and the initial camera
+  /// fit.
+  void _scheduleMapReady() {
+    if (_mapReadyScheduled) return;
+    _mapReadyScheduled = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.options.onMapReady?.call();
+    });
   }
 
   void _updateAndEmitSizeIfConstraintsChanged(BoxConstraints constraints) {
