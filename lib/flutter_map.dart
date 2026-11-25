@@ -1,19 +1,14 @@
 /// # flutter_map
 ///
-/// A versatile mapping package for Flutter. Simple and easy to learn, yet
-/// completely customizable and configurable, it's the best choice for mapping in
-/// your Flutter app.
+/// Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile,
+/// vendor-free, fully cross-platform, and 100% pure-Flutter
 ///
-/// ---
-///
-/// * Documentation: <https://docs.fleaflet.dev/>
-/// * API Reference: <https://pub.dev/documentation/flutter_map/latest/>
-///
-/// ---
-///
-/// * github.com: <https://github.com/fleaflet/flutter_map>
-/// * pub.dev: <https://pub.dev/packages/flutter_map>
-/// * discord.gg: <https://discord.gg/BwpEsjqMAH>
+/// * ### [📖 **Read the docs**](https://docs.fleaflet.dev/)
+/// * ### [🚀 **Launch the web demo**](https://demo.fleaflet.dev/)
+/// * ### [✍️ **Visit the GitHub source**](https://github.com/fleaflet/flutter_map)
+/// * ### [📦 **Visit the pub.dev package**](https://pub.dev/packages/flutter_map)
+/// * ### [💬 **Join our Discord server**](https://discord.gg/BwpEsjqMAH)
+/// * ### [💝 **Support us**](https://github.com/sponsors/fleaflet)
 library;
 
 export 'package:flutter_map/src/geo/crs.dart' hide CrsWithStaticTransformation;
