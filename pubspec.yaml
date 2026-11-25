@@ -48,8 +48,6 @@ dev_dependencies:
   test: ^1.24.9
 
 flutter:
-  assets:
-    - lib/assets/
   fonts:
     - family: AttributionLayerInfoIcons
       fonts:
