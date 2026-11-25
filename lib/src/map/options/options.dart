@@ -143,12 +143,17 @@ class MapOptions {
   /// Define limits for viewing the map.
   final CameraConstraint cameraConstraint;
 
-  /// OnMapReady is called after the map runs it's initState.
-  /// At that point the map has assigned its state to the controller
-  /// Only use this if your map isn't built immediately (like inside FutureBuilder)
-  /// and you need to access the controller as soon as the map is built.
-  /// Otherwise you can use WidgetsBinding.instance.addPostFrameCallback
-  /// In initState to controll the map before the next frame.
+  /// Called once, at the end of the frame in which the map is first laid out
+  ///
+  /// From then on, the map's [MapController] is safe to use.
+  ///
+  /// A map is usually laid out in the frame in which it is first built. A map
+  /// that is built but not laid out - for example on a route that another
+  /// opaque route covers - calls this once it is first laid out instead, and
+  /// never if it is disposed before that.
+  ///
+  /// Prefer [initialCenter], [initialZoom], [initialRotation] and
+  /// [initialCameraFit] to set the initial position of the map.
   final VoidCallback? onMapReady;
 
   /// Flag to enable the built in keep alive functionality
