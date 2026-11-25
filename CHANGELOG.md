@@ -8,11 +8,14 @@ This CHANGELOG does not include every commit and/or PR - it is a hand picked sel
 
 (including prerelease on 2026/09/02)
 
+**This version bumps the minimum required environment to Flutter 3.41.0 and Dart 3.10 (since [#2308](https://github.com/fleaflet/flutter_map/pull/2308)).**
+
 Contains the following user-affecting changes:
 
 - Added smooth scrolling when using mouse wheel - [#2198](https://github.com/fleaflet/flutter_map/pull/2198)
 - Added ability to use meters to size `Marker`s - [#2106](https://github.com/fleaflet/flutter_map/pull/2106)
 - Added new `SimpleAttributionLayer` (deprecating `SimpleAttributionWidget`) - [#2264](https://github.com/fleaflet/flutter_map/pull/2264) for [#2261](https://github.com/fleaflet/flutter_map/issues/2261)
+- Added new `ExpandableAttributionLayer` (deprecating `RichAttributionWidget`) - [#2305](https://github.com/fleaflet/flutter_map/pull/2305) for [#2262](https://github.com/fleaflet/flutter_map/issues/2262) & [#2143](https://github.com/fleaflet/flutter_map/issues/2143)
 - Added new `PlaceholderGridLayer`, shown by default* as the map background - [#2259](https://github.com/fleaflet/flutter_map/pull/2259)
 
 Contains the following user-affecting bug fixes:
@@ -25,6 +28,7 @@ Contains the following user-affecting bug fixes:
 - Workaround Dart compliation bug on Web platform when debugging to prevent crashes of feature layers - [#2299](https://github.com/fleaflet/flutter_map/pull/2299) for [#2234](https://github.com/fleaflet/flutter_map/issues/2234)
 - Correct touch gesture fling direction - [#2226](https://github.com/fleaflet/flutter_map/pull/2226) for [#2225](https://github.com/fleaflet/flutter_map/issues/2225)
 - Respect `InteractionOptions.rotationThreshold` even when not multi-finger gesture racing - [#2249](https://github.com/fleaflet/flutter_map/pull/2249) for [#2232](https://github.com/fleaflet/flutter_map/issues/2232)
+- Evict tile image from memory cache immediately on tile abort - [#2286](https://github.com/fleaflet/flutter_map/pull/2286)
 
 Many thanks to these contributors (in no particular order):
 
@@ -35,6 +39,7 @@ Many thanks to these contributors (in no particular order):
 - @WudgeJalk
 - @ZaraclaJ
 - @JonasGrunau
+- @greensopinion
 - ... and all the maintainers
 
 ## [8.3.2] - 2026/08/27
