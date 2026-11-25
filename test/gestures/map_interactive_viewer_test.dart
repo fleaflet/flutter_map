@@ -53,8 +53,9 @@ void main() {
     );
   }
 
-  testWidgets('a distant second tap does not enable double-tap drag zoom',
-      (tester) async {
+  testWidgets('a distant second tap does not enable double-tap drag zoom', (
+    tester,
+  ) async {
     final controller = MapController();
     await tester.pumpWidget(
       TestApp(
@@ -79,8 +80,9 @@ void main() {
     await secondTap.up();
   });
 
-  testWidgets('a second pointer does not enable double-tap drag zoom',
-      (tester) async {
+  testWidgets('a second pointer does not enable double-tap drag zoom', (
+    tester,
+  ) async {
     final controller = MapController();
     await tester.pumpWidget(
       TestApp(

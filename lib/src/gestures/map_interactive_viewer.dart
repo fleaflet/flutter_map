@@ -296,27 +296,27 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     return <Type, GestureRecognizerFactory>{
       TapGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-        () => TapGestureRecognizer(debugOwner: this),
-        (recognizer) {
-          recognizer
-            ..onTapDown = _positionedTapController.onTapDown
-            ..onTapCancel = _positionedTapController.onTapCancel
-            ..onTapUp = _handleOnTapUp
-            ..onTap = _positionedTapController.onTap
-            ..onSecondaryTap = _positionedTapController.onSecondaryTap
-            ..onSecondaryTapDown = _positionedTapController.onTapDown;
-        },
-      ),
+            () => TapGestureRecognizer(debugOwner: this),
+            (recognizer) {
+              recognizer
+                ..onTapDown = _positionedTapController.onTapDown
+                ..onTapCancel = _positionedTapController.onTapCancel
+                ..onTapUp = _handleOnTapUp
+                ..onTap = _positionedTapController.onTap
+                ..onSecondaryTap = _positionedTapController.onSecondaryTap
+                ..onSecondaryTapDown = _positionedTapController.onTapDown;
+            },
+          ),
       _MapLongPressGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<_MapLongPressGestureRecognizer>(
-        () => _MapLongPressGestureRecognizer(
-          debugOwner: this,
-          isDoubleTapDrag: _isDoubleTapDragDown,
-        ),
-        (recognizer) {
-          recognizer.onLongPress = _positionedTapController.onLongPress;
-        },
-      ),
+            () => _MapLongPressGestureRecognizer(
+              debugOwner: this,
+              isDoubleTapDrag: _isDoubleTapDragDown,
+            ),
+            (recognizer) {
+              recognizer.onLongPress = _positionedTapController.onLongPress;
+            },
+          ),
       if (dragEnabled)
         VerticalDragGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
@@ -379,9 +379,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           onSecondaryTap: _handleSecondaryTap,
           onLongPress: _handleLongPress,
           onDoubleTap: _handleDoubleTap,
-          doubleTapDelay: InteractiveFlag.hasDoubleTapZoom(
-                    _interactionOptions.flags,
-                  ) ||
+          doubleTapDelay:
+              InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags) ||
                   InteractiveFlag.hasDoubleTapDragZoom(
                     _interactionOptions.flags,
                   )
@@ -404,11 +403,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     if (_isDoubleTapDragDown(event)) {
       _doubleTapDragPointer = event.pointer;
       _doubleTapHoldMaxDelay?.cancel();
-      _positionedTapController.onTapDown(TapDownDetails(
-        globalPosition: event.position,
-        localPosition: event.localPosition,
-        kind: event.kind,
-      ));
+      _positionedTapController.onTapDown(
+        TapDownDetails(
+          globalPosition: event.position,
+          localPosition: event.localPosition,
+          kind: event.kind,
+        ),
+      );
     } else {
       _resetDoubleTapHold();
       if (_pointerCounter > 0) _positionedTapController.onTapCancel();
