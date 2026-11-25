@@ -49,4 +49,8 @@ dev_dependencies:
 
 flutter:
   assets:
-    - lib/assets/flutter_map_logo.png
+    - lib/assets/
+  fonts:
+    - family: AttributionLayerInfoIcons
+      fonts:
+        - asset: lib/assets/fonts/icons/AttributionLayerInfoIcons.ttf

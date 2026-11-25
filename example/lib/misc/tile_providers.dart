@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
@@ -7,9 +10,9 @@ import 'package:url_launcher/url_launcher.dart';
 final _httpClient = RetryClient(Client());
 
 class PrimaryTileLayer extends StatelessWidget {
-  const PrimaryTileLayer({super.key, this.showAttributionImmediately = false});
+  const PrimaryTileLayer({super.key, this.includeAttribution = true});
 
-  final bool showAttributionImmediately;
+  final bool includeAttribution;
 
   @override
   Widget build(BuildContext context) {
@@ -21,20 +24,82 @@ class PrimaryTileLayer extends StatelessWidget {
           tileProvider: NetworkTileProvider(httpClient: _httpClient),
           maxNativeZoom: 19,
         ),
-        RichAttributionWidget(
-          popupInitialDisplayDuration: showAttributionImmediately
-              ? const Duration(seconds: 5)
-              : Duration.zero,
-          animationConfig: const ScaleRAWA(),
-          attributions: [
-            TextSourceAttribution(
-              'OpenStreetMap contributors',
-              onTap: () async =>
-                  launchUrl(Uri.parse('https://openstreetmap.org/copyright')),
-            ),
-          ],
-        ),
+        // TODO: This means that this appears beneath any other layers in the
+        // map. Use `AttributionLayer` directly in pages.
+        if (includeAttribution) const AttributionLayer(),
       ],
+    );
+  }
+}
+
+class AttributionLayer extends StatelessWidget {
+  const AttributionLayer({
+    super.key,
+    this.backgroundColor,
+    this.showAttributionImmediately = false,
+  });
+
+  final Color? backgroundColor;
+  final bool showAttributionImmediately;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: ExpandableAttributionLayer(
+        backgroundColor:
+            backgroundColor ??
+            // Just a bit of fun, and showing that it can handle it
+            Colors.primaries[Random().nextInt(Colors.primaries.length)],
+        initialExpansionDuration: showAttributionImmediately
+            ? const Duration(seconds: 3)
+            : Duration.zero,
+        /*customButtonIconBuilder: (context, isExpanded) => AnimatedCrossFade(
+          crossFadeState: isExpanded
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
+          duration: const Duration(milliseconds: 200),
+          firstCurve: Curves.easeIn,
+          secondCurve: Curves.easeOut,
+          sizeCurve: Curves.easeInOut,
+          firstChild: Icon(
+            Icons.info_rounded,
+            key: const ValueKey('filled'),
+            color: DefaultTextStyle.of(context).style.color,
+            size: 20,
+          ),
+          secondChild: Icon(
+            Icons.info_outline_rounded,
+            key: const ValueKey('outline'),
+            color: backgroundColor,
+            size: 20,
+          ),
+        ),*/
+        adjacentPersistentChild: SizedBox.square(
+          dimension: 26,
+          child: Image.asset('assets/ProjectIcon.png'),
+        ),
+        expandedBuilder: (context) => Text.rich(
+          maxLines: 1,
+          softWrap: false,
+          TextSpan(
+            children: [
+              const TextSpan(text: '© '),
+              TextSpan(
+                text: 'OpenStreetMap',
+                style: TextStyle(
+                  decoration: TextDecoration.underline,
+                  decorationColor: DefaultTextStyle.of(context).style.color,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () => launchUrl(
+                    Uri.parse('https://www.openstreetmap.org/copyright'),
+                  ),
+              ),
+              const TextSpan(text: ' contributors'),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

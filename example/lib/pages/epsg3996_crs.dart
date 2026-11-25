@@ -160,21 +160,19 @@ class EPSG3996PageState extends State<EPSG3996Page> {
                     ),
                   ),
                   CircleLayer(circles: circles),
-                  RichAttributionWidget(
-                    popupInitialDisplayDuration: const Duration(seconds: 5),
-                    attributions: [
-                      TextSourceAttribution(
-                        'Imagery reproduced from the GEBCO_2024 Grid, GEBCO '
-                        'Compilation Group (2024) GEBCO Compilation Group '
-                        '(2024) GEBCO 2024 Grid '
-                        '(doi:10.5285/1c44ce99-0a0d-5f4f-e063-7086abc0ea0f)',
-                        onTap: () => launchUrl(
-                          Uri.parse(
-                            'https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/#polar',
-                          ),
+                  SafeArea(
+                    child: SimpleAttributionLayer.singleLink(
+                      text:
+                          'Imagery reproduced from the GEBCO_2024 Grid, GEBCO '
+                          'Compilation Group (2024) GEBCO Compilation Group '
+                          '(2024) GEBCO 2024 Grid '
+                          '(doi:10.5285/1c44ce99-0a0d-5f4f-e063-7086abc0ea0f)',
+                      onTap: () => launchUrl(
+                        Uri.parse(
+                          'https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/#polar',
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
