@@ -9,6 +9,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/gestures.dart' show PointerDownEvent, kPrimaryButton;
 import 'package:flutter/widgets.dart';
 
 typedef TapPositionCallback = void Function(TapPosition position);
@@ -54,6 +55,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   PositionedTapController? _tapController;
   TapDownDetails? _pendingTap;
   TapDownDetails? _firstTap;
+  TapDownDetails? _firstTapCandidate;
 
   @override
   void initState() {
@@ -98,6 +100,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   void _onTapConfirmed(TapDownDetails details) {
     if (_firstTap == null) {
       _firstTap = details;
+      _firstTapCandidate = null;
     } else {
       _handleSecondTap(details);
     }
@@ -127,6 +130,21 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
     _pendingTap = details;
   }
 
+  bool _isDoubleTapDown(PointerDownEvent event) {
+    final firstTap = _firstTap ?? _firstTapCandidate;
+    return event.buttons == kPrimaryButton &&
+        firstTap != null &&
+        firstTap.kind == event.kind &&
+        _isDoubleTap(firstTap, TapDownDetails(globalPosition: event.position));
+  }
+
+  void _onTapCancelEvent() {
+    // Long press cancels the tap recognizer before delivering its callback,
+    // which still needs the current down position. Only the tap pair expires.
+    _firstTap = null;
+    _firstTapCandidate = null;
+  }
+
   void _onTapEvent() {
     final pending = _pendingTap;
     if (pending == null) return;
@@ -134,6 +152,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
     if (widget.onDoubleTap == null) {
       _postCallback(pending, widget.onTap);
     } else {
+      if (_firstTap == null) _firstTapCandidate = pending;
       _sink.add(pending);
     }
 
@@ -165,6 +184,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
     TapPositionCallback? callback,
   ) async {
     _firstTap = null;
+    _firstTapCandidate = null;
     if (callback != null) {
       callback(TapPosition(details.globalPosition, details.localPosition));
     }
@@ -213,6 +233,11 @@ class PositionedTapController {
   void onLongPress() => _state?._onLongPressEvent();
 
   void onTapDown(TapDownDetails details) => _state?._onTapDownEvent(details);
+
+  bool isDoubleTapDown(PointerDownEvent event) =>
+      _state?._isDoubleTapDown(event) ?? false;
+
+  void onTapCancel() => _state?._onTapCancelEvent();
 }
 
 @immutable
