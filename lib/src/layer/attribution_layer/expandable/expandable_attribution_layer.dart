@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/attribution_layer/v2/expandable/toggle_button/attribution_layer_info_icons_icons.dart';
+import 'package:flutter_map/src/layer/attribution_layer/expandable/toggle_button/attribution_layer_info_icons_icons.dart';
 
 part 'toggle_button/toggle_button.dart';
 

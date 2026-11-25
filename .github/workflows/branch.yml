@@ -24,7 +24,7 @@ jobs:
       - name: Install pana
         run: dart pub global activate pana
       - name: Check package score
-        run: pana --exit-code-threshold 10 .
+        run: pana --exit-code-threshold 0 .
 
   analyse-code:
     name: "Analyse Code"
@@ -35,7 +35,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.47.0
           channel: "stable"
           cache: true
       - name: Get dependencies
