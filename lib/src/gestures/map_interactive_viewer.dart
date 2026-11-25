@@ -104,6 +104,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
+  int? _doubleTapDragPointer;
 
   // Keyboard animation
   late final FocusNode _keyboardListenerFocusNode;
@@ -170,6 +171,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   @override
   void dispose() {
+    _doubleTapHoldMaxDelay?.cancel();
     widget.controller.removeListener(onMapStateChange);
     _flingController.dispose();
     _doubleTapController.dispose();
@@ -298,15 +300,19 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             (recognizer) {
               recognizer
                 ..onTapDown = _positionedTapController.onTapDown
+                ..onTapCancel = _positionedTapController.onTapCancel
                 ..onTapUp = _handleOnTapUp
                 ..onTap = _positionedTapController.onTap
                 ..onSecondaryTap = _positionedTapController.onSecondaryTap
                 ..onSecondaryTapDown = _positionedTapController.onTapDown;
             },
           ),
-      LongPressGestureRecognizer:
-          GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
-            () => LongPressGestureRecognizer(debugOwner: this),
+      _MapLongPressGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<_MapLongPressGestureRecognizer>(
+            () => _MapLongPressGestureRecognizer(
+              debugOwner: this,
+              isDoubleTapDrag: _isDoubleTapDragDown,
+            ),
             (recognizer) {
               recognizer.onLongPress = _positionedTapController.onLongPress;
             },
@@ -374,7 +380,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           onLongPress: _handleLongPress,
           onDoubleTap: _handleDoubleTap,
           doubleTapDelay:
-              InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)
+              InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags) ||
+                  InteractiveFlag.hasDoubleTapDragZoom(
+                    _interactionOptions.flags,
+                  )
               ? null
               : Duration.zero,
           child: RawGestureDetector(
@@ -391,6 +400,20 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   void _onPointerDown(PointerDownEvent event) {
+    if (_isDoubleTapDragDown(event)) {
+      _doubleTapDragPointer = event.pointer;
+      _doubleTapHoldMaxDelay?.cancel();
+      _positionedTapController.onTapDown(
+        TapDownDetails(
+          globalPosition: event.position,
+          localPosition: event.localPosition,
+          kind: event.kind,
+        ),
+      );
+    } else {
+      _resetDoubleTapHold();
+      if (_pointerCounter > 0) _positionedTapController.onTapCancel();
+    }
     ++_pointerCounter;
     _lastPointerKind = event.kind;
 
@@ -408,6 +431,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _onPointerUp(PointerUpEvent event) {
     --_pointerCounter;
+    if (event.pointer == _doubleTapDragPointer) _resetDoubleTapHold();
 
     if (_interactionOptions.cursorKeyboardRotationOptions.setNorthOnClick &&
         _ckrTriggered.value &&
@@ -427,6 +451,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _onPointerCancel(PointerCancelEvent event) {
     --_pointerCounter;
+    _resetDoubleTapHold();
+    _positionedTapController.onTapCancel();
 
     if (_options.onPointerCancel != null) {
       final latlng = _camera.offsetToCrs(event.localPosition);
@@ -562,7 +588,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   void _handleScaleUpdate(ScaleUpdateDetails details) {
-    if (_tapUpCounter == 1) {
+    if (_doubleTapDragPointer != null && _pointerCounter == 1) {
       _handleDoubleTapHold(details);
       return;
     }
@@ -1002,6 +1028,16 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
   }
 
+  // Both the recognizer's admission and the raw listener consult this before
+  // the pointer counter changes. TapGestureRecognizer.onTapDown can arrive
+  // after the inter-tap deadline, so it cannot own this transition.
+  bool _isDoubleTapDragDown(PointerDownEvent event) =>
+      InteractiveFlag.hasDoubleTapDragZoom(_interactionOptions.flags) &&
+      _pointerCounter == 0 &&
+      _tapUpCounter == 1 &&
+      (_doubleTapHoldMaxDelay?.isActive ?? false) &&
+      _positionedTapController.isDoubleTapDown(event);
+
   void _handleDoubleTapHold(ScaleUpdateDetails details) {
     _doubleTapHoldMaxDelay?.cancel();
 
@@ -1071,6 +1107,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   void _resetDoubleTapHold() {
     _doubleTapHoldMaxDelay?.cancel();
     _tapUpCounter = 0;
+    _doubleTapDragPointer = null;
   }
 
   void _flingAnimationStatusListener(AnimationStatus status) {
@@ -1488,4 +1525,20 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     return offset;
   }
+}
+
+// A valid second press belongs to double-tap drag even if held past the normal
+// long-press timeout. Reject it before this recognizer enters its arena; simply
+// ignoring onLongPress would leave the scale recognizer defeated after 500ms.
+class _MapLongPressGestureRecognizer extends LongPressGestureRecognizer {
+  _MapLongPressGestureRecognizer({
+    super.debugOwner,
+    required this.isDoubleTapDrag,
+  });
+
+  final bool Function(PointerDownEvent) isDoubleTapDrag;
+
+  @override
+  bool isPointerAllowed(PointerDownEvent event) =>
+      !isDoubleTapDrag(event) && super.isPointerAllowed(event);
 }

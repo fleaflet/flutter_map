@@ -9,6 +9,7 @@ class TestApp extends StatelessWidget {
     super.key,
     this.controller,
     this.interactionOptions = const InteractionOptions(),
+    this.onLongPress,
     this.markers = const [],
     this.polygons = const [],
     this.polylines = const [],
@@ -17,6 +18,7 @@ class TestApp extends StatelessWidget {
 
   final MapController? controller;
   final InteractionOptions interactionOptions;
+  final LongPressCallback? onLongPress;
   final List<Marker> markers;
   final List<Polygon> polygons;
   final List<Polyline> polylines;
@@ -36,6 +38,7 @@ class TestApp extends StatelessWidget {
               options: MapOptions(
                 initialCenter: const LatLng(45.5231, -122.6765),
                 interactionOptions: interactionOptions,
+                onLongPress: onLongPress,
               ),
               children: [
                 TileLayer(tileProvider: TestTileProvider()),
