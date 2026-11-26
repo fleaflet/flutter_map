@@ -1071,33 +1071,29 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _startListeningForAnimationInterruptions();
     }
 
-    final newCenterPoint =
+    var newCenterPoint =
         _camera.projectAtZoom(_mapCenterStart) +
         _flingAnimation.value.rotate(_camera.rotationRad);
-    final LatLng newCenter;
-    if (!_camera.crs.replicatesWorldLongitude) {
-      newCenter = _camera.unprojectAtZoom(newCenterPoint);
-    } else {
-      final Offset bestCenterPoint;
-      final double worldSize = _camera.crs.scale(_camera.zoom);
-      if (newCenterPoint.dx > worldSize) {
-        bestCenterPoint = Offset(
-          newCenterPoint.dx - worldSize,
+    if (_camera.crs.replicatesWorldLongitude) {
+      final worldSize = _camera.crs.scale(_camera.zoom);
+      if (_options.cameraConstraint is ContainCamera) {
+        // A contained viewport must stay in this world. Wrapping the fling
+        // first would make the constraint clamp it to the opposite edge.
+        final halfWidth = _camera.size.width / 2;
+        if (halfWidth * 2 > worldSize) return;
+        newCenterPoint = Offset(
+          newCenterPoint.dx.clamp(halfWidth, worldSize - halfWidth),
           newCenterPoint.dy,
         );
+      } else if (newCenterPoint.dx > worldSize) {
+        newCenterPoint = newCenterPoint.translate(-worldSize, 0);
       } else if (newCenterPoint.dx < 0) {
-        bestCenterPoint = Offset(
-          newCenterPoint.dx + worldSize,
-          newCenterPoint.dy,
-        );
-      } else {
-        bestCenterPoint = newCenterPoint;
+        newCenterPoint = newCenterPoint.translate(worldSize, 0);
       }
-      newCenter = _camera.unprojectAtZoom(bestCenterPoint);
     }
 
     widget.controller.moveRaw(
-      newCenter,
+      _camera.unprojectAtZoom(newCenterPoint),
       _camera.zoom,
       hasGesture: true,
       source: MapEventSource.flingAnimationController,
