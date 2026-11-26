@@ -1,11 +1,78 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../test_utils/test_app.dart';
 
 void main() {
+  group('fling across the antimeridian', () {
+    Future<MapCamera> fling(
+      WidgetTester tester,
+      int direction,
+      CameraConstraint constraint,
+    ) async {
+      final controller = MapController();
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: FlutterMap(
+            mapController: controller,
+            options: MapOptions(
+              initialCenter: LatLng(-44.28, direction * 175.0),
+              initialZoom: 8,
+              cameraConstraint: constraint,
+            ),
+            children: const [],
+          ),
+        ),
+      );
+
+      await tester.flingFrom(
+        tester.getCenter(find.byType(FlutterMap)) + Offset(direction * 300, 0),
+        Offset(direction * -650, 0),
+        3000,
+      );
+      await tester.pumpAndSettle();
+      return controller.camera;
+    }
+
+    for (final direction in [1, -1]) {
+      testWidgets('stops at the boundary towards ${direction * 180}°', (
+        tester,
+      ) async {
+        final bounds = LatLngBounds(
+          LatLng(-38.82, direction * 164.37),
+          LatLng(-49.49, direction * 177.86),
+        );
+        final camera = await fling(
+          tester,
+          direction,
+          CameraConstraint.contain(bounds: bounds),
+        );
+
+        final edge = direction > 0 ? bounds.east : bounds.west;
+        final centerX = camera.projectAtZoom(camera.center).dx;
+        final viewportEdgeX = centerX + direction * camera.size.width / 2;
+        expect(
+          viewportEdgeX,
+          closeTo(camera.projectAtZoom(LatLng(-44.28, edge)).dx, 1e-6),
+        );
+      });
+    }
+
+    testWidgets('wraps when only latitude is constrained', (tester) async {
+      final camera = await fling(
+        tester,
+        1,
+        const CameraConstraint.containLatitude(),
+      );
+      expect(camera.center.longitude, inExclusiveRange(-180, -170));
+    });
+  });
+
   for (final kind in [PointerDeviceKind.touch, PointerDeviceKind.mouse]) {
     testWidgets(
       'double-tap drag zoom remains active while the second $kind pointer is '
