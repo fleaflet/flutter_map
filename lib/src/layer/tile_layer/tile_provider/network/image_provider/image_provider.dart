@@ -97,12 +97,22 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
   ) {
     final chunkEvents = StreamController<ImageChunkEvent>();
 
+    var loaded = false;
+    // We evict this as quickly as possible on abort if not loaded, rather than
+    // waiting for the handler in the load image, which might trigger with a
+    // delay. This would mean that a new tile for the same URL hooks into the
+    // empty cache before it's evicted, showing the aborted tile.
+    // See issue #2290.
+    abortTrigger?.then((_) {
+      if (!loaded) PaintingBinding.instance.imageCache.evict(key);
+    });
+
     return MultiFrameImageStreamCompleter(
       codec: _loadImage(key, chunkEvents.sink, decode)
-        ..then(
-          (_) => unawaited(chunkEvents.close()),
-          onError: (_) => unawaited(chunkEvents.close()),
-        ),
+        ..then((_) {
+          loaded = true;
+          unawaited(chunkEvents.close());
+        }, onError: (_) => unawaited(chunkEvents.close())),
       chunkEvents: chunkEvents.stream,
       scale: 1,
       debugLabel: key.url,
@@ -226,10 +236,10 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
             ? null
             : {
                 if (cachedTile?.metadata.lastModified case final lastModified?)
-                  HttpHeaders.ifModifiedSinceHeader:
-                      HttpDate.format(lastModified),
-                if (cachedTile?.metadata.etag case final etag?)
-                  HttpHeaders.ifNoneMatchHeader: etag,
+                  HttpHeaders.ifModifiedSinceHeader: HttpDate.format(
+                    lastModified,
+                  ),
+                HttpHeaders.ifNoneMatchHeader: ?cachedTile?.metadata.etag,
               },
       );
 
@@ -285,10 +295,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
         // We piggyback off of an error meant for `NetworkImage` - it's the same
         // as we need
         Error.throwWithStackTrace(
-          NetworkImageLoadException(
-            statusCode: response.statusCode,
-            uri: uri,
-          ),
+          NetworkImageLoadException(statusCode: response.statusCode, uri: uri),
           stackTrace,
         );
       }
@@ -334,8 +341,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
   @override
   SynchronousFuture<NetworkTileImageProvider> obtainKey(
     ImageConfiguration configuration,
-  ) =>
-      SynchronousFuture(this);
+  ) => SynchronousFuture(this);
 
   @override
   bool operator ==(Object other) =>

@@ -12,23 +12,22 @@ import 'package:latlong2/latlong.dart';
 
 part 'package:flutter_map/src/gestures/compound_animations.dart';
 
-typedef _KeyboardAnimationManager<T> = Map<
-    PhysicalKeyboardKey,
-    ({
-      AnimationController curveController,
-      Animation<T> curveAnimation,
-      Tween<T> curveTween,
-      AnimationController repeatController,
-      Animation<T> repeatAnimation,
-      Tween<T> repeatTween,
-    })>;
+typedef _KeyboardAnimationManager<T> =
+    Map<
+      PhysicalKeyboardKey,
+      ({
+        AnimationController curveController,
+        Animation<T> curveAnimation,
+        Tween<T> curveTween,
+        AnimationController repeatController,
+        Animation<T> repeatAnimation,
+        Tween<T> repeatTween,
+      })
+    >;
 
 /// The method signature of the builder.
-typedef InteractiveViewerBuilder = Widget Function(
-  BuildContext context,
-  MapOptions options,
-  MapCamera camera,
-);
+typedef InteractiveViewerBuilder =
+    Widget Function(BuildContext context, MapOptions options, MapCamera camera);
 
 /// Applies interactions (gestures/scroll/taps etc) to the current [MapCamera]
 /// via the internal [controller].
@@ -105,6 +104,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
+  int? _doubleTapDragPointer;
 
   // Keyboard animation
   late final FocusNode _keyboardListenerFocusNode;
@@ -149,12 +149,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       vsync: this,
     );
 
-    ServicesBinding.instance.keyboard
-        .addHandler(cursorKeyboardRotationTriggerHandler);
+    ServicesBinding.instance.keyboard.addHandler(
+      cursorKeyboardRotationTriggerHandler,
+    );
 
     _keyboardListenerFocusNode =
         _interactionOptions.keyboardOptions.focusNode ??
-            FocusNode(debugLabel: 'FlutterMap');
+        FocusNode(debugLabel: 'FlutterMap');
     _initKeyboardAnimations();
   }
 
@@ -170,14 +171,16 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   @override
   void dispose() {
+    _doubleTapHoldMaxDelay?.cancel();
     widget.controller.removeListener(onMapStateChange);
     _flingController.dispose();
     _doubleTapController.dispose();
     _scrollZoomHandler.dispose();
 
     _ckrTriggered.dispose();
-    ServicesBinding.instance.keyboard
-        .removeHandler(cursorKeyboardRotationTriggerHandler);
+    ServicesBinding.instance.keyboard.removeHandler(
+      cursorKeyboardRotationTriggerHandler,
+    );
 
     if (_interactionOptions.keyboardOptions.focusNode == null) {
       _keyboardListenerFocusNode.dispose();
@@ -198,10 +201,12 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   /// Handles key down events to detect if one of the trigger keys got pressed.
   bool cursorKeyboardRotationTriggerHandler(KeyEvent event) {
-    _ckrTriggered.value = (event is KeyRepeatEvent || event is KeyDownEvent) &&
+    _ckrTriggered.value =
+        (event is KeyRepeatEvent || event is KeyDownEvent) &&
         (_interactionOptions.cursorKeyboardRotationOptions.isKeyTrigger ??
-            CursorKeyboardRotationOptions
-                .defaultTriggerKeys.contains)(event.logicalKey);
+            CursorKeyboardRotationOptions.defaultTriggerKeys.contains)(
+          event.logicalKey,
+        );
     return false;
   }
 
@@ -271,10 +276,12 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     // No way to detect whether the [CursorKeyboardRotationOptions.isKeyTrigger]s
     // are equal, so assume they aren't
-    ServicesBinding.instance.keyboard
-        .removeHandler(cursorKeyboardRotationTriggerHandler);
-    ServicesBinding.instance.keyboard
-        .addHandler(cursorKeyboardRotationTriggerHandler);
+    ServicesBinding.instance.keyboard.removeHandler(
+      cursorKeyboardRotationTriggerHandler,
+    );
+    ServicesBinding.instance.keyboard.addHandler(
+      cursorKeyboardRotationTriggerHandler,
+    );
 
     if (oldOptions.keyboardOptions != newOptions.keyboardOptions) {
       _disposeKeyboardAnimations();
@@ -289,60 +296,66 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     return <Type, GestureRecognizerFactory>{
       TapGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-        () => TapGestureRecognizer(debugOwner: this),
-        (recognizer) {
-          recognizer
-            ..onTapDown = _positionedTapController.onTapDown
-            ..onTapUp = _handleOnTapUp
-            ..onTap = _positionedTapController.onTap
-            ..onSecondaryTap = _positionedTapController.onSecondaryTap
-            ..onSecondaryTapDown = _positionedTapController.onTapDown;
-        },
-      ),
-      LongPressGestureRecognizer:
-          GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
-        () => LongPressGestureRecognizer(debugOwner: this),
-        (recognizer) {
-          recognizer.onLongPress = _positionedTapController.onLongPress;
-        },
-      ),
+            () => TapGestureRecognizer(debugOwner: this),
+            (recognizer) {
+              recognizer
+                ..onTapDown = _positionedTapController.onTapDown
+                ..onTapCancel = _positionedTapController.onTapCancel
+                ..onTapUp = _handleOnTapUp
+                ..onTap = _positionedTapController.onTap
+                ..onSecondaryTap = _positionedTapController.onSecondaryTap
+                ..onSecondaryTapDown = _positionedTapController.onTapDown;
+            },
+          ),
+      _MapLongPressGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<_MapLongPressGestureRecognizer>(
+            () => _MapLongPressGestureRecognizer(
+              debugOwner: this,
+              isDoubleTapDrag: _isDoubleTapDragDown,
+            ),
+            (recognizer) {
+              recognizer.onLongPress = _positionedTapController.onLongPress;
+            },
+          ),
       if (dragEnabled)
         VerticalDragGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
-          () => VerticalDragGestureRecognizer(debugOwner: this),
-          (recognizer) {
-            recognizer
-              ..gestureSettings = gestureSettings
-              ..team ??= _gestureArenaTeam
-              ..onUpdate = (details) {
-                // Absorbing vertical drags
-              };
-          },
-        ),
+              () => VerticalDragGestureRecognizer(debugOwner: this),
+              (recognizer) {
+                recognizer
+                  ..gestureSettings = gestureSettings
+                  ..team ??= _gestureArenaTeam
+                  ..onUpdate = (details) {
+                    // Absorbing vertical drags
+                  };
+              },
+            ),
       if (dragEnabled)
-        HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-                HorizontalDragGestureRecognizer>(
-            () => HorizontalDragGestureRecognizer(debugOwner: this),
-            (recognizer) {
-          recognizer
-            ..gestureSettings = gestureSettings
-            ..team ??= _gestureArenaTeam
-            ..onUpdate = (details) {
-              // Absorbing horizontal drags
-            };
-        }),
+        HorizontalDragGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<
+              HorizontalDragGestureRecognizer
+            >(() => HorizontalDragGestureRecognizer(debugOwner: this), (
+              recognizer,
+            ) {
+              recognizer
+                ..gestureSettings = gestureSettings
+                ..team ??= _gestureArenaTeam
+                ..onUpdate = (details) {
+                  // Absorbing horizontal drags
+                };
+            }),
       ScaleGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-        () => ScaleGestureRecognizer(debugOwner: this),
-        (recognizer) {
-          recognizer
-            ..onStart = _handleScaleStart
-            ..onUpdate = _handleScaleUpdate
-            ..onEnd = _handleScaleEnd
-            ..team ??= _gestureArenaTeam;
-          _gestureArenaTeam.captain = recognizer;
-        },
-      ),
+            () => ScaleGestureRecognizer(debugOwner: this),
+            (recognizer) {
+              recognizer
+                ..onStart = _handleScaleStart
+                ..onUpdate = _handleScaleUpdate
+                ..onEnd = _handleScaleEnd
+                ..team ??= _gestureArenaTeam;
+              _gestureArenaTeam.captain = recognizer;
+            },
+          ),
     };
   }
 
@@ -367,9 +380,12 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           onLongPress: _handleLongPress,
           onDoubleTap: _handleDoubleTap,
           doubleTapDelay:
-              InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)
-                  ? null
-                  : Duration.zero,
+              InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags) ||
+                  InteractiveFlag.hasDoubleTapDragZoom(
+                    _interactionOptions.flags,
+                  )
+              ? null
+              : Duration.zero,
           child: RawGestureDetector(
             gestures: _gestures,
             child: widget.builder(
@@ -384,6 +400,20 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   void _onPointerDown(PointerDownEvent event) {
+    if (_isDoubleTapDragDown(event)) {
+      _doubleTapDragPointer = event.pointer;
+      _doubleTapHoldMaxDelay?.cancel();
+      _positionedTapController.onTapDown(
+        TapDownDetails(
+          globalPosition: event.position,
+          localPosition: event.localPosition,
+          kind: event.kind,
+        ),
+      );
+    } else {
+      _resetDoubleTapHold();
+      if (_pointerCounter > 0) _positionedTapController.onTapCancel();
+    }
     ++_pointerCounter;
     _lastPointerKind = event.kind;
 
@@ -401,6 +431,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _onPointerUp(PointerUpEvent event) {
     --_pointerCounter;
+    if (event.pointer == _doubleTapDragPointer) _resetDoubleTapHold();
 
     if (_interactionOptions.cursorKeyboardRotationOptions.setNorthOnClick &&
         _ckrTriggered.value &&
@@ -420,6 +451,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _onPointerCancel(PointerCancelEvent event) {
     --_pointerCounter;
+    _resetDoubleTapHold();
+    _positionedTapController.onTapCancel();
 
     if (_options.onPointerCancel != null) {
       final latlng = _camera.offsetToCrs(event.localPosition);
@@ -466,15 +499,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         pointerSignal.scrollDelta.dy != 0) {
       // Prevent scrolling of parent/child widgets simultaneously. See
       // [PointerSignalResolver] documentation for more information.
-      GestureBinding.instance.pointerSignalResolver.register(
+      GestureBinding.instance.pointerSignalResolver.register(pointerSignal, (
         pointerSignal,
-        (pointerSignal) {
-          _closeFlingAnimationController(MapEventSource.scrollWheel);
-          _closeDoubleTapController(MapEventSource.scrollWheel);
-          _scrollZoomHandler
-              .onPointerSignal(pointerSignal as PointerScrollEvent);
-        },
-      );
+      ) {
+        _closeFlingAnimationController(MapEventSource.scrollWheel);
+        _closeDoubleTapController(MapEventSource.scrollWheel);
+        _scrollZoomHandler.onPointerSignal(pointerSignal as PointerScrollEvent);
+      });
     }
   }
 
@@ -500,7 +531,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     final size = MediaQuery.sizeOf(context);
     return (-math.atan2(
-                offset.dx - size.width / 2, offset.dy - size.height / 2) *
+              offset.dx - size.width / 2,
+              offset.dy - size.height / 2,
+            ) *
             (180 / math.pi)) +
         correctionTerm;
   }
@@ -540,8 +573,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     _mapZoomStart = _camera.zoom;
     _mapCenterStart = _camera.center;
-    _focalStartLocal =
-        _lastFocalLocal = _prevFocalLocal = details.localFocalPoint;
+    _focalStartLocal = _lastFocalLocal = _prevFocalLocal =
+        details.localFocalPoint;
     _focalStartLatLng = _camera.offsetToCrs(_focalStartLocal);
 
     _dragStarted = false;
@@ -555,7 +588,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   void _handleScaleUpdate(ScaleUpdateDetails details) {
-    if (_tapUpCounter == 1) {
+    if (_doubleTapDragPointer != null && _pointerCounter == 1) {
       _handleDoubleTapHold(details);
       return;
     }
@@ -621,10 +654,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
       final hasPinchZoom =
           InteractiveFlag.hasPinchZoom(_interactionOptions.flags) &&
-              MultiFingerGesture.hasPinchZoom(gestures);
+          MultiFingerGesture.hasPinchZoom(gestures);
       final hasPinchMove =
           InteractiveFlag.hasPinchMove(_interactionOptions.flags) &&
-              MultiFingerGesture.hasPinchMove(gestures);
+          MultiFingerGesture.hasPinchMove(gestures);
       if (hasPinchZoom || hasPinchMove) {
         _handleScalePinchZoomAndMove(details, hasPinchZoom, hasPinchMove);
       }
@@ -692,14 +725,22 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     ScaleUpdateDetails details,
     double zoomAfterPinchZoom,
   ) {
-    final oldCenterPt =
-        _camera.projectAtZoom(_camera.center, zoomAfterPinchZoom);
-    final newFocalLatLong =
-        _camera.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
-    final newFocalPt =
-        _camera.projectAtZoom(newFocalLatLong, zoomAfterPinchZoom);
-    final oldFocalPt =
-        _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
+    final oldCenterPt = _camera.projectAtZoom(
+      _camera.center,
+      zoomAfterPinchZoom,
+    );
+    final newFocalLatLong = _camera.offsetToCrs(
+      _focalStartLocal,
+      zoomAfterPinchZoom,
+    );
+    final newFocalPt = _camera.projectAtZoom(
+      newFocalLatLong,
+      zoomAfterPinchZoom,
+    );
+    final oldFocalPt = _camera.projectAtZoom(
+      _focalStartLatLng,
+      zoomAfterPinchZoom,
+    );
     final zoomDifference = oldFocalPt - newFocalPt;
     final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
@@ -721,8 +762,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     if (_rotationStarted) {
       final rotationDiff = currentRotation - _lastRotation;
       final oldCenterPt = _camera.projectAtZoom(_camera.center);
-      final rotationCenter =
-          _camera.projectAtZoom(_camera.offsetToCrs(_lastFocalLocal));
+      final rotationCenter = _camera.projectAtZoom(
+        _camera.offsetToCrs(_lastFocalLocal),
+      );
       final vector = oldCenterPt - rotationCenter;
       final rotatedVector = vector.rotate(degrees2Radians * rotationDiff);
       final newCenter = rotationCenter + rotatedVector;
@@ -774,8 +816,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   void _handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
 
-    final eventSource =
-        _dragMode ? MapEventSource.dragEnd : MapEventSource.multiFingerEnd;
+    final eventSource = _dragMode
+        ? MapEventSource.dragEnd
+        : MapEventSource.multiFingerEnd;
 
     if (_rotationStarted) {
       _rotationStarted = false;
@@ -790,8 +833,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     // Prevent pan fling if rotation via keyboard/pointer is in progress
     if (_ckrTriggered.value) return;
 
-    final hasFling =
-        InteractiveFlag.hasFlingAnimation(_interactionOptions.flags);
+    final hasFling = InteractiveFlag.hasFlingAnimation(
+      _interactionOptions.flags,
+    );
 
     final magnitude = details.velocity.pixelsPerSecond.distance;
     if (magnitude < _kMinFlingVelocity || !hasFling) {
@@ -832,12 +876,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     _flingController
       ..value = 0.0
       ..fling(
-          velocity: magnitude / 1000.0,
-          springDescription: SpringDescription.withDampingRatio(
-            mass: 1,
-            stiffness: 1000,
-            ratio: _interactionOptions.flingAnimationDampingRatio,
-          ));
+        velocity: magnitude / 1000.0,
+        springDescription: SpringDescription.withDampingRatio(
+          mass: 1,
+          stiffness: 1000,
+          ratio: _interactionOptions.flingAnimationDampingRatio,
+        ),
+      );
   }
 
   /// Calculates the direction a fling gesture should continue in.
@@ -983,13 +1028,24 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
   }
 
+  // Both the recognizer's admission and the raw listener consult this before
+  // the pointer counter changes. TapGestureRecognizer.onTapDown can arrive
+  // after the inter-tap deadline, so it cannot own this transition.
+  bool _isDoubleTapDragDown(PointerDownEvent event) =>
+      InteractiveFlag.hasDoubleTapDragZoom(_interactionOptions.flags) &&
+      _pointerCounter == 0 &&
+      _tapUpCounter == 1 &&
+      (_doubleTapHoldMaxDelay?.isActive ?? false) &&
+      _positionedTapController.isDoubleTapDown(event);
+
   void _handleDoubleTapHold(ScaleUpdateDetails details) {
     _doubleTapHoldMaxDelay?.cancel();
 
     final flags = _interactionOptions.flags;
     if (InteractiveFlag.hasDoubleTapDragZoom(flags)) {
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
-      final newZoom = _mapZoomStart -
+      final newZoom =
+          _mapZoomStart -
           _interactionOptions.doubleTapDragZoomChangeCalculator(
             verticalOffset,
             _camera,
@@ -1015,7 +1071,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _startListeningForAnimationInterruptions();
     }
 
-    final newCenterPoint = _camera.projectAtZoom(_mapCenterStart) +
+    final newCenterPoint =
+        _camera.projectAtZoom(_mapCenterStart) +
         _flingAnimation.value.rotate(_camera.rotationRad);
     final LatLng newCenter;
     if (!_camera.crs.replicatesWorldLongitude) {
@@ -1024,11 +1081,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       final Offset bestCenterPoint;
       final double worldSize = _camera.crs.scale(_camera.zoom);
       if (newCenterPoint.dx > worldSize) {
-        bestCenterPoint =
-            Offset(newCenterPoint.dx - worldSize, newCenterPoint.dy);
+        bestCenterPoint = Offset(
+          newCenterPoint.dx - worldSize,
+          newCenterPoint.dy,
+        );
       } else if (newCenterPoint.dx < 0) {
-        bestCenterPoint =
-            Offset(newCenterPoint.dx + worldSize, newCenterPoint.dy);
+        bestCenterPoint = Offset(
+          newCenterPoint.dx + worldSize,
+          newCenterPoint.dy,
+        );
       } else {
         bestCenterPoint = newCenterPoint;
       }
@@ -1046,6 +1107,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   void _resetDoubleTapHold() {
     _doubleTapHoldMaxDelay?.cancel();
     _tapUpCounter = 0;
+    _doubleTapDragPointer = null;
   }
 
   void _flingAnimationStatusListener(AnimationStatus status) {
@@ -1079,14 +1141,22 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         _keyboardPanAnimationMaxVelocityCalculator(_camera.zoom);
     _keyboardPanAnimationManager = _generateKeyboardAnimationManager(
       maxVelocities: {
-        PhysicalKeyboardKey.arrowUp:
-            Offset(0, -_keyboardPanAnimationMaxVelocity),
-        PhysicalKeyboardKey.arrowDown:
-            Offset(0, _keyboardPanAnimationMaxVelocity),
-        PhysicalKeyboardKey.arrowLeft:
-            Offset(-_keyboardPanAnimationMaxVelocity, 0),
-        PhysicalKeyboardKey.arrowRight:
-            Offset(_keyboardPanAnimationMaxVelocity, 0),
+        PhysicalKeyboardKey.arrowUp: Offset(
+          0,
+          -_keyboardPanAnimationMaxVelocity,
+        ),
+        PhysicalKeyboardKey.arrowDown: Offset(
+          0,
+          _keyboardPanAnimationMaxVelocity,
+        ),
+        PhysicalKeyboardKey.arrowLeft: Offset(
+          -_keyboardPanAnimationMaxVelocity,
+          0,
+        ),
+        PhysicalKeyboardKey.arrowRight: Offset(
+          _keyboardPanAnimationMaxVelocity,
+          0,
+        ),
       },
       zero: Offset.zero,
     );
@@ -1111,8 +1181,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       zero: 0,
     );
 
-    _keyboardListenersDisposal =
-        _keyboardAnimationsHandler().toList(growable: false);
+    _keyboardListenersDisposal = _keyboardAnimationsHandler().toList(
+      growable: false,
+    );
   }
 
   void _disposeKeyboardAnimations() {
@@ -1168,27 +1239,28 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     late final panCurve =
         _keyboardPanAnimationManager[switch (evt.physicalKey) {
-      PhysicalKeyboardKey.keyW when keyboardOptions.enableWASDPanning =>
-        PhysicalKeyboardKey.arrowUp,
-      PhysicalKeyboardKey.keyA when keyboardOptions.enableWASDPanning =>
-        PhysicalKeyboardKey.arrowLeft,
-      PhysicalKeyboardKey.keyS when keyboardOptions.enableWASDPanning =>
-        PhysicalKeyboardKey.arrowDown,
-      PhysicalKeyboardKey.keyD when keyboardOptions.enableWASDPanning =>
-        PhysicalKeyboardKey.arrowRight,
-      PhysicalKeyboardKey.arrowUp when keyboardOptions.enableArrowKeysPanning =>
-        PhysicalKeyboardKey.arrowUp,
-      PhysicalKeyboardKey.arrowLeft
-          when keyboardOptions.enableArrowKeysPanning =>
-        PhysicalKeyboardKey.arrowLeft,
-      PhysicalKeyboardKey.arrowDown
-          when keyboardOptions.enableArrowKeysPanning =>
-        PhysicalKeyboardKey.arrowDown,
-      PhysicalKeyboardKey.arrowRight
-          when keyboardOptions.enableArrowKeysPanning =>
-        PhysicalKeyboardKey.arrowRight,
-      _ => null,
-    }]
+              PhysicalKeyboardKey.keyW when keyboardOptions.enableWASDPanning =>
+                PhysicalKeyboardKey.arrowUp,
+              PhysicalKeyboardKey.keyA when keyboardOptions.enableWASDPanning =>
+                PhysicalKeyboardKey.arrowLeft,
+              PhysicalKeyboardKey.keyS when keyboardOptions.enableWASDPanning =>
+                PhysicalKeyboardKey.arrowDown,
+              PhysicalKeyboardKey.keyD when keyboardOptions.enableWASDPanning =>
+                PhysicalKeyboardKey.arrowRight,
+              PhysicalKeyboardKey.arrowUp
+                  when keyboardOptions.enableArrowKeysPanning =>
+                PhysicalKeyboardKey.arrowUp,
+              PhysicalKeyboardKey.arrowLeft
+                  when keyboardOptions.enableArrowKeysPanning =>
+                PhysicalKeyboardKey.arrowLeft,
+              PhysicalKeyboardKey.arrowDown
+                  when keyboardOptions.enableArrowKeysPanning =>
+                PhysicalKeyboardKey.arrowDown,
+              PhysicalKeyboardKey.arrowRight
+                  when keyboardOptions.enableArrowKeysPanning =>
+                PhysicalKeyboardKey.arrowRight,
+              _ => null,
+            }]
             ?.curveController;
     if (panCurve != null) {
       if (evt is KeyDownEvent) {
@@ -1257,7 +1329,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       required Animation<T> Function(Animation<T> a, Animation<T> b) sum,
       required void Function(T value) onTick,
     }) {
-      final animation = manager.values.skip(1).fold<Animation<T>>(
+      final animation = manager.values
+          .skip(1)
+          .fold<Animation<T>>(
             _InfiniteAnimation(
               manager.values.first.repeatAnimation,
               manager.values.first.curveAnimation,
@@ -1287,7 +1361,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         if (value.distanceSquared >
             _keyboardPanAnimationMaxVelocity *
                 _keyboardPanAnimationMaxVelocity) {
-          correctedOffset = (value / value.distance) *
+          correctedOffset =
+              (value / value.distance) *
               (_keyboardPanAnimationMaxVelocity / math.sqrt(2));
         }
 
@@ -1345,55 +1420,58 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   _KeyboardAnimationManager<T> _generateKeyboardAnimationManager<T>({
     required Map<PhysicalKeyboardKey, T> maxVelocities,
     required T zero,
-  }) =>
-      Map.fromIterables(
-        maxVelocities.keys,
-        maxVelocities.values.map((end) {
-          final repeat = AnimationController(
-            vsync: this,
-            // We indefinitely repeat this animation, so the duration does not
-            // really matter
-            duration: const Duration(seconds: 1),
-          );
-          final curve = AnimationController(
+  }) => Map.fromIterables(
+    maxVelocities.keys,
+    maxVelocities.values.map((end) {
+      final repeat = AnimationController(
+        vsync: this,
+        // We indefinitely repeat this animation, so the duration does not
+        // really matter
+        duration: const Duration(seconds: 1),
+      );
+      final curve =
+          AnimationController(
             vsync: this,
             duration: _options
-                .interactionOptions.keyboardOptions.animationCurveDuration,
-            reverseDuration: _options.interactionOptions.keyboardOptions
+                .interactionOptions
+                .keyboardOptions
+                .animationCurveDuration,
+            reverseDuration: _options
+                .interactionOptions
+                .keyboardOptions
                 .animationCurveReverseDuration,
           )..addStatusListener((status) {
-              // It's safe to add a listener here, because it is auto disposed
-              // when we dispose the animation controller
-              if (status.isAnimating) repeat.stop();
-              if (status.isCompleted) repeat.repeat();
-            });
+            // It's safe to add a listener here, because it is auto disposed
+            // when we dispose the animation controller
+            if (status.isAnimating) repeat.stop();
+            if (status.isCompleted) repeat.repeat();
+          });
 
-          // We use a `Tween` here as it allows dynamically changing the `end`,
-          // which will cause it to animate to the new `end` implicitly
-          final repeatTween = Tween<T>(begin: end, end: end);
-          final curveTween = Tween<T>(begin: zero, end: end);
+      // We use a `Tween` here as it allows dynamically changing the `end`,
+      // which will cause it to animate to the new `end` implicitly
+      final repeatTween = Tween<T>(begin: end, end: end);
+      final curveTween = Tween<T>(begin: zero, end: end);
 
-          return (
-            repeatController: repeat,
-            curveController: curve,
-            // We expose the tweens so that they can theoretically be dynamically
-            // updated which will implicitly cause them to animate to the new
-            // value - we only actually do this for the pan animation (on zoom
-            // change)
-            repeatTween: repeatTween,
-            curveTween: curveTween,
-            repeatAnimation: repeatTween.animate(repeat),
-            curveAnimation: curveTween
-                .chain(
-                  CurveTween(
-                    curve:
-                        _interactionOptions.keyboardOptions.animationCurveCurve,
-                  ),
-                )
-                .animate(curve),
-          );
-        }),
+      return (
+        repeatController: repeat,
+        curveController: curve,
+        // We expose the tweens so that they can theoretically be dynamically
+        // updated which will implicitly cause them to animate to the new
+        // value - we only actually do this for the pan animation (on zoom
+        // change)
+        repeatTween: repeatTween,
+        curveTween: curveTween,
+        repeatAnimation: repeatTween.animate(repeat),
+        curveAnimation: curveTween
+            .chain(
+              CurveTween(
+                curve: _interactionOptions.keyboardOptions.animationCurveCurve,
+              ),
+            )
+            .animate(curve),
       );
+    }),
+  );
 
   void _updateKeyboardPanAnimationZoomLevel() {
     if (_keyboardPanAnimationPrevZoom != _camera.zoom) {
@@ -1428,8 +1506,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   // Utilities
 
   double _getZoomForScale(double startZoom, double scale) {
-    final resultZoom =
-        scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
+    final resultZoom = scale == 1.0
+        ? startZoom
+        : startZoom + math.log(scale) / math.ln2;
     return _camera.clampZoom(resultZoom);
   }
 
@@ -1446,4 +1525,20 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     return offset;
   }
+}
+
+// A valid second press belongs to double-tap drag even if held past the normal
+// long-press timeout. Reject it before this recognizer enters its arena; simply
+// ignoring onLongPress would leave the scale recognizer defeated after 500ms.
+class _MapLongPressGestureRecognizer extends LongPressGestureRecognizer {
+  _MapLongPressGestureRecognizer({
+    super.debugOwner,
+    required this.isDoubleTapDrag,
+  });
+
+  final bool Function(PointerDownEvent) isDoubleTapDrag;
+
+  @override
+  bool isPointerAllowed(PointerDownEvent event) =>
+      !isDoubleTapDrag(event) && super.isPointerAllowed(event);
 }

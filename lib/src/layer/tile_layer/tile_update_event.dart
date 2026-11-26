@@ -43,10 +43,8 @@ class TileUpdateEvent {
 
   /// Returns a copy of this TileUpdateEvent with only pruning enabled and the
   /// loadCenterOverride/loadZoomOverride removed.
-  TileUpdateEvent pruneOnly() => TileUpdateEvent(
-        mapEvent: mapEvent,
-        load: false,
-      );
+  TileUpdateEvent pruneOnly() =>
+      TileUpdateEvent(mapEvent: mapEvent, load: false);
 
   /// Returns a copy of this TileUpdateEvent with only loading enabled. The
   /// loading center/zoom can be overriden with [loadCenterOverride] and
@@ -55,13 +53,12 @@ class TileUpdateEvent {
   TileUpdateEvent loadOnly({
     LatLng? loadCenterOverride,
     double? loadZoomOverride,
-  }) =>
-      TileUpdateEvent(
-        mapEvent: mapEvent,
-        prune: false,
-        loadCenterOverride: loadCenterOverride,
-        loadZoomOverride: loadZoomOverride,
-      );
+  }) => TileUpdateEvent(
+    mapEvent: mapEvent,
+    prune: false,
+    loadCenterOverride: loadCenterOverride,
+    loadZoomOverride: loadZoomOverride,
+  );
 
   /// Returns a copy of this TileUpdateEvent with loading and pruning enabled.
   /// The loading center/zoom can be overriden with [loadCenterOverride] and
@@ -70,12 +67,11 @@ class TileUpdateEvent {
   TileUpdateEvent loadAndPrune({
     LatLng? loadCenterOverride,
     double? loadZoomOverride,
-  }) =>
-      TileUpdateEvent(
-        mapEvent: mapEvent,
-        loadCenterOverride: loadCenterOverride,
-        loadZoomOverride: loadZoomOverride,
-      );
+  }) => TileUpdateEvent(
+    mapEvent: mapEvent,
+    loadCenterOverride: loadCenterOverride,
+    loadZoomOverride: loadZoomOverride,
+  );
 
   /// Checks if the [MapEvent] has been caused by a tap.
   bool wasTriggeredByTap() =>

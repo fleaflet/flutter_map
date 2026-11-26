@@ -69,8 +69,14 @@ class _PolylinePainter<R extends Object> extends CustomPainter
         final o1 = offsets[i];
         final o2 = offsets[i + 1];
 
-        final distanceSq =
-            getSqSegDist(point.dx, point.dy, o1.dx, o1.dy, o2.dx, o2.dy);
+        final distanceSq = getSqSegDist(
+          point.dx,
+          point.dy,
+          o1.dx,
+          o1.dy,
+          o2.dx,
+          o2.dy,
+        );
 
         if (distanceSq <= hittableDistance * hittableDistance) {
           return WorldWorkControl.hit;
@@ -173,7 +179,8 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           drawPaths();
         }
         lastHash = hash;
-        needsLayerSaving = polyline.color.a < 1 ||
+        needsLayerSaving =
+            polyline.color.a < 1 ||
             (polyline.gradientColors?.any((c) => c.a < 1) ?? false);
 
         // strokeWidth, or strokeWidth + borderWidth if relevant.
@@ -257,7 +264,8 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           for (final visibleDot in hiker.getAllVisibleDots()) {
             for (int i = 0; i < paths.length; i++) {
               paths[i].addOval(
-                  Rect.fromCircle(center: visibleDot, radius: radii[i]));
+                Rect.fromCircle(center: visibleDot, radius: radii[i]),
+              );
             }
           }
         } else if (isDashed) {
@@ -477,21 +485,27 @@ class _PolylinePainter<R extends Object> extends CustomPainter
   }
 
   ui.Gradient _paintGradient(Polyline polyline, List<Offset> offsets) =>
-      ui.Gradient.linear(offsets.first, offsets.last, polyline.gradientColors!,
-          _getColorsStop(polyline));
+      ui.Gradient.linear(
+        offsets.first,
+        offsets.last,
+        polyline.gradientColors!,
+        _getColorsStop(polyline),
+      );
 
   List<double>? _getColorsStop(Polyline polyline) =>
       (polyline.colorsStop != null &&
-              polyline.colorsStop!.length == polyline.gradientColors!.length)
-          ? polyline.colorsStop
-          : _calculateColorsStop(polyline);
+          polyline.colorsStop!.length == polyline.gradientColors!.length)
+      ? polyline.colorsStop
+      : _calculateColorsStop(polyline);
 
   List<double> _calculateColorsStop(Polyline polyline) {
     final colorsStopInterval = 1.0 / polyline.gradientColors!.length;
     return polyline.gradientColors!
-        .map((gradientColor) =>
-            polyline.gradientColors!.indexOf(gradientColor) *
-            colorsStopInterval)
+        .map(
+          (gradientColor) =>
+              polyline.gradientColors!.indexOf(gradientColor) *
+              colorsStopInterval,
+        )
         .toList();
   }
 

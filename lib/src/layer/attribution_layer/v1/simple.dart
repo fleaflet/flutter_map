@@ -2,14 +2,16 @@ import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-/// DEPRECATED: Use [SimpleAttributionLayer] instead.
-///
-/// The new layer looks very similar to this widget, but does not prefix any
-/// text by default and is more flexible. It also does not use Material theming,
-/// and may require its background color to be set if the map background is not
-/// the intended color.
-///
-/// ---
+/// > [!WARNING]
+/// > ### DEPRECATED
+/// > **Use [SimpleAttributionLayer] instead. This widget will be removed when
+/// > flutter_map removes its dependency on Material in a future breaking
+/// > release.**
+/// >
+/// > The new layer looks very similar to this widget, but does not prefix any
+/// > text by default, is more flexible, and free from Material theming.
+/// >
+/// > To migrate, check the online documentation.
 ///
 /// A simple, classic style, attribution layer
 ///
@@ -21,11 +23,10 @@ import 'package:flutter_map/flutter_map.dart';
 ///  * [RichAttributionWidget], which is dynamic, supports more customization,
 ///    and has a more complex appearance.
 @Deprecated('''Use `SimpleAttributionLayer` instead.
-The new layer looks very similar to this widget, but does not prefix any text by
-default and is more flexible. It also does not use Material theming, and may
-require its background color to be set if the map background is not the intended
-color. This widget will be removed when flutter_map removes its dependency on
-Material in a future breaking release.
+See documentation on `SimpleAttributionWidget`, and online documentation,
+for more information.
+This widget will be removed when flutter_map removes its dependency on Material
+in a future breaking release.
 ''')
 class SimpleAttributionWidget extends StatelessWidget {
   /// Attribution text, such as 'OpenStreetMap contributors'
@@ -55,29 +56,29 @@ class SimpleAttributionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SafeArea(
-        child: Align(
-          alignment: alignment,
-          child: ColoredBox(
-            color: backgroundColor ?? Theme.of(context).colorScheme.surface,
-            child: GestureDetector(
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.all(3),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('flutter_map | © '),
-                    MouseRegion(
-                      cursor: onTap == null
-                          ? MouseCursor.defer
-                          : SystemMouseCursors.click,
-                      child: source,
-                    ),
-                  ],
+    child: Align(
+      alignment: alignment,
+      child: ColoredBox(
+        color: backgroundColor ?? Theme.of(context).colorScheme.surface,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(3),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('flutter_map | © '),
+                MouseRegion(
+                  cursor: onTap == null
+                      ? MouseCursor.defer
+                      : SystemMouseCursors.click,
+                  child: source,
                 ),
-              ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 }

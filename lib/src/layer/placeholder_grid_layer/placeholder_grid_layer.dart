@@ -35,14 +35,17 @@ class PlaceholderGridLayer extends StatelessWidget {
         final hsl = HSLColor.fromColor(color);
         return hsl
             .withLightness(
-              ((hsl.lightness > 0.5 ? -delta : delta) + hsl.lightness)
-                  .clamp(0, 1),
+              ((hsl.lightness > 0.5 ? -delta : delta) + hsl.lightness).clamp(
+                0,
+                1,
+              ),
             )
             .toColor();
       }
     }();
     final static = gridOptions.static || camera == null;
-    final spacing = gridOptions.spacing *
+    final spacing =
+        gridOptions.spacing *
         (static
             ? 1
             : camera.getZoomScale(camera.zoom, camera.zoom.floorToDouble()));
@@ -115,32 +118,32 @@ class PlaceholderGridOptions {
     this.majorStrokeWidth = 1.5,
     this.minorStrokeWidth = 0,
     this.numOfMinors = 3,
-  })  : assert(
-          spacing >= 1 && spacing < double.infinity,
-          '`spacing` must be equal to or greater than one, and finite',
-        ),
-        assert(
-          majorStrokeWidth >= 0,
-          '`majorStrokeWidth` must be equal to or greater than zero',
-        ),
-        assert(
-          minorStrokeWidth >= 0,
-          '`minorStrokeWidth` must be equal to or greater than zero',
-        ),
-        assert(
-          numOfMinors >= 0,
-          '`numOfMinors` must be equal to or greater than zero',
-        );
+  }) : assert(
+         spacing >= 1 && spacing < double.infinity,
+         '`spacing` must be equal to or greater than one, and finite',
+       ),
+       assert(
+         majorStrokeWidth >= 0,
+         '`majorStrokeWidth` must be equal to or greater than zero',
+       ),
+       assert(
+         minorStrokeWidth >= 0,
+         '`minorStrokeWidth` must be equal to or greater than zero',
+       ),
+       assert(
+         numOfMinors >= 0,
+         '`numOfMinors` must be equal to or greater than zero',
+       );
 
   @override
   int get hashCode => Object.hash(
-        color,
-        spacing,
-        static,
-        majorStrokeWidth,
-        minorStrokeWidth,
-        numOfMinors,
-      );
+    color,
+    spacing,
+    static,
+    majorStrokeWidth,
+    minorStrokeWidth,
+    numOfMinors,
+  );
 
   @override
   bool operator ==(Object other) =>

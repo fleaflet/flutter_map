@@ -26,26 +26,22 @@ abstract class CameraConstraint {
   ///
   /// Areas outside of [bounds] are likely to be visible. To instead constrain
   /// by the edges of the camera, use [CameraConstraint.contain].
-  const factory CameraConstraint.containCenter({
-    required LatLngBounds bounds,
-  }) = ContainCameraCenter._;
+  const factory CameraConstraint.containCenter({required LatLngBounds bounds}) =
+      ContainCameraCenter._;
 
   /// Constrains the edges of the camera to within [bounds]
   ///
   /// To instead constrain the center coordinate of the camera to these bounds,
   /// use [CameraConstraint.containCenter].
-  const factory CameraConstraint.contain({
-    required LatLngBounds bounds,
-  }) = ContainCamera._;
+  const factory CameraConstraint.contain({required LatLngBounds bounds}) =
+      ContainCamera._;
 
   /// Constrains the edges of the camera to within latitudes [a] and [b]
   ///
   /// Defaults to 90 & -90, to prevent the background color from appearing
   /// at the 'top' and 'bottom' of the typical map.
-  const factory CameraConstraint.containLatitude([
-    double a,
-    double b,
-  ]) = ContainCameraLatitude._;
+  const factory CameraConstraint.containLatitude([double a, double b]) =
+      ContainCameraLatitude._;
 
   /// Create a new constrained camera based off the current [camera]
   ///
@@ -80,17 +76,11 @@ class ContainCameraCenter extends CameraConstraint {
 
   @override
   MapCamera constrain(MapCamera camera) => camera.withPosition(
-        center: LatLng(
-          camera.center.latitude.clamp(
-            bounds.south,
-            bounds.north,
-          ),
-          camera.center.longitude.clamp(
-            bounds.west,
-            bounds.east,
-          ),
-        ),
-      );
+    center: LatLng(
+      camera.center.latitude.clamp(bounds.south, bounds.north),
+      camera.center.longitude.clamp(bounds.west, bounds.east),
+    ),
+  );
 
   @override
   bool operator ==(Object other) {
@@ -163,10 +153,7 @@ class ContainCamera extends CameraConstraint {
 /// See [CameraConstraint] for more information.
 @immutable
 class ContainCameraLatitude extends CameraConstraint {
-  const ContainCameraLatitude._([
-    this.a = 90,
-    this.b = -90,
-  ]);
+  const ContainCameraLatitude._([this.a = 90, this.b = -90]);
 
   /// One edge latitude
   ///

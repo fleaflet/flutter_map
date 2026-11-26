@@ -34,7 +34,8 @@ class _AbortUnnecessaryRequestsPage extends State<AbortObsoleteRequestsPage> {
             ),
           ),
           const NoticeBanner.recommendation(
-            text: 'Since v8.2.0, in-flight HTTP requests for tiles which are '
+            text:
+                'Since v8.2.0, in-flight HTTP requests for tiles which are '
                 'no longer displayed are aborted by default.',
             url: 'https://docs.fleaflet.dev/layers/tile-layer/tile-providers',
             sizeTransition: 870,

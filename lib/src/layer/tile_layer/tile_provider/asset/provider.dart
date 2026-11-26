@@ -36,8 +36,10 @@ class _FlutterMapAssetBundle extends CachingAssetBundle {
 
   Future<ByteData?> _loadAsset(String key) async {
     final encoded = utf8.encoder.convert(Uri(path: Uri.encodeFull(key)).path);
-    final asset = await ServicesBinding.instance.defaultBinaryMessenger
-        .send('flutter/assets', encoded.buffer.asByteData());
+    final asset = await ServicesBinding.instance.defaultBinaryMessenger.send(
+      'flutter/assets',
+      encoded.buffer.asByteData(),
+    );
     return asset;
   }
 

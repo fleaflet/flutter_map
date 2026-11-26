@@ -7,6 +7,9 @@ import 'package:meta/meta.dart';
 /// [RichAttributionWidget]
 ///
 /// Extended by [TextSourceAttribution] & [LogoSourceAttribution].
+@Deprecated(
+  '`RichAttributionLayer`, as the sole user of this type, is deprecated',
+)
 @immutable
 sealed class SourceAttribution extends StatelessWidget {
   const SourceAttribution._({super.key, this.onTap});
@@ -38,12 +41,16 @@ sealed class SourceAttribution extends StatelessWidget {
 
 /// A simple text attribution displayed in the popup box of a
 /// [RichAttributionWidget]
+@Deprecated(
+  '`RichAttributionLayer`, as the sole user of this type, is deprecated',
+)
 @immutable
 class TextSourceAttribution extends SourceAttribution {
   /// Default style used to display the [text], only when
   /// [SourceAttribution.onTap] is not `null`
-  static const defaultLinkTextStyle =
-      TextStyle(decoration: TextDecoration.underline);
+  static const defaultLinkTextStyle = TextStyle(
+    decoration: TextDecoration.underline,
+  );
 
   /// The text to display as attribution, styled with [textStyle]
   final String text;
@@ -62,18 +69,19 @@ class TextSourceAttribution extends SourceAttribution {
     super.onTap,
     this.prependCopyright = true,
     TextStyle? textStyle,
-  })  : textStyle = textStyle ?? (onTap == null ? null : defaultLinkTextStyle),
-        super._();
+  }) : textStyle = textStyle ?? (onTap == null ? null : defaultLinkTextStyle),
+       super._();
 
   @override
-  Widget _render(BuildContext context) => Text(
-        '${prependCopyright ? '© ' : ''}$text',
-        style: textStyle,
-      );
+  Widget _render(BuildContext context) =>
+      Text('${prependCopyright ? '© ' : ''}$text', style: textStyle);
 }
 
 /// An image attribution permanently displayed adjacent to the open/close icon of
 /// a [RichAttributionWidget]
+@Deprecated(
+  '`RichAttributionLayer`, as the sole user of this type, is deprecated',
+)
 @immutable
 class LogoSourceAttribution extends SourceAttribution {
   /// The logo to display as attribution, usually an [Image.asset] or

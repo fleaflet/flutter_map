@@ -22,8 +22,8 @@ platforms:
   windows:
 
 environment:
-  sdk: ">=3.6.0 <4.0.0"
-  flutter: ">=3.27.0"
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.41.0"
 
 dependencies:
   async: ^2.11.0
@@ -49,4 +49,8 @@ dev_dependencies:
 
 flutter:
   assets:
-    - lib/assets/flutter_map_logo.png
+    - lib/assets/
+  fonts:
+    - family: AttributionLayerInfoIcons
+      fonts:
+        - asset: lib/assets/fonts/icons/AttributionLayerInfoIcons.ttf

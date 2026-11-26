@@ -57,7 +57,6 @@ import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
-import 'package:flutter_map/src/misc/position.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 
 void main() {}

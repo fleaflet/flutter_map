@@ -75,7 +75,11 @@ class _DebouncingTileUpdateTransformerPageState
                     ),
                     child: Padding(
                       padding: const EdgeInsets.only(
-                          left: 16, right: 8, top: 4, bottom: 4),
+                        left: 16,
+                        right: 8,
+                        top: 4,
+                        bottom: 4,
+                      ),
                       child: Row(
                         children: [
                           const Tooltip(
@@ -101,7 +105,7 @@ class _DebouncingTileUpdateTransformerPageState
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),

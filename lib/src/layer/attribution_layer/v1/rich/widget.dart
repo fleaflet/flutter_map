@@ -8,6 +8,9 @@ import 'package:flutter_map/flutter_map.dart';
 ///
 /// Reflects standard [Alignment] through [real], but limits to the only
 /// supported options.
+@Deprecated(
+  '`RichAttributionLayer`, as the sole user of this type, is deprecated',
+)
 enum AttributionAlignment {
   /// The bottom left corner
   bottomLeft(Alignment.bottomLeft),
@@ -26,6 +29,25 @@ enum AttributionAlignment {
 }
 
 /// {@template rich_attribution_widget}
+/// > [!WARNING]
+/// > ### DEPRECATED
+/// > **Use [ExpandableAttributionLayer] instead. This widget will be removed
+/// > when flutter_map removes its dependency on Material in a future breaking
+/// > release.**
+/// >
+/// > The new layer is similar to this widget, but is even more customisable,
+/// > has less complexity, and free from Material theming.
+/// >
+/// > However, it is not a direct replacement. The new design is slightly
+/// > different, and the API accepts widgets instead of [SourceAttribution]s.
+/// >
+/// > To migrate, check the online documentation. In general,
+/// > [TextSourceAttribution]s can be migrated to
+/// > [ExpandableAttributionLayer.expandedBuilder] using custom [Text.rich]
+/// > (see the example on that property), and [LogoSourceAttribution]s can be
+/// > migrated to [ExpandableAttributionLayer.adjacentPersistentChild] or a
+/// > simple widget in the map layer stack.
+///
 /// A prebuilt dynamic attribution layer that supports both logos and text
 /// through [SourceAttribution]s
 ///
@@ -58,6 +80,12 @@ enum AttributionAlignment {
 ///  * [SimpleAttributionWidget], which is a simple, classicly styled, text-only
 ///    attribution layer
 /// {@endtemplate}
+@Deprecated('''Use `ExpandableAttributionLayer` instead.
+See documentation on `RichAttributionWidget`, and online documentation,
+for more information.
+This widget will be removed when flutter_map removes its dependency on Material
+in a future breaking release.
+''')
 @immutable
 class RichAttributionWidget extends StatefulWidget {
   /// List of attributions to display
@@ -142,12 +170,9 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
     super.initState();
 
     if (popupExpanded) {
-      Future.delayed(
-        widget.popupInitialDisplayDuration,
-        () {
-          if (mounted) setState(() => popupExpanded = false);
-        },
-      );
+      Future.delayed(widget.popupInitialDisplayDuration, () {
+        if (mounted) setState(() => popupExpanded = false);
+      });
     }
   }
 
@@ -180,39 +205,33 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
         duration: widget.animationConfig.buttonDuration,
         child: popupExpanded
             ? (widget.closeButton ??
-                (context, close) => IconButton(
-                      onPressed: close,
-                      icon: Icon(
-                        Icons.cancel_outlined,
-                        color: Theme.of(context).textTheme.titleSmall?.color ??
-                            Colors.black,
-                        size: widget.permanentHeight,
-                      ),
-                    ))(
-                context,
-                () => setState(() => popupExpanded = false),
-              )
+                  (context, close) => IconButton(
+                    onPressed: close,
+                    icon: Icon(
+                      Icons.cancel_outlined,
+                      color:
+                          Theme.of(context).textTheme.titleSmall?.color ??
+                          Colors.black,
+                      size: widget.permanentHeight,
+                    ),
+                  ))(context, () => setState(() => popupExpanded = false))
             : (widget.openButton ??
-                (context, open) => IconButton(
-                      onPressed: open,
-                      tooltip: 'Attributions',
-                      icon: Icon(
-                        Icons.info_outlined,
-                        color: Colors.black,
-                        size: widget.permanentHeight,
-                      ),
-                    ))(
-                context,
-                () {
-                  setState(() => popupExpanded = true);
-                  mapEventSubscription = MapController.of(context)
-                      .mapEventStream
-                      .listen((e) async {
-                    setState(() => popupExpanded = false);
-                    await mapEventSubscription?.cancel();
-                  });
-                },
-              ),
+                  (context, open) => IconButton(
+                    onPressed: open,
+                    tooltip: 'Attributions',
+                    icon: Icon(
+                      Icons.info_outlined,
+                      color: Colors.black,
+                      size: widget.permanentHeight,
+                    ),
+                  ))(context, () {
+                setState(() => popupExpanded = true);
+                mapEventSubscription = MapController.of(context).mapEventStream
+                    .listen((e) async {
+                      setState(() => popupExpanded = false);
+                      await mapEventSubscription?.cancel();
+                    });
+              }),
       ),
     ];
 
@@ -230,7 +249,8 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
                 config: widget,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: widget.popupBackgroundColor ??
+                    color:
+                        widget.popupBackgroundColor ??
                         Theme.of(context).colorScheme.surface,
                     border: Border.all(width: 0, style: BorderStyle.none),
                     borderRadius:
@@ -272,8 +292,8 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
                       mainAxisSize: MainAxisSize.min,
                       children:
                           widget.alignment == AttributionAlignment.bottomLeft
-                              ? persistentAttributionItems.reversed.toList()
-                              : persistentAttributionItems,
+                          ? persistentAttributionItems.reversed.toList()
+                          : persistentAttributionItems,
                     ),
                   ),
                 ),

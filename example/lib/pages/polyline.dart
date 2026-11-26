@@ -63,10 +63,7 @@ class _PolylinePageState extends State<PolylinePage> {
       ],
       strokeWidth: 8,
       color: const Color(0xFFFF0000),
-      hitValue: (
-        title: 'Red Line',
-        subtitle: 'Across the universe...',
-      ),
+      hitValue: (title: 'Red Line', subtitle: 'Across the universe...'),
     ),
     Polyline(
       points: [
@@ -150,15 +147,10 @@ class _PolylinePageState extends State<PolylinePage> {
       ],
       strokeWidth: 10,
       color: Colors.orange,
-      pattern: const StrokePattern.dotted(
-        spacingFactor: 3,
-      ),
+      pattern: const StrokePattern.dotted(spacingFactor: 3),
       borderStrokeWidth: 8,
       borderColor: Colors.blue.withAlpha(128),
-      hitValue: (
-        title: 'Orange line',
-        subtitle: 'Dotted pattern',
-      ),
+      hitValue: (title: 'Orange line', subtitle: 'Dotted pattern'),
     ),
     // Paris-Nice TGV
     Polyline(
@@ -184,18 +176,14 @@ class _PolylinePageState extends State<PolylinePage> {
       ],
       strokeWidth: 6,
       color: Colors.green[900]!,
-      pattern: StrokePattern.dashed(
-        segments: const [50, 20, 30, 20],
-      ),
+      pattern: StrokePattern.dashed(segments: const [50, 20, 30, 20]),
       borderStrokeWidth: 6,
-      hitValue: (
-        title: 'Green Line',
-        subtitle: 'Dashed line',
-      ),
+      hitValue: (title: 'Green Line', subtitle: 'Dashed line'),
     ),
   ];
-  late final _polylines =
-      Map.fromEntries(_polylinesRaw.map((e) => MapEntry(e.hitValue, e)));
+  late final _polylines = Map.fromEntries(
+    _polylinesRaw.map((e) => MapEntry(e.hitValue, e)),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -294,8 +282,8 @@ class _PolylinePageState extends State<PolylinePage> {
                     leading: index == 0
                         ? const Icon(Icons.vertical_align_top)
                         : index == tappedLines.length - 1
-                            ? const Icon(Icons.vertical_align_bottom)
-                            : const SizedBox.shrink(),
+                        ? const Icon(Icons.vertical_align_bottom)
+                        : const SizedBox.shrink(),
                     title: Text(tappedLineData.title),
                     subtitle: Text(tappedLineData.subtitle),
                     dense: true,

@@ -39,10 +39,7 @@ double getSqSegDist(
 /// Alternative algorithm to the Douglas Peucker simplification algorithm.
 ///
 /// Might actually be more expensive than DP, which is also better
-List<Offset> simplifyRadialDist(
-  List<Offset> points,
-  double sqTolerance,
-) {
+List<Offset> simplifyRadialDist(List<Offset> points, double sqTolerance) {
   Offset prevPoint = points[0];
   final List<Offset> newPoints = [prevPoint];
   late Offset point;
@@ -92,10 +89,7 @@ void _simplifyDPStep(
 }
 
 /// simplification using the Ramer-Douglas-Peucker algorithm
-List<Offset> simplifyDouglasPeucker(
-  List<Offset> points,
-  double sqTolerance,
-) {
+List<Offset> simplifyDouglasPeucker(List<Offset> points, double sqTolerance) {
   final int last = points.length - 1;
   final List<Offset> simplified = [points[0]];
   _simplifyDPStep(points, 0, last, sqTolerance, simplified);

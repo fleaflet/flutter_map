@@ -19,8 +19,10 @@ class EPSG3996Page extends StatefulWidget {
 class EPSG3996PageState extends State<EPSG3996Page> {
   late final Proj4Crs epsg3996CRS;
 
-  final distancePoleToLat80 =
-      const Distance().distance(const LatLng(90, 0), const LatLng(80, 0));
+  final distancePoleToLat80 = const Distance().distance(
+    const LatLng(90, 0),
+    const LatLng(80, 0),
+  );
 
   double? maxZoom;
 
@@ -51,7 +53,8 @@ class EPSG3996PageState extends State<EPSG3996Page> {
     // EPSG:3996 is a user-defined projection from a valid Proj4 definition string
     // From: http://epsg.io/3996, proj definition: http://epsg.io/3996.proj4
     // Find Projection by name or define it if not exists
-    final proj4.Projection epsg3996 = proj4.Projection.get('EPSG:3996') ??
+    final proj4.Projection epsg3996 =
+        proj4.Projection.get('EPSG:3996') ??
         proj4.Projection.add(
           'EPSG:3996',
           '+proj=stere +lat_0=90 +lat_ts=75 +lon_0=0 +x_0=0 +y_0=0 '
@@ -77,26 +80,30 @@ class EPSG3996PageState extends State<EPSG3996Page> {
         radius: 20000,
         useRadiusInMeter: true,
         color: Colors.yellow,
-      )
+      ),
     ];
     for (final lon in [-90.0, 0.0, 90.0, 180.0]) {
-      circles.add(CircleMarker(
-        point: LatLng(80, lon),
-        radius: 20000,
-        useRadiusInMeter: true,
-        color: Colors.red,
-      ));
+      circles.add(
+        CircleMarker(
+          point: LatLng(80, lon),
+          radius: 20000,
+          useRadiusInMeter: true,
+          color: Colors.red,
+        ),
+      );
     }
 
     // Add latitude line at 80 degrees
-    circles.add(CircleMarker(
-      point: const LatLng(90, 0),
-      radius: distancePoleToLat80,
-      useRadiusInMeter: true,
-      color: Colors.transparent,
-      borderColor: Colors.black,
-      borderStrokeWidth: 1,
-    ));
+    circles.add(
+      CircleMarker(
+        point: const LatLng(90, 0),
+        radius: distancePoleToLat80,
+        useRadiusInMeter: true,
+        color: Colors.transparent,
+        borderColor: Colors.black,
+        borderStrokeWidth: 1,
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('EPSG:3996 CRS')),
@@ -153,21 +160,19 @@ class EPSG3996PageState extends State<EPSG3996Page> {
                     ),
                   ),
                   CircleLayer(circles: circles),
-                  RichAttributionWidget(
-                    popupInitialDisplayDuration: const Duration(seconds: 5),
-                    attributions: [
-                      TextSourceAttribution(
-                        'Imagery reproduced from the GEBCO_2024 Grid, GEBCO '
-                        'Compilation Group (2024) GEBCO Compilation Group '
-                        '(2024) GEBCO 2024 Grid '
-                        '(doi:10.5285/1c44ce99-0a0d-5f4f-e063-7086abc0ea0f)',
-                        onTap: () => launchUrl(
-                          Uri.parse(
-                            'https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/#polar',
-                          ),
+                  SafeArea(
+                    child: SimpleAttributionLayer.singleLink(
+                      text:
+                          'Imagery reproduced from the GEBCO_2024 Grid, GEBCO '
+                          'Compilation Group (2024) GEBCO Compilation Group '
+                          '(2024) GEBCO 2024 Grid '
+                          '(doi:10.5285/1c44ce99-0a0d-5f4f-e063-7086abc0ea0f)',
+                      onTap: () => launchUrl(
+                        Uri.parse(
+                          'https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/#polar',
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),

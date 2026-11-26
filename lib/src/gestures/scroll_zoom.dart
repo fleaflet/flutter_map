@@ -34,12 +34,12 @@ class _UnitBezier {
   final double _ay;
 
   _UnitBezier(double p1x, double p1y, double p2x, double p2y)
-      : _cx = 3.0 * p1x,
-        _bx = 3.0 * (p2x - p1x) - 3.0 * p1x,
-        _ax = 1.0 + 3.0 * p1x - 3.0 * p2x,
-        _cy = 3.0 * p1y,
-        _by = 3.0 * (p2y - p1y) - 3.0 * p1y,
-        _ay = 1.0 + 3.0 * p1y - 3.0 * p2y;
+    : _cx = 3.0 * p1x,
+      _bx = 3.0 * (p2x - p1x) - 3.0 * p1x,
+      _ax = 1.0 + 3.0 * p1x - 3.0 * p2x,
+      _cy = 3.0 * p1y,
+      _by = 3.0 * (p2y - p1y) - 3.0 * p1y,
+      _ay = 1.0 + 3.0 * p1y - 3.0 * p2y;
 
   // `ax t^3 + bx t^2 + cx t` expanded using Horner's rule.
   double _sampleCurveX(double t) => ((_ax * t + _bx) * t + _cx) * t;
@@ -149,8 +149,8 @@ class ScrollZoomHandler {
   ScrollZoomHandler({
     required MapControllerImpl controller,
     required TickerProvider vsync,
-  })  : _controller = controller,
-        _vsync = vsync;
+  }) : _controller = controller,
+       _vsync = vsync;
 
   MapCamera get _camera => _controller.camera;
   MapOptions get _options => _controller.options;
@@ -203,10 +203,7 @@ class ScrollZoomHandler {
     final maxZoom = _options.maxZoom ?? double.infinity;
     final newZoom = (_camera.zoom - event.scrollDelta.dy * zoomOptions.zoomRate)
         .clamp(minZoom, maxZoom);
-    final newCenter = _camera.focusedZoomCenter(
-      event.localPosition,
-      newZoom,
-    );
+    final newCenter = _camera.focusedZoomCenter(event.localPosition, newZoom);
     _controller.moveRaw(
       newCenter,
       newZoom,
@@ -301,8 +298,8 @@ class ScrollZoomHandler {
       // rate
       final zoomRate =
           (_type == _ScrollType.wheel && _delta.abs() > _wheelZoomDelta)
-              ? zoomOptions.wheelZoomRate
-              : zoomOptions.trackpadZoomRate;
+          ? zoomOptions.wheelZoomRate
+          : zoomOptions.trackpadZoomRate;
 
       // Scale by sigmoid of scroll wheel delta so the map responds to small
       // scrolls and compresses large scrolls
@@ -322,8 +319,9 @@ class ScrollZoomHandler {
       // function we're using to smooth out the zooming between wheel events
       if (_type == _ScrollType.wheel) {
         _startZoom = _camera.zoom;
-        _easing =
-            _smoothOutEasing(zoomOptions.animationDuration.inMilliseconds);
+        _easing = _smoothOutEasing(
+          zoomOptions.animationDuration.inMilliseconds,
+        );
       }
 
       _delta = 0;
@@ -337,9 +335,10 @@ class ScrollZoomHandler {
       // Smooth interpolation for mouse wheel
       final timeSinceLastWheel =
           currentTimestamp().millisecondsSinceEpoch - _lastWheelEventTime;
-      final t = ((timeSinceLastWheel + _wheelEventTimeDiffAdjustment) /
-              zoomOptions.animationDuration.inMilliseconds)
-          .clamp(0.0, 1.0);
+      final t =
+          ((timeSinceLastWheel + _wheelEventTimeDiffAdjustment) /
+                  zoomOptions.animationDuration.inMilliseconds)
+              .clamp(0.0, 1.0);
       final k = _easing!(t);
       zoom = (1.0 - k) * _startZoom! + k * targetZoom;
       finished = t >= 1.0;
@@ -352,10 +351,7 @@ class ScrollZoomHandler {
     zoom = zoom.clamp(minZoom, maxZoom);
 
     if (zoom != _camera.zoom) {
-      final newCenter = _camera.focusedZoomCenter(
-        _cursorPosition,
-        zoom,
-      );
+      final newCenter = _camera.focusedZoomCenter(_cursorPosition, zoom);
       _controller.moveRaw(
         newCenter,
         zoom,
@@ -388,7 +384,8 @@ class ScrollZoomHandler {
       final currentTime = currentTimestamp().millisecondsSinceEpoch;
       final t = (currentTime - _prevEase!.start) / _prevEase!.duration;
       final prevEasing = _prevEase!.easing;
-      final speed = prevEasing((t + 0.01).clamp(0.0, 1.0)) -
+      final speed =
+          prevEasing((t + 0.01).clamp(0.0, 1.0)) -
           prevEasing(t.clamp(0.0, 1.0));
 
       // Quick hack to make new bezier that is continuous with last

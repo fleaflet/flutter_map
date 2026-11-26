@@ -16,8 +16,9 @@ List<Offset> _fingers(Offset c, double scale, double degrees) {
 }
 
 void main() {
-  testWidgets('a small rotation across ±180° does not win the gesture race',
-      (tester) async {
+  testWidgets('a small rotation across ±180° does not win the gesture race', (
+    tester,
+  ) async {
     final controller = MapController();
     await tester.pumpWidget(
       Directionality(

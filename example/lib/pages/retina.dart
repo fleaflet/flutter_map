@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
@@ -18,14 +19,11 @@ class RetinaPage extends StatefulWidget {
 
 class _RetinaPageState extends State<RetinaPage> {
   String urlTemplate = RetinaPage._defaultUrlTemplate;
-  final urlTemplateInputController = InputFieldStylizer(
-    {
-      '{r}': const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
-      '{accessToken}': const TextStyle(fontStyle: FontStyle.italic),
-      '{access_token}': const TextStyle(fontStyle: FontStyle.italic),
-    },
-    initialValue: RetinaPage._defaultUrlTemplate,
-  );
+  final urlTemplateInputController = InputFieldStylizer({
+    '{r}': const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+    '{accessToken}': const TextStyle(fontStyle: FontStyle.italic),
+    '{access_token}': const TextStyle(fontStyle: FontStyle.italic),
+  }, initialValue: RetinaPage._defaultUrlTemplate);
   String? accessToken;
 
   bool? retinaMode;
@@ -136,7 +134,8 @@ class _RetinaPageState extends State<RetinaPage> {
                             }
                           },
                           onSubmitted: (v) => setState(() => accessToken = v),
-                          enabled: urlTemplate.contains('{accessToken}') ||
+                          enabled:
+                              urlTemplate.contains('{accessToken}') ||
                               urlTemplate.contains('{access_token}'),
                           autofocus: true,
                           decoration: InputDecoration(
@@ -144,9 +143,11 @@ class _RetinaPageState extends State<RetinaPage> {
                             border: const UnderlineInputBorder(),
                             isDense: true,
                             labelText: 'Access Token',
-                            errorText: (urlTemplate.contains('{accessToken}') ||
-                                        urlTemplate
-                                            .contains('{access_token}')) &&
+                            errorText:
+                                (urlTemplate.contains('{accessToken}') ||
+                                        urlTemplate.contains(
+                                          '{access_token}',
+                                        )) &&
                                     (accessToken?.isEmpty ?? true)
                                 ? 'Insert your own access token (or remove the placeholder)'
                                 : null,
@@ -168,32 +169,71 @@ class _RetinaPageState extends State<RetinaPage> {
               ),
               children: [
                 if (accessToken?.isNotEmpty ?? true) tileLayer,
-                RichAttributionWidget(
-                  attributions: [
-                    LogoSourceAttribution(
-                      Image.asset(
-                        'assets/mapbox-logo-white.png',
-                        color: Colors.black,
+                SafeArea(
+                  child: ExpandableAttributionLayer(
+                    adjacentPersistentChild: Image.asset(
+                      'assets/mapbox-logo-white.png',
+                      color: Colors.black,
+                      height: 24,
+                    ),
+                    expandedBuilder: (context) => Text.rich(
+                      maxLines: 1,
+                      softWrap: false,
+                      TextSpan(
+                        children: [
+                          const TextSpan(text: '© '),
+                          TextSpan(
+                            text: 'Mapbox',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              decorationColor: DefaultTextStyle.of(
+                                context,
+                              ).style.color,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrl(
+                                Uri.parse('https://www.mapbox.com/about/maps/'),
+                              ),
+                          ),
+                          const TextSpan(text: ', © '),
+                          TextSpan(
+                            text: 'OpenStreetMap',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              decorationColor: DefaultTextStyle.of(
+                                context,
+                              ).style.color,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrl(
+                                Uri.parse(
+                                  'https://www.openstreetmap.org/copyright',
+                                ),
+                              ),
+                          ),
+                          const TextSpan(text: ' contributors | '),
+                          TextSpan(
+                            text: 'Improve this map',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              decorationColor: DefaultTextStyle.of(
+                                context,
+                              ).style.color,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrl(
+                                Uri.parse(
+                                  'https://apps.mapbox.com/feedback/#/'
+                                  '${MapCamera.of(context).center.longitude}'
+                                  '/${MapCamera.of(context).center.latitude}'
+                                  '/${MapCamera.of(context).zoom.round()}',
+                                ),
+                              ),
+                          ),
+                        ],
                       ),
-                      height: 16,
                     ),
-                    TextSourceAttribution(
-                      'Mapbox',
-                      onTap: () => launchUrl(
-                          Uri.parse('https://www.mapbox.com/about/maps/')),
-                    ),
-                    TextSourceAttribution(
-                      'OpenStreetMap',
-                      onTap: () => launchUrl(
-                          Uri.parse('https://www.openstreetmap.org/copyright')),
-                    ),
-                    TextSourceAttribution(
-                      'Improve this map',
-                      prependCopyright: false,
-                      onTap: () => launchUrl(
-                          Uri.parse('https://www.mapbox.com/map-feedback')),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -210,8 +250,8 @@ class InputFieldStylizer extends TextEditingController {
   final Pattern pattern;
 
   InputFieldStylizer(this.mapping, {String? initialValue})
-      : pattern = RegExp(mapping.keys.map(RegExp.escape).join('|')),
-        super(text: initialValue);
+    : pattern = RegExp(mapping.keys.map(RegExp.escape).join('|')),
+      super(text: initialValue);
 
   @override
   TextSpan buildTextSpan({

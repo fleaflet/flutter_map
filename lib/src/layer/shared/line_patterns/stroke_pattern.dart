@@ -9,9 +9,9 @@ import 'package:flutter_map/flutter_map.dart';
 class StrokePattern {
   /// Solid/unbroken
   const StrokePattern.solid()
-      : spacingFactor = null,
-        segments = null,
-        patternFit = null;
+    : spacingFactor = null,
+      segments = null,
+      patternFit = null;
 
   /// Circular dots, spaced with [spacingFactor]
   ///
@@ -21,8 +21,8 @@ class StrokePattern {
   const StrokePattern.dotted({
     double this.spacingFactor = 1.5,
     PatternFit this.patternFit = PatternFit.scaleUp,
-  })  : segments = null,
-        assert(spacingFactor > 0, 'spacingFactor must be > 0');
+  }) : segments = null,
+       assert(spacingFactor > 0, 'spacingFactor must be > 0');
 
   /// Elongated dashes, with length and spacing set by [segments]
   ///
@@ -34,16 +34,16 @@ class StrokePattern {
   const StrokePattern.dashed({
     required List<double> this.segments,
     PatternFit this.patternFit = PatternFit.scaleUp,
-  })  : assert(
-          segments.length >= 2,
-          '`segments` must contain at least two items',
-        ),
-        assert(
-          // ignore: use_is_even_rather_than_modulo
-          segments.length % 2 == 0,
-          '`segments` must have an even length',
-        ),
-        spacingFactor = null;
+  }) : assert(
+         segments.length >= 2,
+         '`segments` must contain at least two items',
+       ),
+       assert(
+         // ignore: use_is_even_rather_than_modulo
+         segments.length % 2 == 0,
+         '`segments` must have an even length',
+       ),
+       spacingFactor = null;
 
   /// The multiplier used to calculate the spacing between dots in a dotted
   /// polyline, with respect to [Polyline.strokeWidth]/
@@ -135,5 +135,5 @@ enum PatternFit {
   /// Uses the pattern exactly, truncating the final dash if it does not fit, or
   /// extending the final dash to the last point if it would not normally reach
   /// that point (there is a gap at that location).
-  extendFinalDash;
+  extendFinalDash,
 }

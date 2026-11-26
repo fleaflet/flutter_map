@@ -352,9 +352,12 @@ void main() {
     // Assert that batching works and all Polylines are drawn into the same
     // CustomPaint/Canvas.
     expect(
-        find.descendant(
-            of: find.byType(PolylineLayer), matching: find.byType(CustomPaint)),
-        findsOneWidget);
+      find.descendant(
+        of: find.byType(PolylineLayer),
+        matching: find.byType(CustomPaint),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('multicolor polyline renders without errors', (tester) async {

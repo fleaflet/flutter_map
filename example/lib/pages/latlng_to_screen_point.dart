@@ -27,10 +27,11 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance
-        .addPostFrameCallback((_) => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tap/click to set coordinate')),
-            ));
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) => ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tap/click to set coordinate')),
+      ),
+    );
   }
 
   @override
@@ -49,8 +50,9 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
                 flags: ~InteractiveFlag.doubleTapZoom,
               ),
               onTap: (_, latLng) {
-                final point = mapController.camera
-                    .latLngToScreenOffset(tappedCoords = latLng);
+                final point = mapController.camera.latLngToScreenOffset(
+                  tappedCoords = latLng,
+                );
                 setState(() => tappedPoint = Offset(point.dx, point.dy));
               },
             ),
@@ -68,7 +70,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
                         size: 10,
                         color: Colors.black,
                       ),
-                    )
+                    ),
                   ],
                 ),
             ],
@@ -84,7 +86,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
                   size: 60,
                 ),
               ),
-            )
+            ),
         ],
       ),
     );
